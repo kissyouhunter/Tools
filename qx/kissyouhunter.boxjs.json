@@ -6,7 +6,7 @@
   "repo": "https://github.com/kissyouhunter/Tools",
   "apps": [
     {
-      "id": "jddj_fruit", #备份passerby大佬 https://raw.githubusercontent.com/passerby-b/JDDJ/main/passerby-b.boxjs.json
+      "id": "jddj_fruit",
       "name": "京东到家果园任务",
       "keys": [
         "jddj_cookies"
@@ -216,7 +216,7 @@
       "script": "https://raw.githubusercontent.com/passerby-b/ks_fruit/main/ks_fruit.js"
     },
 	{
-      "id": "weibotalk", #备份evilbutcher大佬 https://raw.githubusercontent.com/evilbutcher/Quantumult_X/master/evilbutcher.boxjs.json
+      "id": "weibotalk",
       "name": "微博超话单账号",
       "descs_html": [
         "点此直达【<a href=\"https://raw.githubusercontent.com/evilbutcher/Quantumult_X/master/check_in/weibo/weibotalk.js\">脚本地址</a>】",
