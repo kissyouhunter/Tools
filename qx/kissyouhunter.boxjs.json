@@ -4,7 +4,7 @@
   "author": "@kissyouhunter",
   "icon": "https://raw.githubusercontent.com/kissyouhunter/Tools/main/icon/kiss.png",
   "repo": "https://github.com/kissyouhunter/Tools",
-   "apps": [
+  "apps": [
     {
       "id": "jddj_fruit",
       "name": "京东到家果园任务",
