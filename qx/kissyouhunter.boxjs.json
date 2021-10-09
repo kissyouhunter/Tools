@@ -1206,164 +1206,209 @@
         "<br />",
         "<h3 align=\"center\">签到相关教程</h3>",
         "<p align=\"center\"><iframe src=\"https://www.youtube.com/embed/6vMz1LKF1-8\" width=\"100%\" height=\"100%\"></iframe></p>"
-    ],
-    "settings": [{
-      "id": "JD_DailyBonusLog",
-      "name": "详细响应日志",
-      "val": false,
-      "type": "boolean",
-      "desc": "打印原始签到结果, 用于调试脚本, 一般用户建议关闭."
-    }, {
-      "id": "JD_Crash_disable",
-      "name": "崩溃自动禁用",
-      "val": true,
-      "type": "boolean",
-      "desc": "脚本运行崩溃时(如VPN断连), 下次运行时将自动禁用相关崩溃接口(仅部分接口启用), 注: 崩溃时可能会误禁用正常接口."
-    }, {
-      "id": "JD_Retry_disable",
-      "name": "签到接口增强",
-      "val": true,
-      "type": "boolean",
-      "desc": "用于部分接口提示\"不含活动数据\"问题, 开启后会进行二次查询, 注: 可能会导致崩溃(小概率)."
-    }, {
-      "id": "JD_Follow_disable",
-      "name": "自动关注店铺",
-      "val": true,
-      "type": "boolean",
-      "desc": "部分接口签到过程可能需要关注店铺, 如介意可选择关闭."
-    }, {
-      "id": "JD_DailyBonusDisables",
-      "name": "签到接口禁用",
-      "val": "",
-      "type": "checkboxes",
-      "desc": "",
-      "items": [{
-        "key": "JDBean",
-        "label": "京东京豆"
-      }, {
-        "key": "JRSteel",
-        "label": "金融钢镚"
-      }, {
-        "key": "JDTurn",
-        "label": "京东转盘"
-      }, {
-        "key": "JDGStore",
-        "label": "京东超市"
-      }, {
-        "key": "JDCard",
-        "label": "京东卡包"
-      }, {
-        "key": "JD3C",
-        "label": "京东数码"
-      }, {
-        "key": "JDSuitcase",
-        "label": "京东箱包"
-      }, {
-        "key": "JDChild",
-        "label": "京东童装"
-      }, {
-        "key": "JDBaby",
-        "label": "京东母婴"
-      }, {
-        "key": "JDCash",
-        "label": "京东红包"
-      }, {
-        "key": "JDFSale",
-        "label": "京东闪购"
-      }, {
-        "key": "JDBook",
-        "label": "京东图书"
-      }, {
-        "key": "JDStory",
-        "label": "失眠补贴"
-      }, {
-        "key": "JDPhone",
-        "label": "手机小时达"
-      }, {
-        "key": "JDSchool",
-        "label": "京东校园"
-      }, {
-        "key": "JDUndies",
-        "label": "京东内衣"
-      }, {
-        "key": "JDShoes",
-        "label": "京东鞋靴"
-      }, {
-        "key": "JDShand",
-        "label": "京东二手"
-      }, {
-        "key": "JDHealth",
-        "label": "京东健康"
-      }, {
-        "key": "JDWomen",
-        "label": "京东女装"
-      }, {
-        "key": "JDSecKill",
-        "label": "京东秒杀"
-      }, {
-        "key": "JTDouble",
-        "label": "金贴双签"
-      }, {
-        "key": "JDVege",
-        "label": "京东菜场"
-      }, {
-        "key": "JDClean",
-        "label": "京东清洁"
-      }, {
-        "key": "JDCare",
-        "label": "京东个护"
-      }, {
-        "key": "JDaccompany",
-        "label": "京东陪伴"
-      }, {
-        "key": "JDCube",
-        "label": "京东魔方"
-      }, {
-        "key": "JDJiaDian",
-        "label": "京东家电"
-      }, {
-        "key": "JDDouble",
-        "label": "京豆双签"
-      }, {
-        "key": "subsidy",
-        "label": "京东金贴"
-      }, {
-        "key": "JDGetCash",
-        "label": "京东现金"
-      }, {
-        "key": "JDShake",
-        "label": "京东摇一摇"
-      }, {
-        "key": "Qbear",
-        "label": "总京豆查询"
-      }, {
-        "key": "TCash",
-        "label": "总红包查询"
-      }, {
-        "key": "TSteel",
-        "label": "总钢镚查询"
-      }, {
-        "key": "TotalSubsidy",
-        "label": "总金贴查询"
-      }, {
-        "key": "TotalMoney",
-        "label": "总现金查询"
+      ],
+      "settings": [
+	  {
+        "id": "JD_DailyBonusLog",
+        "name": "详细响应日志",
+        "val": false,
+        "type": "boolean",
+        "desc": "打印原始签到结果, 用于调试脚本, 一般用户建议关闭."
+      },
+	  {
+        "id": "JD_Crash_disable",
+        "name": "崩溃自动禁用",
+        "val": true,
+        "type": "boolean",
+        "desc": "脚本运行崩溃时(如VPN断连), 下次运行时将自动禁用相关崩溃接口(仅部分接口启用), 注: 崩溃时可能会误禁用正常接口."
+      },
+	  {
+        "id": "JD_Retry_disable",
+        "name": "签到接口增强",
+        "val": true,
+        "type": "boolean",
+        "desc": "用于部分接口提示\"不含活动数据\"问题, 开启后会进行二次查询, 注: 可能会导致崩溃(小概率)."
+      },
+	  {
+        "id": "JD_Follow_disable",
+        "name": "自动关注店铺",
+        "val": true,
+        "type": "boolean",
+        "desc": "部分接口签到过程可能需要关注店铺, 如介意可选择关闭."
+      },
+	  {
+        "id": "JD_DailyBonusDisables",
+        "name": "签到接口禁用",
+        "val": "",
+        "type": "checkboxes",
+        "desc": "",
+        "items": [
+		  {
+            "key": "JDBean",
+            "label": "京东京豆"
+          },
+		  {
+            "key": "JRSteel",
+            "label": "金融钢镚"
+          },
+		  {
+            "key": "JDTurn",
+            "label": "京东转盘"
+          },
+		  {
+            "key": "JDGStore",
+            "label": "京东超市"
+          },
+		  {
+            "key": "JDCard",
+            "label": "京东卡包"
+          },
+		  {
+            "key": "JD3C",
+            "label": "京东数码"
+          },
+		  {
+            "key": "JDSuitcase",
+            "label": "京东箱包"
+          },
+		  {
+            "key": "JDChild",
+            "label": "京东童装"
+          },
+		  {
+            "key": "JDBaby",
+            "label": "京东母婴"
+          },
+		  {
+            "key": "JDCash",
+            "label": "京东红包"
+          },
+		  {
+            "key": "JDFSale",
+            "label": "京东闪购"
+          },
+		  {
+            "key": "JDBook",
+            "label": "京东图书"
+          },
+		  {
+            "key": "JDStory",
+            "label": "失眠补贴"
+          },
+		  {
+            "key": "JDPhone",
+            "label": "手机小时达"
+          },
+		  {
+            "key": "JDSchool",
+            "label": "京东校园"
+          },
+		  {
+            "key": "JDUndies",
+            "label": "京东内衣"
+          },
+		  {
+            "key": "JDShoes",
+            "label": "京东鞋靴"
+          },
+		  {
+            "key": "JDShand",
+            "label": "京东二手"
+          },
+		  {
+            "key": "JDHealth",
+            "label": "京东健康"
+          },
+		  {
+            "key": "JDWomen",
+            "label": "京东女装"
+          },
+		  {
+            "key": "JDSecKill",
+            "label": "京东秒杀"
+          },
+		  {
+            "key": "JTDouble",
+            "label": "金贴双签"
+          },
+		  {
+            "key": "JDVege",
+            "label": "京东菜场"
+          },
+		  {
+            "key": "JDClean",
+            "label": "京东清洁"
+          },
+		  {
+            "key": "JDCare",
+            "label": "京东个护"
+          },
+		  {
+            "key": "JDaccompany",
+            "label": "京东陪伴"
+          },
+		  {
+            "key": "JDCube",
+            "label": "京东魔方"
+          },
+		  {
+            "key": "JDJiaDian",
+            "label": "京东家电"
+          },
+		  {
+            "key": "JDDouble",
+            "label": "京豆双签"
+          },
+		  {
+            "key": "subsidy",
+            "label": "京东金贴"
+          },
+		  {
+            "key": "JDGetCash",
+            "label": "京东现金"
+          },
+		  {
+            "key": "JDShake",
+            "label": "京东摇一摇"
+          },
+		  {
+            "key": "Qbear",
+            "label": "总京豆查询"
+          },
+		  {
+            "key": "TCash",
+            "label": "总红包查询"
+          },
+		  {
+            "key": "TSteel",
+            "label": "总钢镚查询"
+          },
+		  {
+            "key": "TotalSubsidy",
+            "label": "总金贴查询"
+          },
+		  {
+            "key": "TotalMoney",
+            "label": "总现金查询"
       }]
-    }, {
+    }, 
+	{
       "id": "JD_DailyBonusTimeOut",
       "name": "超时退出 (毫秒)",
       "val": "",
       "type": "number",
       "placeholder": "默认无超时 (点击以展开说明)",
       "desc": "按需填写, 用于由网络不稳定引起的脚本中断, 正常或越狱用户建议留空. 如QX日志出现大量\"JS Context timeout\"后脚本中断时, 建议填写6000"
-    }, {
+    }, 
+	{
       "id": "JD_DailyBonusDelay",
       "name": "接口延迟 (毫秒)",
       "val": "",
       "type": "number",
       "placeholder": "默认并发无延迟 (点击以展开说明)",
       "desc": "延迟作用于每个签到接口, 该参数接受随机或指定延迟(例: '2000'则表示延迟2秒; '2000-5000'则表示延迟最小2秒,最大5秒内的随机延迟), 如填入延迟则切换顺序签到(耗时较长); VPN重启或越狱用户建议填写1(顺序执行), Surge用户请注意在SurgeUI界面调整脚本超时."
-    }, {
+    }, 
+	{
       "id": "CookiesJD",
       "name": "Cookie列表",
       "val": "",
@@ -1384,12 +1429,13 @@
     "author": "@NobyDa",
     "repo": "https://github.com/NobyDa/Script/tree/master/JD-DailyBonus",
     "icons": ["https://raw.githubusercontent.com/NobyDa/mini/master/Alpha/jd.png", "https://raw.githubusercontent.com/NobyDa/mini/master/Color/jd.png"]
-  }, {
-    "id": "iQIYI",
-    "name": "爱奇艺",
-    "keys": ["CookieQY"],
-    "descs_html": [
-      "<h4 align=\"center\">获取Cookie以及脚本配置请查看<a href=\"https://raw.githubusercontent.com/NobyDa/Script/master/iQIYI-DailyBonus/iQIYI.js\">脚本注释</a></h4>"
+    }, 
+	{
+      "id": "iQIYI",
+      "name": "爱奇艺",
+      "keys": ["CookieQY"],
+      "descs_html": [
+        "<h4 align=\"center\">获取Cookie以及脚本配置请查看<a href=\"https://raw.githubusercontent.com/NobyDa/Script/master/iQIYI-DailyBonus/iQIYI.js\">脚本注释</a></h4>"
     ],
     "settings": [{
       "id": "iQIYI_LogDetails",
