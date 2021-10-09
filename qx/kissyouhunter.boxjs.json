@@ -3,7 +3,7 @@
   "name": "kiss脚本订阅备份大佬们的",
   "author": "@kissyouhunter",
   "icon": "https://raw.githubusercontent.com/kissyouhunter/Tools/main/icon/kiss.png",
-  "repo": "https://gitee.com/passerby-b/javascript/raw/master/JD/passerby-b.boxjs.json",
+  "repo": "https://github.com/kissyouhunter/Tools",
   "apps": [
     {
       "id": "jddj_fruit",
