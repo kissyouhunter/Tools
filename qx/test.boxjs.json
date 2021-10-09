@@ -565,15 +565,6 @@
       ],
       "script": "https://raw.githubusercontent.com/chavyleung/scripts/master/everphoto/everphoto.js"
     }
-  ]
-},
-{
-  "id": "kiss.app.sub", 
-  "author": "@kissyouhunter", 
-  "icon": "https://raw.githubusercontent.com/kissyouhunter/Tools/main/icon/kiss.png", 
-  "name": "kiss备份Sunert签到应用订阅", 
-  "repo": "https://github.com/kissyouhunter/Tools", 
-  "apps": [
     {
       "author": "@sunert", 
       "descs_html": [
