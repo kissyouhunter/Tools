@@ -1,4 +1,4 @@
-### Usage
+### Usage forked from qiangxinglin
 > Quantumult X
 ```
 [rewrite_remote]
