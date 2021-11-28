@@ -626,7 +626,7 @@ TIME l "<注>openwrt宿主机默认安装dockerman图形docker管理工具！"
             #exit 1
         else
             TIME y " >>>>>>>>>>>开始安装docker"
-            apt update && apt install curl -y
+            #apt update && apt install curl -y
             curl -fsSL https://get.docker.com -o get-docker.sh
             sh get-docker.sh
             docker -v
@@ -641,7 +641,7 @@ TIME l "<注>openwrt宿主机默认安装dockerman图形docker管理工具！"
     if [ -x "$(command -v docker)" ]; then
         echo "检测到 Docker 已安装!"
         TIME y " >>>>>>>>>>>开始安装docker-compose"
-        apt update && apt install curl -y
+        #apt update && apt install curl -y
         curl -L "https://github.com/docker/compose/releases/download/v2.0.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
         chmod +x /usr/local/bin/docker-compose
         docker-compose -v
