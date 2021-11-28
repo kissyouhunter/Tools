@@ -68,16 +68,145 @@ echo "        安装过程中可以按ctrl+c强制退出"
 echo "============================================"
 cat << EOF
 ----------------------------------------
-(1) 安装<青龙>到宿主机
-(2) 安装<elecv2p>到宿主机
-(3) 安装portainer(docker图形管理工具)
-(4) 安装docker和docker-compose
+(1) 安装docker和docker-compose
+(2) 安装<青龙>到宿主机
+(3) 安装<elecv2p>到宿主机
+(4) 安装portainer(docker图形管理工具)
 (0) 不想安装了，给老子退出！！！
 EOF
 read -p "Please enter your choice[0-4]: " input
 case $input in
-#安装青龙
+#安装docker and docker-compose
 1)
+clear
+while [ "$flag" -eq 0 ]
+do
+cat << EOF
+----------------------------------------
+|****Please Enter Your Choice:[0-5]****|
+|********DOCKER & DOCKER-COMPOSE*******|
+----------------------------------------
+(1) 安装docker和docker-comopse
+(2) 只安装docker
+(3) 只装docker-comopse(注：宿主机上必须安装有docker才可以使用docker-compose)
+(4) X86 openwrt安装docker和装docker-comopse
+(5) Arm64 openwrt安装docker和装docker-comopse(例 N1 等)
+(0) 返回上级菜单
+EOF
+TIME l "<注>openwrt宿主机默认安装dockerman图形docker管理工具！"
+ read -p "Please enter your Choice[0-5]: " input1
+ case $input1 in 
+ 1)
+    echo "检测 Docker......"
+    if [ -x "$(command -v docker)" ]; then
+        echo "检测到 Docker 已安装!"
+    else
+        if [ -r /etc/os-release ]; then
+            lsb_dist="$(. /etc/os-release && echo "$ID")"
+        fi
+        if [ $lsb_dist == "openwrt" ]; then
+            TIME r "****openwrt宿主机请选择4或者5安装docker****"
+            #exit 1
+        else
+            TIME y " >>>>>>>>>>>开始安装docker&docker-compose"
+            bash <(curl -s -S -L https://raw.githubusercontent.com/kissyouhunter/Tools/main/install-docker.sh)
+            systemctl enable docker
+            systemctl start docker
+            TIME g "****docker和docker-compose安装完成，请返回上级菜单!****"
+	    sleep 5
+        fi
+    fi
+  ;;
+ 2)
+    echo "检测 Docker......"
+    if [ -x "$(command -v docker)" ]; then
+        echo "检测到 Docker 已安装!"
+    else
+        if [ -r /etc/os-release ]; then
+            lsb_dist="$(. /etc/os-release && echo "$ID")"
+        fi
+        if [ $lsb_dist == "openwrt" ]; then
+            TIME r "****openwrt宿主机请选择4或者5安装docker****"
+            #exit 1
+        else
+            TIME y " >>>>>>>>>>>开始安装docker"
+            #apt update && apt install curl -y
+            curl -fsSL https://get.docker.com -o get-docker.sh
+            sh get-docker.sh
+            docker -v
+            systemctl enable docker
+            systemctl start docker
+            TIME g "****docker安装完成，请返回上级菜单!****"
+	    sleep 5
+        fi
+    fi
+  ;;
+ 3)
+    echo "检测 Docker......"
+    if [ -x "$(command -v docker)" ]; then
+        echo "检测到 Docker 已安装!"
+        TIME y " >>>>>>>>>>>开始安装docker-compose"
+        #apt update && apt install curl -y
+        curl -L "https://github.com/docker/compose/releases/download/v2.0.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+        chmod +x /usr/local/bin/docker-compose
+        docker-compose -v
+        TIME g "****docker-compose安装完成，请返回上级菜单!****"
+	sleep 5
+    else
+        if [ -r /etc/os-release ]; then
+            lsb_dist="$(. /etc/os-release && echo "$ID")"
+        fi
+        if [ $lsb_dist == "openwrt" ]; then
+            TIME r "****openwrt宿主机请选择4或者5安装docker****"
+            #exit 1
+        elif [ -x "$(command -v docker-compose)" ]; then
+              echo "宿主机上已存在docker-compose"
+        else
+            TIME y " >>>>>>>>>>>开始安装docker&docker-compose"
+            bash <(curl -s -S -L https://raw.githubusercontent.com/kissyouhunter/Tools/main/install-docker.sh)
+            systemctl enable docker
+            systemctl start docker
+            TIME g "****docker和docker-compose安装完成，请返回上级菜单!****"
+	    sleep 5
+        fi
+    fi
+  ;;
+ 4)
+    TIME y " >>>>>>>>>>>开始为X86 openwrt安装docker和docker-compose"
+    curl -fsSL https://github.com/gd0772/AutoBuild-OpenWrt/releases/download/AutoUpdate/docker_2.1.0-1_x86_64.zip -o /tmp//upload/docker.zip
+    cd /tmp/upload/ && unzip docker.zip && rm -f docker.zip
+    cd /tmp/upload/ && opkg install *.ipk && rm -f *.ipk
+    TIME g "****docker安装完成，请返回上级菜单!****"
+    sleep 5
+  ;;
+ 5)
+    TIME y " >>>>>>>>>>>开始为Arm64 openwrt安装docker和docker-compose"
+    curl -fsSL https://github.com/kissyouhunter/Openwrt_X86-Openwrt_N1-Armbian_N1/releases/download/openwrt_n1/docker-armv8.zip -o /tmp//upload/docker.zip
+    cd /tmp/upload/ && unzip docker.zip && rm -f docker.zip
+    cd /tmp/upload/ && opkg install *.ipk && rm -f *.ipk
+    TIME g "****docker安装完成，请返回上级菜单!****"
+    sleep 5
+  ;;
+ 0) 
+ clear 
+ break
+ ;;
+ *) TIME r "----------------------------------"
+    TIME r "|          Warning!!!            |"
+    TIME r "|       请输入正确的选项!        |"
+    TIME r "----------------------------------"
+ for i in `seq -w 3 -1 1`
+   do
+     echo -ne "$i";
+     sleep 1;
+   done
+ clear
+ ;;
+ esac
+ done
+;;
+#安装青龙
+2)
 clear
 while [ "$flag" -eq 0 ]
 do
@@ -91,8 +220,8 @@ cat << EOF
 (0) 返回上级菜单
 EOF
 TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按回车！"
- read -p "Please enter your choice[0-3]: " input1
- case $input1 in 
+ read -p "Please enter your choice[0-3]: " input2
+ case $input2 in 
  1)
   TIME y " >>>>>>>>>>>开始安装青龙"
     # 创建映射文件夹
@@ -298,7 +427,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
  done
 ;;
 #安装elecv2p
-2)
+3)
 clear
 while [ "$flag" -eq 0 ]
 do
@@ -312,8 +441,8 @@ cat << EOF
 (0) 返回上级菜单
 EOF
 TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按回车！"
- read -p "Please enter your Choice[0-2]: " input2
- case $input2 in 
+ read -p "Please enter your Choice[0-2]: " input3
+ case $input3 in 
  1)
   TIME y " >>>>>>>>>>>开始安装elecv2p"
   # 创建映射文件夹
@@ -523,7 +652,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
  done
 ;;
 #安装portainer
-3)
+4)
 clear
 while [ "$flag" -eq 0 ]
 do
@@ -535,8 +664,8 @@ cat << EOF
 (1) 安装portianer
 (0) 返回上级菜单
 EOF
- read -p "Please enter your Choice[0-1]: " input3
- case $input3 in 
+ read -p "Please enter your Choice[0-1]: " input4
+ case $input4 in 
  1)
     TIME y " >>>>>>>>>>>开始安装portainer"
     docker volume create portainer_data
@@ -573,133 +702,7 @@ EOF
  esac
  done
 ;;
-#安装docker and docker-compose
-4)
-clear
-while [ "$flag" -eq 0 ]
-do
-cat << EOF
-----------------------------------------
-|****Please Enter Your Choice:[0-5]****|
-|********DOCKER & DOCKER-COMPOSE*******|
-----------------------------------------
-(1) 安装docker和docker-comopse
-(2) 只安装docker
-(3) 只装docker-comopse(注：宿主机上必须安装有docker才可以使用docker-compose)
-(4) X86 openwrt安装docker和装docker-comopse
-(5) Arm64 openwrt安装docker和装docker-comopse(例 N1 等)
-(0) 返回上级菜单
-EOF
-TIME l "<注>openwrt宿主机默认安装dockerman图形docker管理工具！"
- read -p "Please enter your Choice[0-5]: " input4
- case $input4 in 
- 1)
-    echo "检测 Docker......"
-    if [ -x "$(command -v docker)" ]; then
-        echo "检测到 Docker 已安装!"
-    else
-        if [ -r /etc/os-release ]; then
-            lsb_dist="$(. /etc/os-release && echo "$ID")"
-        fi
-        if [ $lsb_dist == "openwrt" ]; then
-            TIME r "****openwrt宿主机请选择4或者5安装docker****"
-            #exit 1
-        else
-            TIME y " >>>>>>>>>>>开始安装docker&docker-compose"
-            bash <(curl -s -S -L https://raw.githubusercontent.com/kissyouhunter/Tools/main/install-docker.sh)
-            systemctl enable docker
-            systemctl start docker
-            TIME g "****docker和docker-compose安装完成，请返回上级菜单!****"
-	    sleep 10
-        fi
-    fi
-  ;;
- 2)
-    echo "检测 Docker......"
-    if [ -x "$(command -v docker)" ]; then
-        echo "检测到 Docker 已安装!"
-    else
-        if [ -r /etc/os-release ]; then
-            lsb_dist="$(. /etc/os-release && echo "$ID")"
-        fi
-        if [ $lsb_dist == "openwrt" ]; then
-            TIME r "****openwrt宿主机请选择4或者5安装docker****"
-            #exit 1
-        else
-            TIME y " >>>>>>>>>>>开始安装docker"
-            #apt update && apt install curl -y
-            curl -fsSL https://get.docker.com -o get-docker.sh
-            sh get-docker.sh
-            docker -v
-            systemctl enable docker
-            systemctl start docker
-            TIME g "****docker安装完成，请返回上级菜单!****"
-	    sleep 10
-        fi
-    fi
-  ;;
- 3)
-    echo "检测 Docker......"
-    if [ -x "$(command -v docker)" ]; then
-        echo "检测到 Docker 已安装!"
-        TIME y " >>>>>>>>>>>开始安装docker-compose"
-        #apt update && apt install curl -y
-        curl -L "https://github.com/docker/compose/releases/download/v2.0.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-        chmod +x /usr/local/bin/docker-compose
-        docker-compose -v
-        TIME g "****docker-compose安装完成，请返回上级菜单!****"
-	sleep 10
-    else
-        if [ -r /etc/os-release ]; then
-            lsb_dist="$(. /etc/os-release && echo "$ID")"
-        fi
-        if [ $lsb_dist == "openwrt" ]; then
-            TIME r "****openwrt宿主机请选择4或者5安装docker****"
-            #exit 1
-        else
-            TIME y " >>>>>>>>>>>开始安装docker&docker-compose"
-            bash <(curl -s -S -L https://raw.githubusercontent.com/kissyouhunter/Tools/main/install-docker.sh)
-            systemctl enable docker
-            systemctl start docker
-            TIME g "****docker和docker-compose安装完成，请返回上级菜单!****"
-	    sleep 10
-        fi
-    fi
-  ;;
- 4)
-    TIME y " >>>>>>>>>>>开始为X86 openwrt安装docker和docker-compose"
-    curl -fsSL https://github.com/gd0772/AutoBuild-OpenWrt/releases/download/AutoUpdate/docker_2.1.0-1_x86_64.zip -o /tmp//upload/docker.zip
-    cd /tmp/upload/ && unzip docker.zip && rm -f docker.zip
-    cd /tmp/upload/ && opkg install *.ipk && rm -f *.ipk
-    TIME g "****docker安装完成，请返回上级菜单!****"
-    sleep 10
-  ;;
- 5)
-    TIME y " >>>>>>>>>>>开始为Arm64 openwrt安装docker和docker-compose"
-    curl -fsSL https://github.com/kissyouhunter/Openwrt_X86-Openwrt_N1-Armbian_N1/releases/download/openwrt_n1/docker-armv8.zip -o /tmp//upload/docker.zip
-    cd /tmp/upload/ && unzip docker.zip && rm -f docker.zip
-    cd /tmp/upload/ && opkg install *.ipk && rm -f *.ipk
-    TIME g "****docker安装完成，请返回上级菜单!****"
-    sleep 10
-  ;;
- 0) 
- clear 
- break
- ;;
- *) TIME r "----------------------------------"
-    TIME r "|          Warning!!!            |"
-    TIME r "|       请输入正确的选项!        |"
-    TIME r "----------------------------------"
- for i in `seq -w 3 -1 1`
-   do
-     echo -ne "$i";
-     sleep 1;
-   done
- clear
- ;;
- esac
- done
-;;
+
 0)
 clear
 exit 0
