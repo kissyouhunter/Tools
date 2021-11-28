@@ -52,7 +52,7 @@ cat << EOF
 (1) 安装<青龙>到宿主机
 (2) 安装<elecv2p>到宿主机
 (3) 安装portainer(docker图形管理工具)
-(4) 安装docker和docker-compose，不支持openwrt！！！
+(4) 安装docker和docker-compose
 (0) 不想安装了，给老子退出！！！
 EOF
 read -p "Please enter your choice[0-4]: " input
