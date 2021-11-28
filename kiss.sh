@@ -634,6 +634,12 @@ EOF
         if [ $lsb_dist == "openwrt" ]; then
             echo "openwrt 环境请自行安装 docker"
             exit 1
+        else
+            echo -e " >>>>>>>>>>>开始安装docker&docker-compose"
+            bash <(curl -s -S -L https://raw.githubusercontent.com/kissyouhunter/Tools/main/install-docker.sh)
+            systemctl enable docker
+            systemctl start docker
+            echo "docker和docker-compose安装完成，请返回上级菜单!"
         fi
     fi
   ;;
