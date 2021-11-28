@@ -356,7 +356,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
       read V2P_PORT
   fi
   # ANYPROXY端口
-  inp "是否修改elecv2p的anyproxy端口[默认 8102]：\n1) 修改\n2) 不修改[默认]"
+  inp "是否修改elecv2p的anyproxy端口[默认 8101]：\n1) 修改\n2) 不修改[默认]"
   opt
   read change_v2p_port1
   if [ "$change_v2p_port1" = "1" ]; then
@@ -451,7 +451,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
       read V2P_PORT
   fi
   # ANYPROXY端口
-  inp "是否修改elecv2p的anyproxy端口[默认 8102]：\n1) 修改\n2) 不修改[默认]"
+  inp "是否修改elecv2p的anyproxy端口[默认 8101]：\n1) 修改\n2) 不修改[默认]"
   opt
   read change_v2p_port1
   if [ "$change_v2p_port1" = "1" ]; then
