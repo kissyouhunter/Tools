@@ -610,6 +610,7 @@ TIME l "<注>openwrt宿主机默认安装dockerman图形docker管理工具！"
             systemctl enable docker
             systemctl start docker
             TIME g "****docker和docker-compose安装完成，请返回上级菜单!****"
+	    sleep 10
         fi
     fi
   ;;
@@ -633,6 +634,7 @@ TIME l "<注>openwrt宿主机默认安装dockerman图形docker管理工具！"
             systemctl enable docker
             systemctl start docker
             TIME g "****docker安装完成，请返回上级菜单!****"
+	    sleep 10
         fi
     fi
   ;;
@@ -646,6 +648,7 @@ TIME l "<注>openwrt宿主机默认安装dockerman图形docker管理工具！"
         chmod +x /usr/local/bin/docker-compose
         docker-compose -v
         TIME g "****docker-compose安装完成，请返回上级菜单!****"
+	sleep 10
     else
         if [ -r /etc/os-release ]; then
             lsb_dist="$(. /etc/os-release && echo "$ID")"
@@ -659,6 +662,7 @@ TIME l "<注>openwrt宿主机默认安装dockerman图形docker管理工具！"
             systemctl enable docker
             systemctl start docker
             TIME g "****docker和docker-compose安装完成，请返回上级菜单!****"
+	    sleep 10
         fi
     fi
   ;;
@@ -668,6 +672,7 @@ TIME l "<注>openwrt宿主机默认安装dockerman图形docker管理工具！"
     cd /tmp/upload/ && unzip docker.zip && rm -f docker.zip
     cd /tmp/upload/ && opkg install *.ipk && rm -f *.ipk
     TIME g "****docker安装完成，请返回上级菜单!****"
+    sleep 10
   ;;
  5)
     TIME y " >>>>>>>>>>>开始为Arm64 openwrt安装docker和docker-compose"
@@ -675,6 +680,7 @@ TIME l "<注>openwrt宿主机默认安装dockerman图形docker管理工具！"
     cd /tmp/upload/ && unzip docker.zip && rm -f docker.zip
     cd /tmp/upload/ && opkg install *.ipk && rm -f *.ipk
     TIME g "****docker安装完成，请返回上级菜单!****"
+    sleep 10
   ;;
  0) 
  clear 
