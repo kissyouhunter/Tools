@@ -561,7 +561,7 @@ while [ "$flag" -eq 0 ]
 do
 cat << EOF
 ----------------------------------------
-|****Please Enter Your Choice:[0-3]****|
+|****Please Enter Your Choice:[0-5]****|
 |********DOCKER & DOCKER-COMPOSE*******|
 ----------------------------------------
 (1) 安装docker和docker-comopse
@@ -572,7 +572,7 @@ cat << EOF
 (0) 返回上级菜单
 <注>openwrt宿主机默认安装dockerman图形docker管理工具！
 EOF
- read -p "Please enter your Choice[0-1]: " input4
+ read -p "Please enter your Choice[0-5]: " input4
  case $input4 in 
  1)
     echo "检测 Docker......"
@@ -590,7 +590,7 @@ EOF
             bash <(curl -s -S -L https://raw.githubusercontent.com/kissyouhunter/Tools/main/install-docker.sh)
             systemctl enable docker
             systemctl start docker
-            echo "docker和docker-compose安装完成，请返回上级菜单!"
+            echo -n -e "\e[32m****docker和docker-compose安装完成，请返回上级菜单!****\e[0m"
         fi
     fi
   ;;
@@ -613,7 +613,7 @@ EOF
             docker -v
             systemctl enable docker
             systemctl start docker
-            echo "docker安装完成，请返回上级菜单!"
+            echo -n -e "\e[32m****docker安装完成，请返回上级菜单!****\e[0m"
         fi
     fi
   ;;
@@ -626,7 +626,7 @@ EOF
         curl -L "https://github.com/docker/compose/releases/download/v2.0.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
         chmod +x /usr/local/bin/docker-compose
         docker-compose -v
-        echo "docker-compose安装完成，请返回上级菜单!"
+        echo -n -e "\e[32m****docker-compose安装完成，请返回上级菜单!****\e[0m"
     else
         if [ -r /etc/os-release ]; then
             lsb_dist="$(. /etc/os-release && echo "$ID")"
@@ -639,7 +639,7 @@ EOF
             bash <(curl -s -S -L https://raw.githubusercontent.com/kissyouhunter/Tools/main/install-docker.sh)
             systemctl enable docker
             systemctl start docker
-            echo "docker和docker-compose安装完成，请返回上级菜单!"
+            echo -n -e "\e[32m****docker和docker-compose安装完成，请返回上级菜单!****\e[0m"
         fi
     fi
   ;;
@@ -648,14 +648,14 @@ EOF
     curl -fsSL https://github.com/gd0772/AutoBuild-OpenWrt/releases/download/AutoUpdate/docker_2.1.0-1_x86_64.zip -o /tmp//upload/docker.zip
     cd /tmp/upload/ && unzip docker.zip && rm -f docker.zip
     cd /tmp/upload/ && opkg install *.ipk && rm -f *.ipk
-    echo "docker安装完成，请返回上级菜单!"
+    echo -n -e "\e[32m****docker安装完成，请返回上级菜单!****\e[0m"
   ;;
  5)
     echo -e " >>>>>>>>>>>开始为Arm64 openwrt安装docker和docker-compose"
     curl -fsSL https://github.com/kissyouhunter/Openwrt_X86-Openwrt_N1-Armbian_N1/releases/download/openwrt_n1/docker-armv8.zip -o /tmp//upload/docker.zip
     cd /tmp/upload/ && unzip docker.zip && rm -f docker.zip
     cd /tmp/upload/ && opkg install *.ipk && rm -f *.ipk
-    echo "docker安装完成，请返回上级菜单!"
+    echo -n -e "\e[32m****docker安装完成，请返回上级菜单!****\e[0m"
   ;;
  0) 
  clear 
