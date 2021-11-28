@@ -567,8 +567,10 @@ cat << EOF
 (1) 安装docker和docker-comopse
 (2) 只安装docker
 (3) 只装docker-comopse(注：宿主机上必须安装有docker才可以使用docker-compose)
+(4) X86 openwrt安装docker和装docker-comopse
+(5) Arm64 openwrt安装docker和装docker-comopse(例 N1 等)
 (0) 返回上级菜单
-<注>openwrt和群辉用户不要用此脚本！
+<注>openwrt宿主机默认安装dockerman图形docker管理工具！
 EOF
  read -p "Please enter your Choice[0-1]: " input4
  case $input4 in 
@@ -634,6 +636,20 @@ EOF
             exit 1
         fi
     fi
+  ;;
+ 4)
+    echo -e " >>>>>>>>>>>开始为X86 openwrt安装docker和docker-compose"
+    curl -fsSL https://github.com/gd0772/AutoBuild-OpenWrt/releases/download/AutoUpdate/docker_2.1.0-1_x86_64.zip -o /tmp//upload/docker.zip
+    cd /tmp/upload/ && unzip docker.zip && rm -f docker.zip
+    cd /tmp/upload/ && opkg install *.ipk && rm -f *.ipk
+    echo "docker安装完成，请返回上级菜单!"
+  ;;
+ 5)
+    echo -e " >>>>>>>>>>>开始为Arm64 openwrt安装docker和docker-compose"
+    curl -fsSL https://github.com/kissyouhunter/Openwrt_X86-Openwrt_N1-Armbian_N1/releases/download/openwrt_n1/docker-armv8.zip -o /tmp//upload/docker.zip
+    cd /tmp/upload/ && unzip docker.zip && rm -f docker.zip
+    cd /tmp/upload/ && opkg install *.ipk && rm -f *.ipk
+    echo "docker安装完成，请返回上级菜单!"
   ;;
  0) 
  clear 
