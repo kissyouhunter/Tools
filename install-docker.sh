@@ -8,7 +8,7 @@
 #rm -f /etc/apt/sources.list.save
 #rm -f /etc/apt/*.gpg~
 
-apt update && apt install curl -y
+#apt update && apt install curl -y
 curl -fsSL https://get.docker.com -o get-docker.sh
 sh get-docker.sh
 docker -v
