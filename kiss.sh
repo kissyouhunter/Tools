@@ -41,10 +41,29 @@ cancelrun() {
     exit 1
 }
 
+
+TIME() {
+[[ -z "$1" ]] && {
+	echo -ne " "
+} || {
+     case $1 in
+	r) export Color="\e[31;1m";;
+	g) export Color="\e[32;1m";;
+	b) export Color="\e[34;1m";;
+	y) export Color="\e[33;1m";;
+	z) export Color="\e[35;1m";;
+	l) export Color="\e[36;1m";;
+      esac
+	[[ $# -lt 2 ]] && echo -e "\e[36m\e[0m ${1}" || {
+		echo -e "\e[36m\e[0m ${Color}${2}\e[0m"
+	 }
+      }
+}
+
 echo "============================================"
 echo "              欢迎使用一键脚本"
 echo "             请按照命令提示操作"
-echo "           请保证科学上网已经开启"
+TIME r "           请保证科学上网已经开启"
 echo "        安装过程中可以按ctrl+c强制退出"
 echo "============================================"
 cat << EOF
@@ -70,12 +89,12 @@ cat << EOF
 (1) linxu系统、X86的openwrt、群辉等请选择 1
 (2) N1的EMMC上运行的openwrt请选择 2
 (0) 返回上级菜单
-<注>选择1或2后，如果不明白如何选择或输入，请狂按回车！
 EOF
+TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按回车！"
  read -p "Please enter your choice[0-3]: " input1
  case $input1 in 
  1)
-  echo -e " >>>>>>>>>>>开始安装青龙"
+  TIME y " >>>>>>>>>>>开始安装青龙"
     # 创建映射文件夹
   echo -e "请输入青龙配置文件保存的绝对路径（示例：/home/ql)，回车默认为当前目录:"
   read jd_path
@@ -127,7 +146,7 @@ EOF
       fi
   fi
 
-  echo -e " >>>>>>>>>>>配置完成，开始安装青龙"
+  TIME y " >>>>>>>>>>>配置完成，开始安装青龙"
   log "1.开始创建配置文件目录"
   PATH_LIST=($CONFIG_PATH $DB_PATH $REPO_PATH $SCRIPT_PATH $LOG_PATH $DEPS_PATH)
   for i in ${PATH_LIST[@]}; do
@@ -158,17 +177,17 @@ EOF
 
       log "列出所有宿主机上的容器"
       docker ps -a
-    echo -n -e "\e[32m-----------------------------------------------------\e[0m"
-    echo -n -e "\e[32m|        青龙启动需要一点点时间，请耐心等待！       \e[0m|"
+    TIME g "-----------------------------------------------------"
+    TIME g "|        青龙启动需要一点点时间，请耐心等待！       |"
     sleep 10
-    echo -n -e "\e[32m|             安装完成，自动退出脚本                \e[0m|"
-    echo -n -e "\e[32m|   青龙默认端口为5700，如有修改请访问修改后的端口  \e[0m|"
-    echo -n -e "\e[32m|    访问方式为宿主机ip:端口(例192.168.2.1:5700)    \e[0m|"
-    echo -n -e "\e[32m-----------------------------------------------------\e[0m"  
+    TIME g "|             安装完成，自动退出脚本                |"
+    TIME g "|   青龙默认端口为5700，如有修改请访问修改后的端口  |"
+    TIME g "|    访问方式为宿主机ip:端口(例192.168.2.1:5700)    |"
+    TIME g "-----------------------------------------------------"  
   exit 0
   ;;
  2)  
-  echo -e " >>>>>>>>>>>开始安装青龙到N1的/mnt/mmcblk2p4/"
+  TIME y " >>>>>>>>>>>开始安装青龙到N1的/mnt/mmcblk2p4/"
   # 创建映射文件夹
   echo -e "请输入青龙存储的文件夹名称（如：ql)，回车默认为ql"
   read jd_path
@@ -220,7 +239,7 @@ EOF
       fi
   fi
 
-  echo -e " >>>>>>>>>>>配置完成，开始安装青龙"
+  TIME y " >>>>>>>>>>>配置完成，开始安装青龙"
   log "1.开始创建配置文件目录"
   PATH_LIST=($CONFIG_PATH $DB_PATH $REPO_PATH $SCRIPT_PATH $LOG_PATH $DEPS_PATH)
   for i in ${PATH_LIST[@]}; do
@@ -251,23 +270,23 @@ EOF
 
       log "列出所有宿主机上的容器"
       docker ps -a
-    echo "-----------------------------------------------------"
-    echo "|        青龙启动需要一点点时间，请耐心等待！       |"
+    TIME g "-----------------------------------------------------"
+    TIME g "|        青龙启动需要一点点时间，请耐心等待！       |"
     sleep 10
-    echo "|             安装完成，自动退出脚本                |"
-    echo "|    青龙默认端口为9000，如有修改请访问修改的端口   |"
-    echo "|    访问方式为宿主机ip:端口(例192.168.2.1:9000)    |"
-    echo "-----------------------------------------------------"
+    TIME g "|             安装完成，自动退出脚本                |"
+    TIME g "|    青龙默认端口为9000，如有修改请访问修改的端口   |"
+    TIME g "|    访问方式为宿主机ip:端口(例192.168.2.1:9000)    |"
+    TIME g "-----------------------------------------------------"
   exit 0
   ;;
  0) 
  clear 
  break
  ;;
- *) echo -n -e "\e[31m----------------------------------\e[0m"
-    echo -n -e "\e[31m|          Warning!!!            \e[0m|"
-    echo -n -e "\e[31m|       请输入正确的选项!        \e[0m|"
-    echo -n -e "\e[31m----------------------------------\e[0m"
+ *) TIME r "----------------------------------"
+    TIME r "|          Warning!!!            |"
+    TIME r "|       请输入正确的选项!        |"
+    TIME r "----------------------------------"
  for i in `seq -w 3 -1 1`
    do
      echo -ne "$i";
@@ -291,12 +310,12 @@ cat << EOF
 (1) linxu系统、X86的openwrt、群辉等请选择 1
 (2) N1的EMMC上运行的openwrt请选择 2
 (0) 返回上级菜单
-<注>选择1或2后，如果不明白如何选择或输入，请狂按回车！
 EOF
+TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按回车！"
  read -p "Please enter your Choice[0-2]: " input2
  case $input2 in 
  1)
-  echo -e " >>>>>>>>>>>开始安装elecv2p"
+  TIME y " >>>>>>>>>>>开始安装elecv2p"
   # 创建映射文件夹
   echo -e "请输入elecv2p配置文件保存的绝对路径（示例：/home/elecv2p)，回车默认为当前目录:"
   read v2p_path
@@ -353,7 +372,7 @@ EOF
       read V2P_PORT2
   fi
 
-  echo -e " >>>>>>>>>>>配置完成，开始安装elecv2p"
+  TIME y " >>>>>>>>>>>配置完成，开始安装elecv2p"
   log "1.开始创建配置文件目录"
   PATH_LIST=($JSFILE_PATH $LISTS_PATH $STORE_PATH $SHELL_PATH $ROOTCA_PATH $EFSS_PATH $LOG_PATH)
   for i in ${PATH_LIST[@]}; do
@@ -381,17 +400,17 @@ EOF
 
       log "列出所有宿主机上的容器"
       docker ps -a
-    echo "-----------------------------------------------------"
-    echo "|      elev2p启动需要一点点时间，请耐心等待！       |"
+    TIME g "-----------------------------------------------------"
+    TIME g "|      elev2p启动需要一点点时间，请耐心等待！       |"
     sleep 10
-    echo "|             安装完成，自动退出脚本                |"
-    echo "|  elev2p默认端口为8100，如有修改请访问修改的端口   |"
-    echo "|    访问方式为宿主机ip:端口(例192.168.2.1:8100)    |"
-    echo "-----------------------------------------------------"
+    TIME g "|             安装完成，自动退出脚本                |"
+    TIME g "|  elev2p默认端口为8100，如有修改请访问修改的端口   |"
+    TIME g "|    访问方式为宿主机ip:端口(例192.168.2.1:8100)    |"
+    TIME g "-----------------------------------------------------"
   exit 0
   ;;
  2)
-  echo -e " >>>>>>>>>>>开始安装elecv2p到N1的/mnt/mmcblk2p4/"
+  TIME y " >>>>>>>>>>>开始安装elecv2p到N1的/mnt/mmcblk2p4/"
   # 创建映射文件夹
   echo -e "请输入elecv2p存储的文件夹名称（如：elecv2p)，回车默认为elecv2p"
   read v2p_path
@@ -448,7 +467,7 @@ EOF
       read V2P_PORT2
   fi
 
-  echo -e " >>>>>>>>>>>配置完成，开始安装elecv2p"
+  TIME y " >>>>>>>>>>>配置完成，开始安装elecv2p"
   log "1.开始创建配置文件目录"
   PATH_LIST=($JSFILE_PATH $LISTS_PATH $STORE_PATH $SHELL_PATH $ROOTCA_PATH $EFSS_PATH $LOG_PATH)
   for i in ${PATH_LIST[@]}; do
@@ -476,23 +495,23 @@ EOF
 
       log "列出所有宿主机上的容器"
       docker ps -a
-    echo "-----------------------------------------------------"
-    echo "|      elev2p启动需要一点点时间，请耐心等待！       |"
+    TIME g "-----------------------------------------------------"
+    TIME g "|      elev2p启动需要一点点时间，请耐心等待！       |"
     sleep 10
-    echo "|             安装完成，自动退出脚本                |"
-    echo "|  elev2p默认端口为8100，如有修改请访问修改的端口   |"
-    echo "|    访问方式为宿主机ip:端口(例192.168.2.1:8100)    |"
-    echo "-----------------------------------------------------"
+    TIME g "|             安装完成，自动退出脚本                |"
+    TIME g "|  elev2p默认端口为8100，如有修改请访问修改的端口   |"
+    TIME g "|    访问方式为宿主机ip:端口(例192.168.2.1:8100)    |"
+    TIME g "-----------------------------------------------------"
   exit 0
   ;;
  0) 
  clear 
  break
  ;;
- *) echo "----------------------------------"
-    echo "|          Warning!!!            |"
-    echo "|       请输入正确的选项!        |"
-    echo "----------------------------------"
+ *) TIME r "----------------------------------"
+    TIME r "|          Warning!!!            |"
+    TIME r "|       请输入正确的选项!        |"
+    TIME r "----------------------------------"
  for i in `seq -w 3 -1 1`
    do
      echo -ne "$i";
@@ -519,7 +538,7 @@ EOF
  read -p "Please enter your Choice[0-1]: " input3
  case $input3 in 
  1)
-    echo -e " >>>>>>>>>>>开始安装portainer"
+    TIME y " >>>>>>>>>>>开始安装portainer"
     docker volume create portainer_data
     docker run -d -p 8000:8000 -p 9000:9000 --name=portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce
     
@@ -527,23 +546,23 @@ EOF
         cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
     fi
 
-    echo "------------------------------------------------------"
-    echo "|      portainer启动需要一点点时间，请耐心等待！     |"
+    TIME g "------------------------------------------------------"
+    TIME g "|      portainer启动需要一点点时间，请耐心等待！     |"
     sleep 10
-    echo "|              安装完成，自动退出脚本                |"
-    echo "| portianer默认端口为9000，如有修改请访问修改的端口  |"
-    echo "|   访问方式为宿主机ip:端口(例192.168.2.1:9000)      |"
-    echo "------------------------------------------------------"
+    TIME g "|              安装完成，自动退出脚本                |"
+    TIME g "| portianer默认端口为9000，如有修改请访问修改的端口  |"
+    TIME g "|   访问方式为宿主机ip:端口(例192.168.2.1:9000)      |"
+    TIME g "------------------------------------------------------"
   exit 0  
   ;;
  0) 
  clear 
  break
  ;;
- *) echo "----------------------------------"
-    echo "|          Warning!!!            |"
-    echo "|       请输入正确的选项!        |"
-    echo "----------------------------------"
+ *) TIME r "----------------------------------"
+    TIME r "|          Warning!!!            |"
+    TIME r "|       请输入正确的选项!        |"
+    TIME r "----------------------------------"
  for i in `seq -w 3 -1 1`
    do
      echo -ne "$i";
@@ -570,8 +589,8 @@ cat << EOF
 (4) X86 openwrt安装docker和装docker-comopse
 (5) Arm64 openwrt安装docker和装docker-comopse(例 N1 等)
 (0) 返回上级菜单
-<注>openwrt宿主机默认安装dockerman图形docker管理工具！
 EOF
+TIME l "<注>openwrt宿主机默认安装dockerman图形docker管理工具！"
  read -p "Please enter your Choice[0-5]: " input4
  case $input4 in 
  1)
@@ -583,14 +602,14 @@ EOF
             lsb_dist="$(. /etc/os-release && echo "$ID")"
         fi
         if [ $lsb_dist == "openwrt" ]; then
-            echo "openwrt 环境请自行安装 docker"
-            exit 1
+            TIME r "****openwrt宿主机请选择4或者5安装docker****"
+            #exit 1
         else
-            echo -e " >>>>>>>>>>>开始安装docker&docker-compose"
+            TIME y " >>>>>>>>>>>开始安装docker&docker-compose"
             bash <(curl -s -S -L https://raw.githubusercontent.com/kissyouhunter/Tools/main/install-docker.sh)
             systemctl enable docker
             systemctl start docker
-            echo -n -e "\e[32m****docker和docker-compose安装完成，请返回上级菜单!****\e[0m"
+            TIME g "****docker和docker-compose安装完成，请返回上级菜单!****"
         fi
     fi
   ;;
@@ -603,17 +622,17 @@ EOF
             lsb_dist="$(. /etc/os-release && echo "$ID")"
         fi
         if [ $lsb_dist == "openwrt" ]; then
-            echo "openwrt 环境请自行安装 docker"
-            exit 1
+            TIME r "****openwrt宿主机请选择4或者5安装docker****"
+            #exit 1
         else
-            echo -e " >>>>>>>>>>>开始安装docker"
+            TIME y " >>>>>>>>>>>开始安装docker"
             apt update && apt install curl -y
             curl -fsSL https://get.docker.com -o get-docker.sh
             sh get-docker.sh
             docker -v
             systemctl enable docker
             systemctl start docker
-            echo -n -e "\e[32m****docker安装完成，请返回上级菜单!****\e[0m"
+            TIME g "****docker安装完成，请返回上级菜单!****"
         fi
     fi
   ;;
@@ -621,50 +640,50 @@ EOF
     echo "检测 Docker......"
     if [ -x "$(command -v docker)" ]; then
         echo "检测到 Docker 已安装!"
-        echo -e " >>>>>>>>>>>开始安装docker-compose"
+        TIME y " >>>>>>>>>>>开始安装docker-compose"
         apt update && apt install curl -y
         curl -L "https://github.com/docker/compose/releases/download/v2.0.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
         chmod +x /usr/local/bin/docker-compose
         docker-compose -v
-        echo -n -e "\e[32m****docker-compose安装完成，请返回上级菜单!****\e[0m"
+        TIME g "****docker-compose安装完成，请返回上级菜单!****"
     else
         if [ -r /etc/os-release ]; then
             lsb_dist="$(. /etc/os-release && echo "$ID")"
         fi
         if [ $lsb_dist == "openwrt" ]; then
-            echo "openwrt 环境请自行安装 docker"
-            exit 1
+            TIME r "****openwrt宿主机请选择4或者5安装docker****"
+            #exit 1
         else
-            echo -e " >>>>>>>>>>>开始安装docker&docker-compose"
+            TIME y " >>>>>>>>>>>开始安装docker&docker-compose"
             bash <(curl -s -S -L https://raw.githubusercontent.com/kissyouhunter/Tools/main/install-docker.sh)
             systemctl enable docker
             systemctl start docker
-            echo -n -e "\e[32m****docker和docker-compose安装完成，请返回上级菜单!****\e[0m"
+            TIME g "****docker和docker-compose安装完成，请返回上级菜单!****"
         fi
     fi
   ;;
  4)
-    echo -e " >>>>>>>>>>>开始为X86 openwrt安装docker和docker-compose"
+    TIME y " >>>>>>>>>>>开始为X86 openwrt安装docker和docker-compose"
     curl -fsSL https://github.com/gd0772/AutoBuild-OpenWrt/releases/download/AutoUpdate/docker_2.1.0-1_x86_64.zip -o /tmp//upload/docker.zip
     cd /tmp/upload/ && unzip docker.zip && rm -f docker.zip
     cd /tmp/upload/ && opkg install *.ipk && rm -f *.ipk
-    echo -n -e "\e[32m****docker安装完成，请返回上级菜单!****\e[0m"
+    TIME g "****docker安装完成，请返回上级菜单!****"
   ;;
  5)
-    echo -e " >>>>>>>>>>>开始为Arm64 openwrt安装docker和docker-compose"
+    TIME y " >>>>>>>>>>>开始为Arm64 openwrt安装docker和docker-compose"
     curl -fsSL https://github.com/kissyouhunter/Openwrt_X86-Openwrt_N1-Armbian_N1/releases/download/openwrt_n1/docker-armv8.zip -o /tmp//upload/docker.zip
     cd /tmp/upload/ && unzip docker.zip && rm -f docker.zip
     cd /tmp/upload/ && opkg install *.ipk && rm -f *.ipk
-    echo -n -e "\e[32m****docker安装完成，请返回上级菜单!****\e[0m"
+    TIME g "****docker安装完成，请返回上级菜单!****"
   ;;
  0) 
  clear 
  break
  ;;
- *) echo "----------------------------------"
-    echo "|          Warning!!!            |"
-    echo "|       请输入正确的选项!        |"
-    echo "----------------------------------"
+ *) TIME r "----------------------------------"
+    TIME r "|          Warning!!!            |"
+    TIME r "|       请输入正确的选项!        |"
+    TIME r "----------------------------------"
  for i in `seq -w 3 -1 1`
    do
      echo -ne "$i";
@@ -679,10 +698,10 @@ EOF
 clear
 exit 0
 ;;
-*)  echo "----------------------------------"
- echo "|          Warning!!!            |"
- echo "|       请输入正确的选项!        |"
- echo "----------------------------------"
+*)  TIME r "----------------------------------"
+ TIME r "|          Warning!!!            |"
+ TIME r "|       请输入正确的选项!        |"
+ TIME r  "----------------------------------"
  for i in `seq -w 3 -1 1`
    do
      echo -ne "$i";
