@@ -173,7 +173,8 @@ TIME l "<注>openwrt宿主机默认安装dockerman图形docker管理工具！"
   ;;
  4)
     TIME y " >>>>>>>>>>>开始为X86 openwrt安装docker和docker-compose"
-    curl -fsSL https://github.com/gd0772/AutoBuild-OpenWrt/releases/download/AutoUpdate/docker_2.1.0-1_x86_64.zip -o /tmp//upload/docker.zip
+    mkdir -p /tmp/upload/
+    curl -fsSL https://github.com/gd0772/AutoBuild-OpenWrt/releases/download/AutoUpdate/docker_2.1.0-1_x86_64.zip -o /tmp/upload/docker.zip
     cd /tmp/upload/ && unzip docker.zip && rm -f docker.zip
     cd /tmp/upload/ && opkg install *.ipk && rm -f *.ipk
     TIME g "****docker安装完成，请返回上级菜单!****"
@@ -181,7 +182,8 @@ TIME l "<注>openwrt宿主机默认安装dockerman图形docker管理工具！"
   ;;
  5)
     TIME y " >>>>>>>>>>>开始为Arm64 openwrt安装docker和docker-compose"
-    curl -fsSL https://github.com/kissyouhunter/Openwrt_X86-Openwrt_N1-Armbian_N1/releases/download/openwrt_n1/docker-armv8.zip -o /tmp//upload/docker.zip
+    mkdir -p /tmp/upload/
+    curl -fsSL https://github.com/kissyouhunter/Openwrt_X86-Openwrt_N1-Armbian_N1/releases/download/openwrt_n1/docker-armv8.zip -o /tmp/upload/docker.zip
     cd /tmp/upload/ && unzip docker.zip && rm -f docker.zip
     cd /tmp/upload/ && opkg install *.ipk && rm -f *.ipk
     TIME g "****docker安装完成，请返回上级菜单!****"
