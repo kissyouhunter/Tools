@@ -23,6 +23,14 @@ V2P_CONTAINER_NAME=""
 V2P_PORT=8100
 V2P_PORT1=8101
 V2P_PORT2=8102
+# emby变量
+EMBY_DOCKER_IMG_NAME="xanderye/embyserver"
+EMBY_TAG="4.7.0.17"
+EMBY_PATH=""
+V2P_SHELL_FOLDER=$(pwd)/emby
+EMBY_CONTAINER_NAME=""
+EMBY_PORT=8096
+EMBY_PORT1=8920
 
 log() {
     echo -e "\n$1"
@@ -174,8 +182,7 @@ TIME l "<注>openwrt宿主机默认安装dockerman图形docker管理工具！"
  4)
     TIME y " >>>>>>>>>>>开始为X86 openwrt安装docker和docker-compose"
     mkdir -p /tmp/upload/
-    #curl -fsSL https://github.com/gd0772/AutoBuild-OpenWrt/releases/download/AutoUpdate/docker_2.1.0-1_x86_64.zip -o /tmp/upload/docker.zip
-    wget -O /tmp/upload/docker.zip https://mirror.ghproxy.com/https://github.com/gd0772/AutoBuild-OpenWrt/releases/download/AutoUpdate/docker_2.1.0-1_x86_64.zip
+    curl -Lo /tmp/upload/docker.zip https://mirror.ghproxy.com/https://github.com/gd0772/AutoBuild-OpenWrt/releases/download/AutoUpdate/docker_2.1.0-1_x86_64.zip
     cd /tmp/upload/ && unzip docker.zip && rm -f docker.zip
     cd /tmp/upload/ && opkg install *.ipk && rm -f *.ipk
     docker -v && docker-compose -v
@@ -185,8 +192,7 @@ TIME l "<注>openwrt宿主机默认安装dockerman图形docker管理工具！"
  5)
     TIME y " >>>>>>>>>>>开始为Arm64 openwrt安装docker和docker-compose"
     mkdir -p /tmp/upload/
-    #curl -fsSL https://github.com/kissyouhunter/Openwrt_X86-Openwrt_N1-Armbian_N1/releases/download/openwrt_n1/docker-armv8.zip -o /tmp/upload/docker.zip
-    wget -O /tmp/upload/docker.zip https://mirror.ghproxy.com/https://github.com/kissyouhunter/Openwrt_X86-Openwrt_N1-Armbian_N1/releases/download/openwrt_n1/docker-armv8.zip
+    curl -Lo /tmp/upload/docker.zip https://mirror.ghproxy.com/https://github.com/kissyouhunter/Openwrt_X86-Openwrt_N1-Armbian_N1/releases/download/openwrt_n1/docker-armv8.zip
     cd /tmp/upload/ && unzip docker.zip && rm -f docker.zip
     cd /tmp/upload/ && opkg install *.ipk && rm -f *.ipk
     docker -v && docker-compose -v
