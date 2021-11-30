@@ -524,7 +524,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   docker run -dit \
       -v $JSFILE_PATH:/usr/local/app/script/JSFile \
       -v $LISTS_PATH:/usr/local/app/script/Lists \
-      -v $STIRE_PATH:/usr/local/app/script/Store \
+      -v $STORE_PATH:/usr/local/app/script/Store \
       -v $SHELL_PATH:/usr/local/app/script/Shell \
       -v $ROOTCA_PATH:/usr/local/app/rootCA \
       -v $EFSS_PATH:/usr/local/app/efss \
@@ -619,7 +619,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   docker run -dit \
       -v $JSFILE_PATH:/usr/local/app/script/JSFile \
       -v $LISTS_PATH:/usr/local/app/script/Lists \
-      -v $STIRE_PATH:/usr/local/app/script/Store \
+      -v $STORE_PATH:/usr/local/app/script/Store \
       -v $SHELL_PATH:/usr/local/app/script/Shell \
       -v $ROOTCA_PATH:/usr/local/app/rootCA \
       -v $EFSS_PATH:/usr/local/app/efss \
