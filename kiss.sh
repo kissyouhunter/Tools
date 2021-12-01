@@ -530,6 +530,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
       -v $EFSS_PATH:/usr/local/app/efss \
       -v $LOG_PATH:/usr/local/app/logs \
       -p $V2P_PORT:80 -p $V2P_PORT1:8001 -p $V2P_PORT2:8002 \
+      -e TZ=Asia/Shanghai \
       --name $V2P_CONTAINER_NAME \
       --hostname $V2P_CONTAINER_NAME \
       --restart always \
@@ -625,6 +626,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
       -v $EFSS_PATH:/usr/local/app/efss \
       -v $LOG_PATH:/usr/local/app/logs \
       -p $V2P_PORT:80 -p $V2P_PORT1:8001 -p $V2P_PORT2:8002 \
+      -e TZ=Asia/Shanghai \
       --name $V2P_CONTAINER_NAME \
       --hostname $V2P_CONTAINER_NAME \
       --restart always \
