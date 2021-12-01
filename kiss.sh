@@ -27,10 +27,21 @@ V2P_PORT2=8102
 EMBY_DOCKER_IMG_NAME="xanderye/embyserver"
 EMBY_TAG="4.7.0.17"
 EMBY_PATH=""
-EMBY_SHELL_FOLDER=$(pwd)/emby
+EMBY_CONFIG_FOLDER=$(pwd)/emby
+EMBY_MOVIES_FOLDER=$(pwd)/movies
+EMBY_TVSHOWS_FOLDER=$(pwd)/tvshows
 EMBY_CONTAINER_NAME=""
 EMBY_PORT=8096
 EMBY_PORT1=8920
+# emby变量
+JELLYFIN_DOCKER_IMG_NAME="jellyfin/jellyfin"
+JELLYFIN_PATH=""
+JELLYFIN_CONFIG_FOLDER=$(pwd)/jellyfin
+JELLYFIN_MOVIES_FOLDER=$(pwd)/movies
+JELLYFIN_TVSHOWS_FOLDER=$(pwd)/tvshows
+JELLYFIN_CONTAINER_NAME=""
+JELLYFIN_PORT=8096
+JELLYFIN_PORT1=8920
 
 log() {
     echo -e "\n$1"
@@ -80,6 +91,7 @@ cat << EOF
 (2) 安装<青龙>到宿主机
 (3) 安装<elecv2p>到宿主机
 (4) 安装portainer(docker图形管理工具)
+(5) 安装emby或jellyfin(打造自己的爱奇艺)
 (0) 不想安装了，给老子退出！！！
 EOF
 read -p "Please enter your choice[0-4]: " input
@@ -530,6 +542,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
       -v $EFSS_PATH:/usr/local/app/efss \
       -v $LOG_PATH:/usr/local/app/logs \
       -p $V2P_PORT:80 -p $V2P_PORT1:8001 -p $V2P_PORT2:8002 \
+      -e TZ=Asia/Shanghai \
       --name $V2P_CONTAINER_NAME \
       --hostname $V2P_CONTAINER_NAME \
       --restart always \
@@ -625,6 +638,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
       -v $EFSS_PATH:/usr/local/app/efss \
       -v $LOG_PATH:/usr/local/app/logs \
       -p $V2P_PORT:80 -p $V2P_PORT1:8001 -p $V2P_PORT2:8002 \
+      -e TZ=Asia/Shanghai \
       --name $V2P_CONTAINER_NAME \
       --hostname $V2P_CONTAINER_NAME \
       --restart always \
@@ -714,7 +728,281 @@ EOF
  esac
  done
 ;;
+#安装emby和jellyfin
+5)
+clear
+while [ "$flag" -eq 0 ]
+do
+cat << EOF
+----------------------------------------
+|****Please Enter Your Choice:[0-2]****|
+|************EMBY & JELLYFIN***********|
+----------------------------------------
+(1) 安装emby
+(2) 安装jellyfin
+(0) 返回上级菜单
+EOF
+TIME r "<注>请使用root账户部署容器"
+ read -p "Please enter your Choice[0-2]: " input5
+ case $input5 in 
+ 1)
+    TIME y " >>>>>>>>>>>开始安装emby"
+  # 创建映射文件夹
+  echo -e "请输入emby配置文件保存的绝对路径（示例：/home/emby)，回车默认为当前目录:"
+  read emby_path
+  if [ -z "$emby_path" ]; then
+      EMBY_PATH=$EMBY_CONFIG_FOLDER
+  elif [ -d "$emby_path" ]; then
+      EMBY_PATH=$emby_path
+  else
+      mkdir -p $emby_path
+      EMBY_PATH=$emby_path
+  fi
+  CONFIG_PATH=$EMBY_PATH/config
+  echo -e "请输入电影文件保存的绝对路径（示例：/home/movies)，回车默认为当前目录:"
+  read movies_path
+  if [ -z "$movies_path" ]; then
+      MOVIES_PATH=$EMBY_MOVIES_FOLDER
+  elif [ -d "$movies_path" ]; then
+      MOVIES_PATH=$movies_path
+  else
+      mkdir -p $movies_path
+      MOVIES_PATH=$movies_path
+  fi
+  echo -e "请输入电视剧文件保存的绝对路径（示例：/home/tvshows)，回车默认为当前目录:"
+  read tvshows_path
+  if [ -z "$tvshows_path" ]; then
+      TVSHOWS_PATH=$EMBY_TVSHOWS_FOLDER
+  elif [ -d "$tvshows_path" ]; then
+      TVSHOWS_PATH=$tvshows_path
+  else
+      mkdir -p $tvshows_path
+      TVSHOWS_PATH=$tvshows_path
+  fi
+  
+  # 输入容器名
+  input_container_name() {
+    echo -e "请输入将要创建的容器名[默认为：emby]->"
+    read container_name
+    if [ -z "$container_name" ]; then
+        EMBY_CONTAINER_NAME="emby"
+    else
+        EMBY_CONTAINER_NAME=$container_name
+    fi
+  }
+  input_container_name
 
+  # 面板端口
+  inp "是否修改emby面板端口[默认 8096]：\n1) 修改\n2) 不修改[默认]"
+  opt
+  read change_emby_port
+  if [ "$change_emby_port" = "1" ]; then
+      echo -e "输入想修改的端口->"
+      read EMBY_PORT
+  fi
+  # https端口
+  inp "是否修改emby的https端口[默认 8920]：\n1) 修改\n2) 不修改[默认]"
+  opt
+  read change_emby_port1
+  if [ "$change_emby_port1" = "1" ]; then
+      echo -e "输入想修改的端口->"
+      read EMBY_PORT1
+  fi
+
+  TIME y " >>>>>>>>>>>配置完成，开始安装emby"
+  log "1.开始创建配置文件目录"
+  PATH_LIST=($CONFIG_PATH $MOVIES_PATH $TVSHOWS_PATH)
+  for i in ${PATH_LIST[@]}; do
+      mkdir -p $i
+  done
+
+  log "3.开始创建容器并执行"
+      if [ -d "/dev/dri" ]; then
+          docker run -dit \
+              --name $EMBY_CONTAINER_NAME \
+              --hostname $EMBY_CONTAINER_NAME \
+              --restart always \
+              -v $CONFIG_PATH:/config \
+              -v $MOVIES_PATH:/mnt/movies \
+              -v $TVSHOWS_PATH:/mnt/tvshows \
+              -p $EMBY_PORT:8096 -p $EMBY_PORT1:8920 \
+              -e TZ=Asia/Shanghai \
+              --device /dev/dri:/dev/dri \
+              -e UMASK_SET=022 \
+              -e UID=0 \
+              -e GID=0 \
+              -e GIDLIST=0 \
+              $EMBY_DOCKER_IMG_NAME:$EMBY_TAG
+      else
+          docker run -dit \
+              --name $EMBY_CONTAINER_NAME \
+              --hostname $EMBY_CONTAINER_NAME \
+              --restart always \
+              -v $CONFIG_PATH:/config \
+              -v $MOVIES_PATH:/mnt/movies \
+              -v $TVSHOWS_PATH:/mnt/tvshows \
+              -p $EMBY_PORT:8096 -p $EMBY_PORT1:8920 \
+              -e TZ=Asia/Shanghai \
+              -e UMASK_SET=022 \
+              -e UID=0 \
+              -e GID=0 \
+              -e GIDLIST=0 \
+              $EMBY_DOCKER_IMG_NAME:$EMBY_TAG
+      fi
+      if [ $? -ne 0 ] ; then
+          cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
+      fi
+
+      log "列出所有宿主机上的容器"
+      docker ps -a
+    TIME g "-----------------------------------------------------------------"
+    TIME g "|              emby启动需要一点点时间，请耐心等待！             |"
+    sleep 10
+    TIME g "|                    安装完成，自动退出脚本                     |"
+    TIME g "|         emby默认端口为8096，如有修改请访问修改的端口          |"
+    TIME g "|         访问方式为宿主机ip:端口(例192.168.2.1:8096)           |"
+    TIME g "|   openwrt需要先执行命令 chmod 777 /dev/dri/* 才能读取到显卡   |"
+    TIME g "-----------------------------------------------------------------"
+  exit 0
+  ;;
+ 2)
+    TIME y " >>>>>>>>>>>开始安装jellyfin"
+  # 创建映射文件夹
+  echo -e "请输入emby配置文件保存的绝对路径（示例：/home/jellyfin)，回车默认为当前目录:"
+  read jellyfin_path
+  if [ -z "$jellyfin_path" ]; then
+      JELLYFIN_PATH=$JELLYFIN_CONFIG_FOLDER
+  elif [ -d "$jellyfin_path" ]; then
+      JELLYFIN_PATH=$jellyfin_path
+  else
+      mkdir -p $jellyfin_path
+      JELLYFIN_PATH=$jellyfin_path
+  fi
+  CONFIG_PATH=$JELLYFIN_PATH/config
+  echo -e "请输入电影文件保存的绝对路径（示例：/home/movies)，回车默认为当前目录:"
+  read movies_path
+  if [ -z "$movies_path" ]; then
+      MOVIES_PATH=$JELLYFIN_MOVIES_FOLDER
+  elif [ -d "$movies_path" ]; then
+      MOVIES_PATH=$movies_path
+  else
+      mkdir -p $movies_path
+      MOVIES_PATH=$movies_path
+  fi
+  echo -e "请输入电视剧文件保存的绝对路径（示例：/home/tvshows)，回车默认为当前目录:"
+  read tvshows_path
+  if [ -z "$tvshows_path" ]; then
+      TVSHOWS_PATH=$JELLYFIN_TVSHOWS_FOLDER
+  elif [ -d "$tvshows_path" ]; then
+      TVSHOWS_PATH=$tvshows_path
+  else
+      mkdir -p $tvshows_path
+      TVSHOWS_PATH=$tvshows_path
+  fi
+  
+  # 输入容器名
+  input_container_name() {
+    echo -e "请输入将要创建的容器名[默认为：jellyfin]->"
+    read container_name
+    if [ -z "$container_name" ]; then
+        JELLYFIN_CONTAINER_NAME="jellyfin"
+    else
+        JELLYFIN_CONTAINER_NAME=$container_name
+    fi
+  }
+  input_container_name
+
+  # 面板端口
+  inp "是否修改jellyfin面板端口[默认 8096]：\n1) 修改\n2) 不修改[默认]"
+  opt
+  read change_jellyfin_port
+  if [ "$change_jellyfin_port" = "1" ]; then
+      echo -e "输入想修改的端口->"
+      read JELLYFIN_PORT
+  fi
+  # https端口
+  inp "是否修改jellyfin的https端口[默认 8920]：\n1) 修改\n2) 不修改[默认]"
+  opt
+  read change_jellyfin_port1
+  if [ "$change_jellyfin_port1" = "1" ]; then
+      echo -e "输入想修改的端口->"
+      read JELLYFIN_PORT1
+  fi
+
+  TIME y " >>>>>>>>>>>配置完成，开始安装jellyfin"
+  log "1.开始创建配置文件目录"
+  PATH_LIST=($CONFIG_PATH $MOVIES_PATH $TVSHOWS_PATH)
+  for i in ${PATH_LIST[@]}; do
+      mkdir -p $i
+  done
+
+  log "3.开始创建容器并执行"
+      if [ -d "/dev/dri" ]; then
+          docker run -dit \
+              --name $JELLYFIN_CONTAINER_NAME \
+              --hostname $JELLYFIN_CONTAINER_NAME \
+              --restart always \
+              -v $CONFIG_PATH:/config \
+              -v $MOVIES_PATH:/mnt/movies \
+              -v $TVSHOWS_PATH:/mnt/tvshows \
+              -p $JELLYFIN_PORT:8096 -p $JELLYFIN_PORT1:8920 \
+              -e TZ=Asia/Shanghai \
+              --device /dev/dri:/dev/dri \
+              -e UMASK_SET=022 \
+              -e UID=0 \
+              -e GID=0 \
+              -e GIDLIST=0 \
+              $JELLYFIN_DOCKER_IMG_NAME:$TAG
+      else
+          docker run -dit \
+              --name $JELLYFIN_CONTAINER_NAME \
+              --hostname $JELLYFIN_CONTAINER_NAME \
+              --restart always \
+              -v $CONFIG_PATH:/config \
+              -v $MOVIES_PATH:/mnt/movies \
+              -v $TVSHOWS_PATH:/mnt/tvshows \
+              -p $JELLYFIN_PORT:8096 -p $JELLYFIN_PORT1:8920 \
+              -e TZ=Asia/Shanghai \
+              -e UMASK_SET=022 \
+              -e UID=0 \
+              -e GID=0 \
+              -e GIDLIST=0 \
+              $JELLYFIN_DOCKER_IMG_NAME:$TAG
+      fi
+      if [ $? -ne 0 ] ; then
+          cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
+      fi
+
+      log "列出所有宿主机上的容器"
+      docker ps -a
+    TIME g "-----------------------------------------------------------------"
+    TIME g "|              emby启动需要一点点时间，请耐心等待！             |"
+    sleep 10
+    TIME g "|                    安装完成，自动退出脚本                     |"
+    TIME g "|       jellyfin默认端口为8096，如有修改请访问修改的端口        |"
+    TIME g "|         访问方式为宿主机ip:端口(例192.168.2.1:8096)           |"
+    TIME g "|   openwrt需要先执行命令 chmod 777 /dev/dri/* 才能读取到显卡   |"
+    TIME g "-----------------------------------------------------------------"
+  exit 0
+  ;;
+ 0) 
+ clear 
+ break
+ ;;
+ *) TIME r "----------------------------------"
+    TIME r "|          Warning!!!            |"
+    TIME r "|       请输入正确的选项!        |"
+    TIME r "----------------------------------"
+ for i in `seq -w 3 -1 1`
+   do
+     echo -ne "$i";
+     sleep 1;
+   done
+ clear
+ ;;
+ esac
+ done
+;;
 0)
 clear
 exit 0
