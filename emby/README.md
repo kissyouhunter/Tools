@@ -1,1 +1,1 @@
-# Tools
+wget -N --no-check-certificate "https://raw.githubusercontent.com/kissyouhunter/Tools/main/emby/emby.sh" && chmod +x emby.sh && ./emby.sh
