@@ -42,6 +42,28 @@ JELLYFIN_TVSHOWS_FOLDER=$(pwd)/tvshows
 JELLYFIN_CONTAINER_NAME=""
 JELLYFIN_PORT=8096
 JELLYFIN_PORT1=8920
+# qbittorrent变量
+QB_DOCKER_IMG_NAME="johngong/qbittorrent"
+QB_TAG="qee-latest"
+QB_PATH=""
+QB_CONFIG_FOLDER=$(pwd)/qbittorrent
+QB_DOWNLOADS_FOLDER=$(pwd)/downloads
+QB_CONTAINER_NAME=""
+# aria2变量
+ARIA2_DOCKER_IMG_NAME="superng6/aria2"
+ARIA2_TAG="webui-latest"
+ARIA2_PATH=""
+ARIA2_CONFIG_FOLDER=$(pwd)/aria2
+ARIA2_DOWNLOADS_FOLDER=$(pwd)/downloads
+ARIA2_CONTAINER_NAME=""
+TOKEN="aria2"
+# aria2-pro变量
+ARIA2_PRO_DOCKER_IMG_NAME="p3terx/aria2-pro"
+ARIA2_PRO_WEBUI_DOCKER_IMG_NAME="p3terx/ariang"
+ARIA2_PRO_PATH=""
+ARIA2_PRO_CONFIG_FOLDER=$(pwd)/aria2-pro
+ARIA2_PRO_DOWNLOADS_FOLDER=$(pwd)/downloads
+ARIA2_PRO_CONTAINER_NAME=""
 
 log() {
     echo -e "\n$1"
@@ -92,9 +114,10 @@ cat << EOF
 (3) 安装<elecv2p>到宿主机
 (4) 安装portainer(docker图形管理工具)
 (5) 安装emby或jellyfin(打造自己的爱奇艺)
+(6) 安装下载工具
 (0) 不想安装了，给老子退出！！！
 EOF
-read -p "Please enter your choice[0-4]: " input
+read -p "Please enter your choice[0-6]: " input
 case $input in
 #安装docker and docker-compose
 1)
@@ -167,7 +190,7 @@ TIME l "<注>openwrt宿主机默认安装dockerman图形docker管理工具！"
         echo "检测到 Docker 已安装!"
         TIME y " >>>>>>>>>>>开始安装docker-compose"
         #apt update && apt install curl -y
-        curl -L "https://github.com/docker/compose/releases/download/v2.0.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+        curl -L "https://github.com/docker/compose/releases/download/v2.1.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
         chmod +x /usr/local/bin/docker-compose
         docker-compose -v
         TIME g "****docker-compose安装完成，请返回上级菜单!****"
@@ -306,7 +329,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
       mkdir -p $i
   done
 
-  log "3.开始创建容器并执行"
+  log "2.开始创建容器并执行"
   docker run -dit \
       -t \
       -v $CONFIG_PATH:/ql/config \
@@ -532,7 +555,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
       mkdir -p $i
   done
 
-  log "3.开始创建容器并执行"
+  log "2.开始创建容器并执行"
   docker run -dit \
       -v $JSFILE_PATH:/usr/local/app/script/JSFile \
       -v $LISTS_PATH:/usr/local/app/script/Lists \
@@ -628,7 +651,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
       mkdir -p $i
   done
 
-  log "3.开始创建容器并执行"
+  log "2.开始创建容器并执行"
   docker run -dit \
       -v $JSFILE_PATH:/usr/local/app/script/JSFile \
       -v $LISTS_PATH:/usr/local/app/script/Lists \
@@ -816,7 +839,7 @@ TIME r "<注>请使用root账户部署容器"
       mkdir -p $i
   done
 
-  log "3.开始创建容器并执行"
+  log "2.开始创建容器并执行"
       if [ -d "/dev/dri" ]; then
           docker run -dit \
               --name $EMBY_CONTAINER_NAME \
@@ -936,7 +959,7 @@ TIME r "<注>请使用root账户部署容器"
       mkdir -p $i
   done
 
-  log "3.开始创建容器并执行"
+  log "2.开始创建容器并执行"
       if [ -d "/dev/dri" ]; then
           docker run -dit \
               --name $JELLYFIN_CONTAINER_NAME \
@@ -1006,6 +1029,313 @@ TIME r "<注>请使用root账户部署容器"
 0)
 clear
 exit 0
+;;
+#安装qbittorrent,aria2,ari2-pro
+6)
+clear
+while [ "$flag" -eq 0 ]
+do
+cat << EOF
+----------------------------------------
+|****Please Enter Your Choice:[0-3]****|
+|************EMBY & JELLYFIN***********|
+----------------------------------------
+(1) 安装qbittorrent增强版
+(2) 安装aria2
+(3) 安装aria2-pro
+(0) 返回上级菜单
+EOF
+TIME r "<注>请使用root账户部署容器"
+TIME r "<注>aria2和aria2-pro 二选一"
+ read -p "Please enter your Choice[0-3]: " input6
+ case $input6 in 
+ 1)
+    TIME y " >>>>>>>>>>>开始安装qbittorrent增强版"
+  # 创建映射文件夹
+  echo -e "请输入qbittorrent增强版配置文件保存的绝对路径（示例：/home/qbittorrent)，回车默认为当前目录:"
+  read qb_path
+  if [ -z "$qb_path" ]; then
+      QB_PATH=$QB_CONFIG_FOLDER
+  elif [ -d "$qb_path" ]; then
+      QB_PATH=$qb_path
+  else
+      mkdir -p $qb_path
+      QB_PATH=$qb_path
+  fi
+  #QB_CONFIG_PATH=$QB_PATH/qbittorrent
+  echo -e "请输入电影文件保存的绝对路径（示例：/home/downloads)，回车默认为当前目录:"
+  read downloads_path
+  if [ -z "$downloads_path" ]; then
+      DOWNLOADS_PATH=$QB_DOWNLOADS_FOLDER
+  elif [ -d "$downloads_path" ]; then
+      DOWNLOADS_PATH=$downloads_path
+  else
+      mkdir -p $downloads_path
+      DOWNLOADS_PATH=$downloads_path
+  fi
+
+  # 输入容器名
+  input_container_name() {
+    echo -e "请输入将要创建的容器名[默认为：qbittorrent]->"
+    read container_name
+    if [ -z "$container_name" ]; then
+        QB_CONTAINER_NAME="qbittorrent"
+    else
+        QB_CONTAINER_NAME=$container_name
+    fi
+  }
+  input_container_name
+
+  TIME y " >>>>>>>>>>>配置完成，开始安装qbittorrent"
+  log "1.开始创建配置文件目录"
+  PATH_LIST=($CONFIG_PATH $MOVIES_PATH $TVSHOWS_PATH)
+  for i in ${PATH_LIST[@]}; do
+      mkdir -p $i
+  done
+
+  log "2.开始创建容器并执行"
+  docker run -dit \
+      -v $QB_PATH:/config \
+      -v $DOWNLOADS_PATH:/Downloads \
+      -e WEBUIPORT=8989 \
+      -p 6881:6881 -p 6881:6881/udp -p 8989:8989 \
+      -e TZ=Asia/Shanghai \
+      -e UID=0  \
+      -e GID=0  \
+      -e UMASK=022  \
+      --name $QB_CONTAINER_NAME \
+      --hostname $QB_CONTAINER_NAME \
+      --restart always \
+      $QB_DOCKER_IMG_NAME:$QB_TAG
+
+      if [ $? -ne 0 ] ; then
+          cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
+      fi
+
+      log "列出所有宿主机上的容器"
+      docker ps -a
+    TIME g "---------------------------------------------------------"
+    TIME g "|      qbittorrent启动需要一点点时间，请耐心等待！      |"
+    sleep 10
+    TIME g "|               安装完成，自动退出脚本                  |"
+    TIME g "|  qbittorrent默认端口为8989，如有修改请访问修改的端口  |"
+    TIME g "|     访问方式为宿主机ip:端口(例192.168.2.1:8989)       |"
+    TIME g "|         默认用户名admin，默认密码adminadmin           |"
+    TIME g "---------------------------------------------------------"
+  exit 0
+  ;;
+ 2)
+    TIME y " >>>>>>>>>>>开始安装aria2"
+  # 创建映射文件夹
+  echo -e "请输入emby配置文件保存的绝对路径（示例：/home/aria2)，回车默认为当前目录:"
+  read aria2_path
+  if [ -z "$aria2_path" ]; then
+      ARIA2_PATH=$ARIA2_CONFIG_FOLDER
+  elif [ -d "$aria2_path" ]; then
+      ARIA2_PATH=$aria2_path
+  else
+      mkdir -p $aria2_path
+      ARIA2_PATH=$aria2_path
+  fi
+  echo -e "请输入下载文件保存的绝对路径（示例：/home/downloads)，回车默认为当前目录:"
+  read downloads_path
+  if [ -z "$downloads_path" ]; then
+      DOWNLOADS_PATH=$QB_DOWNLOADS_FOLDER
+  elif [ -d "$downloads_path" ]; then
+      DOWNLOADS_PATH=$downloads_path
+  else
+      mkdir -p $downloads_path
+      DOWNLOADS_PATH=$downloads_path
+  fi
+  
+  # 输入容器名
+  input_container_name() {
+    echo -e "请输入将要创建的容器名[默认为：aria2]->"
+    read container_name
+    if [ -z "$container_name" ]; then
+        ARIA2_CONTAINER_NAME="aria2"
+    else
+        ARIA2_CONTAINER_NAME=$container_name
+    fi
+  }
+  input_container_name
+  # TOKEN
+  inp "是否修改密钥[默认 aria2]：\n1) 修改\n2) 不修改[默认]"
+  opt
+  read change_token
+  if [ "$change_token" = "1" ]; then
+      echo -e "输入想修改的密钥->"
+      read TOKEN
+  fi
+
+  TIME y " >>>>>>>>>>>配置完成，开始安装aria2"
+  log "1.开始创建配置文件目录"
+  PATH_LIST=($CONFIG_PATH $MOVIES_PATH $TVSHOWS_PATH)
+  for i in ${PATH_LIST[@]}; do
+      mkdir -p $i
+  done
+
+  log "2.开始创建容器并执行"
+  docker run -dit \
+      -v $ARIA2_PATH:/config \
+      -v $DOWNLOADS_PATH:/downloads \
+      -e WEBUIPORT=8080 \
+      -p 32516:32516 -p 32516:32516/udp -p 6800:6800 -p 8080:8080 \
+      -e TZ=Asia/Shanghai \
+      -e SECRET=$TOKEN \
+      -e UID=0  \
+      -e GID=0  \
+      -e CACHE=512M \
+      -e PORT=6800 \
+      -e BTPORT=32516 \
+      -e UT=true \
+      -e RUT=true \
+      -e FA=falloc \
+      -e QUIET=true \
+      -e SMD=false \
+      --name $ARIA2_CONTAINER_NAME \
+      --hostname $ARIA2_CONTAINER_NAME \
+      --restart always \
+      $ARIA2_DOCKER_IMG_NAME:$ARIA2_TAG
+
+      if [ $? -ne 0 ] ; then
+          cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
+      fi
+
+      log "列出所有宿主机上的容器"
+      docker ps -a
+    TIME g "---------------------------------------------------------"
+    TIME g "|          aria2启动需要一点点时间，请耐心等待！        |"
+    sleep 10
+    TIME g "|                 安装完成，自动退出脚本                |"
+    TIME g "|     aria2默认端口为8080，如有修改请访问修改的端口     |"
+    TIME g "|     访问方式为宿主机ip:端口(例192.168.2.1:8080)       |"
+    TIME g "|              Aria密钥设置再面板如下位置               |"
+    TIME g "|      AriaNg设置 > RPC(IP:6800) > Aria2 RPC 密钥       |"
+    TIME g "---------------------------------------------------------"
+  exit 0
+  ;;
+ 3)
+    TIME y " >>>>>>>>>>>开始安装aria2-pro"
+  # 创建映射文件夹
+  echo -e "请输入emby配置文件保存的绝对路径（示例：/home/aria2-pro)，回车默认为当前目录:"
+  read aria2_pro_path
+  if [ -z "$aria2_pro_path" ]; then
+      ARIA2_PRO_PATH=$ARIA2_PRO_CONFIG_FOLDER
+  elif [ -d "$aria2_pro_path" ]; then
+      ARIA2_PRO_PATH=$aria2_pro_path
+  else
+      mkdir -p $aria2_pro_path
+      ARIA2_PRO_PATH=$aria2_pro_path
+  fi
+  echo -e "请输入下载文件保存的绝对路径（示例：/home/downloads)，回车默认为当前目录:"
+  read downloads_path
+  if [ -z "$downloads_path" ]; then
+      DOWNLOADS_PATH=$QB_DOWNLOADS_FOLDER
+  elif [ -d "$downloads_path" ]; then
+      DOWNLOADS_PATH=$downloads_path
+  else
+      mkdir -p $downloads_path
+      DOWNLOADS_PATH=$downloads_path
+  fi
+  
+  # 输入容器名
+  input_container_name() {
+    echo -e "请输入将要创建的容器名[默认为：aria2-pro]->"
+    read container_name
+    if [ -z "$container_name" ]; then
+        ARIA2_PRO_CONTAINER_NAME="aria2-pro"
+    else
+        ARIA2_PRO_CONTAINER_NAME=$container_name
+    fi
+  }
+  input_container_name
+  # 输入容器名(面板)
+  input_container_name1() {
+    echo -e "请输入将要创建的面板容器名[默认为：ariang]->"
+    read container_name1
+    if [ -z "$container_name1" ]; then
+        ARIA2_PRO_WEBUI_NAME="ariang"
+    else
+        ARIA2_PRO_WEBUI_NAME=$container_name1
+    fi
+  }
+  input_container_name1
+  # TOKEN
+  inp "是否修改密钥[默认 aria2]：\n1) 修改\n2) 不修改[默认]"
+  opt
+  read change_token
+  if [ "$change_token" = "1" ]; then
+      echo -e "输入想修改的密钥->"
+      read TOKEN
+  fi
+
+  TIME y " >>>>>>>>>>>配置完成，开始安装aria2-pro"
+  log "1.开始创建配置文件目录"
+  PATH_LIST=($CONFIG_PATH $MOVIES_PATH $TVSHOWS_PATH)
+  for i in ${PATH_LIST[@]}; do
+      mkdir -p $i
+  done
+
+  log "2.开始创建容器并执行"
+  docker run -dit \
+      -v $ARIA2_PRO_PATH:/config \
+      -v $DOWNLOADS_PATH:/downloads \
+      -p 6800:6800 -p 6888:6888 -p 6888:6888/udp \
+      -e TZ=Asia/Shanghai \
+      -e RPC_SECRET=$TOKEN \
+      -e RPC_PORT=6800 \
+      -e LISTEN_PORT=6888 \
+      -e UID=0  \
+      -e GID=0  \
+      -e UMASK_SET=022 \
+      --log-opt max-size=1m \
+      --name $ARIA2_PRO_CONTAINER_NAME \
+      --hostname $ARIA2_PRO_CONTAINER_NAME \
+      --restart always \
+      $ARIA2_PRO_DOCKER_IMG_NAME:$TAG
+
+  docker run -d \
+      --name $ARIA2_PRO_WEBUI_NAME \
+      --log-opt max-size=1m \
+      --restart unless-stopped \
+      -p 6880:6880 \
+      $ARIA2_PRO_WEBUI_DOCKER_IMG_NAME:$TAG
+
+      if [ $? -ne 0 ] ; then
+          cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
+      fi
+
+      log "列出所有宿主机上的容器"
+      docker ps -a
+    TIME g "------------------------------------------------------------"
+    TIME g "|         aria2-pro启动需要一点点时间，请耐心等待！        |"
+    sleep 10
+    TIME g "|                    安装完成，自动退出脚本                |"
+    TIME g "|     aria2-pro默认端口为8080，如有修改请访问修改的端口    |"
+    TIME g "|        访问方式为宿主机ip:端口(例192.168.2.1:6880)       |"
+    TIME g "|                 Aria密钥设置再面板如下位置               |"
+    TIME g "|        AriaNg设置 > RPC(IP:6800) > Aria2 RPC 密钥        |"
+    TIME g "------------------------------------------------------------"
+  exit 0
+  ;;
+ 0) 
+ clear 
+ break
+ ;;
+ *) TIME r "----------------------------------"
+    TIME r "|          Warning!!!            |"
+    TIME r "|       请输入正确的选项!        |"
+    TIME r "----------------------------------"
+ for i in `seq -w 3 -1 1`
+   do
+     echo -ne "$i";
+     sleep 1;
+   done
+ clear
+ ;;
+ esac
+ done
 ;;
 *)  TIME r "----------------------------------"
  TIME r "|          Warning!!!            |"
