@@ -101,7 +101,7 @@ TIME() {
 	y) export Color="\e[33;1m";;
 	z) export Color="\e[35;1m";;
 	l) export Color="\e[36;1m";;
-	w) export Color="\e[37;1m";;
+	w) export Color="\e[29;1m";;
       esac
 	[[ $# -lt 2 ]] && echo -e "\e[36m\e[0m ${1}" || {
 		echo -e "\e[36m\e[0m ${Color}${2}\e[0m"
@@ -115,17 +115,16 @@ TIME w "             请按照命令提示操作"
 TIME r "           请保证科学上网已经开启"
 TIME w "        安装过程中可以按ctrl+c强制退出"
 TIME w "============================================"
-cat << EOF
-----------------------------------------
-(1) 安装docker和docker-compose
-(2) 安装<青龙>到宿主机
-(3) 安装<elecv2p>到宿主机
-(4) 安装portainer(docker图形管理工具)
-(5) 安装emby或jellyfin(打造自己的爱奇艺)
-(6) 安装下载工具
-(7) TG定时发送信息工具
-(0) 不想安装了，给老子退出！！！
-EOF
+#cat << EOF
+TIME w "(1) 安装docker和docker-compose"
+TIME w "(2) 安装<青龙>到宿主机"
+TIME w "(3) 安装<elecv2p>到宿主机"
+TIME w "(4) 安装portainer(docker图形管理工具)"
+TIME w "(5) 安装emby或jellyfin(打造自己的爱奇艺)"
+TIME w "(6) 安装下载工具"
+TIME w "(7) TG定时发送信息工具"
+TIME r "(0) 不想安装了，给老子退出！！！"
+#EOF
 read -p "Please enter your choice[0-7]: " input
 case $input in
 #安装docker and docker-compose
@@ -133,16 +132,16 @@ case $input in
 clear
 while [ "$flag" -eq 0 ]
 do
-cat << EOF
-----------------------------------------
-|****Please Enter Your Choice:[0-3]****|
-|********DOCKER & DOCKER-COMPOSE*******|
-----------------------------------------
-(1) 安装docker和docker-comopse
-(2) X86 openwrt安装docker和装docker-comopse
-(3) Arm64 openwrt安装docker和装docker-comopse(例 N1 等)
-(0) 返回上级菜单
-EOF
+#cat << EOF
+TIME w "----------------------------------------"
+TIME w "|****Please Enter Your Choice:[0-3]****|"
+TIME w "|********DOCKER & DOCKER-COMPOSE*******|"
+TIME w "----------------------------------------"
+TIME w "(1) 安装docker和docker-comopse"
+TIME w "(2) X86 openwrt安装docker和装docker-comopse"
+TIME w "(3) Arm64 openwrt安装docker和装docker-comopse(例 N1 等)"
+TIME b "(0) 返回上级菜单"
+#EOF
 TIME l "<注>openwrt宿主机默认安装dockerman图形docker管理工具！"
  read -p "Please enter your Choice[0-5]: " input1
  case $input1 in 
@@ -155,7 +154,7 @@ TIME l "<注>openwrt宿主机默认安装dockerman图形docker管理工具！"
 		sleep 5
         bash <(curl -s -S -L https://raw.githubusercontent.com/kissyouhunter/Tools/main/install-docker.sh)
         TIME g "****docker和docker-compose安装完成，请返回上级菜单!****"
-	    sleep 5
+	   sleep 5
     fi
   ;;
  2)
@@ -201,15 +200,15 @@ TIME l "<注>openwrt宿主机默认安装dockerman图形docker管理工具！"
 clear
 while [ "$flag" -eq 0 ]
 do
-cat << EOF
-----------------------------------------
-|****Please Enter Your Choice:[0-2]****|
-|*****************青龙*****************|
-----------------------------------------
-(1) linxu系统、X86的openwrt、群辉等请选择 1
-(2) N1的EMMC上运行的openwrt请选择 2
-(0) 返回上级菜单
-EOF
+#cat << EOF
+TIME w "----------------------------------------"
+TIME w "|****Please Enter Your Choice:[0-2]****|"
+TIME w "|*****************青龙*****************|"
+TIME w "----------------------------------------"
+TIME w "(1) linxu系统、X86的openwrt、群辉等请选择 1"
+TIME w "(2) N1的EMMC上运行的openwrt请选择 2"
+TIME b "(0) 返回上级菜单"
+#EOF
 TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按回车！"
  read -p "Please enter your choice[0-3]: " input2
  case $input2 in 
@@ -422,15 +421,15 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
 clear
 while [ "$flag" -eq 0 ]
 do
-cat << EOF
-----------------------------------------
-|****Please Enter Your Choice:[0-2]****|
-|****************ELECV2P***************|
-----------------------------------------
-(1) linxu系统、X86的openwrt、群辉等请选择 1
-(2) N1的EMMC上运行的openwrt请选择 2
-(0) 返回上级菜单
-EOF
+#cat << EOF
+TIME w "----------------------------------------"
+TIME w "|****Please Enter Your Choice:[0-2]****|"
+TIME w "|****************ELECV2P***************|"
+TIME w "----------------------------------------"
+TIME w "(1) linxu系统、X86的openwrt、群辉等请选择 1"
+TIME w "(2) N1的EMMC上运行的openwrt请选择 2"
+TIME b "(0) 返回上级菜单"
+#EOF
 TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按回车！"
  read -p "Please enter your Choice[0-2]: " input3
  case $input3 in 
@@ -649,14 +648,14 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
 clear
 while [ "$flag" -eq 0 ]
 do
-cat << EOF
-----------------------------------------
-|****Please Enter Your Choice:[0-1]****|
-|********DOCKER & DOCKER-COMPOSE*******|
-----------------------------------------
-(1) 安装portianer
-(0) 返回上级菜单
-EOF
+#cat << EOF
+TIME w "----------------------------------------"
+TIME w "|****Please Enter Your Choice:[0-1]****|"
+TIME w "|********DOCKER & DOCKER-COMPOSE*******|"
+TIME w "----------------------------------------"
+TIME w "(1) 安装portianer"
+TIME b "(0) 返回上级菜单"
+#EOF
  read -p "Please enter your Choice[0-1]: " input4
  case $input4 in 
  1)
@@ -700,15 +699,15 @@ EOF
 clear
 while [ "$flag" -eq 0 ]
 do
-cat << EOF
-----------------------------------------
-|****Please Enter Your Choice:[0-2]****|
-|************EMBY & JELLYFIN***********|
-----------------------------------------
-(1) 安装emby
-(2) 安装jellyfin
-(0) 返回上级菜单
-EOF
+#cat << EOF
+TIME w "----------------------------------------"
+TIME w "|****Please Enter Your Choice:[0-2]****|"
+TIME w "|************EMBY & JELLYFIN***********|"
+TIME w "----------------------------------------"
+TIME w "(1) 安装emby"
+TIME w "(2) 安装jellyfin"
+TIME b "(0) 返回上级菜单"
+#EOF
 TIME r "<注>请使用root账户部署容器"
  read -p "Please enter your Choice[0-2]: " input5
  case $input5 in 
@@ -979,16 +978,16 @@ exit 0
 clear
 while [ "$flag" -eq 0 ]
 do
-cat << EOF
-----------------------------------------
-|****Please Enter Your Choice:[0-3]****|
-|************EMBY & JELLYFIN***********|
-----------------------------------------
-(1) 安装qbittorrent增强版
-(2) 安装aria2
-(3) 安装aria2-pro
-(0) 返回上级菜单
-EOF
+#cat << EOF
+TIME w "----------------------------------------"
+TIME w "|****Please Enter Your Choice:[0-3]****|"
+TIME w "|************EMBY & JELLYFIN***********|"
+TIME w "----------------------------------------"
+TIME w "(1) 安装qbittorrent增强版"
+TIME w "(2) 安装aria2"
+TIME w "(3) 安装aria2-pro"
+TIME b "(0) 返回上级菜单"
+#EOF
 TIME r "<注>请使用root账户部署容器"
 TIME r "<注>aria2和aria2-pro 二选一"
  read -p "Please enter your Choice[0-3]: " input6
@@ -1286,15 +1285,15 @@ TIME r "<注>aria2和aria2-pro 二选一"
 clear
 while [ "$flag" -eq 0 ]
 do
-cat << EOF
-----------------------------------------
-|****Please Enter Your Choice:[0-2]****|
-|***************telethon***************|
-----------------------------------------
-(1) linxu系统、X86的openwrt、群辉等请选择 1
-(2) N1的EMMC上运行的openwrt请选择 2
-(0) 返回上级菜单
-EOF
+#cat << EOF
+TIME w "----------------------------------------"
+TIME w "|****Please Enter Your Choice:[0-2]****|"
+TIME w "|***************telethon***************|"
+TIME w "----------------------------------------"
+TIME w "(1) linxu系统、X86的openwrt、群辉等请选择 1"
+TIME w "(2) N1的EMMC上运行的openwrt请选择 2"
+TIME b "(0) 返回上级菜单"
+#EOF
 TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按回车！"
  read -p "Please enter your choice[0-3]: " input2
  case $input2 in 
