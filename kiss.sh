@@ -101,6 +101,7 @@ TIME() {
 	y) export Color="\e[33;1m";;
 	z) export Color="\e[35;1m";;
 	l) export Color="\e[36;1m";;
+	w) export Color="\e[37;1m";;
       esac
 	[[ $# -lt 2 ]] && echo -e "\e[36m\e[0m ${1}" || {
 		echo -e "\e[36m\e[0m ${Color}${2}\e[0m"
@@ -134,95 +135,31 @@ while [ "$flag" -eq 0 ]
 do
 cat << EOF
 ----------------------------------------
-|****Please Enter Your Choice:[0-5]****|
+|****Please Enter Your Choice:[0-3]****|
 |********DOCKER & DOCKER-COMPOSE*******|
 ----------------------------------------
 (1) 安装docker和docker-comopse
-(2) 只安装docker
-(3) 只装docker-comopse(注：宿主机上必须安装有docker才可以使用docker-compose)
-(4) X86 openwrt安装docker和装docker-comopse
-(5) Arm64 openwrt安装docker和装docker-comopse(例 N1 等)
+(2) X86 openwrt安装docker和装docker-comopse
+(3) Arm64 openwrt安装docker和装docker-comopse(例 N1 等)
 (0) 返回上级菜单
 EOF
 TIME l "<注>openwrt宿主机默认安装dockerman图形docker管理工具！"
  read -p "Please enter your Choice[0-5]: " input1
  case $input1 in 
  1)
-    echo "检测 Docker......"
-    if [ -x "$(command -v docker)" ]; then
-        echo "检测到 Docker 已安装!"
+    TIME y " >>>>>>>>>>>开始为安装docker和docker-compose"
+    if [ $lsb_dist == "openwrt" ]; then
+        TIME r "****openwrt宿主机请选择2或者3安装docker****"
     else
-        if [ -r /etc/os-release ]; then
-            lsb_dist="$(. /etc/os-release && echo "$ID")"
-        fi
-        if [ $lsb_dist == "openwrt" ]; then
-            TIME r "****openwrt宿主机请选择4或者5安装docker****"
-            #exit 1
-        else
-            TIME y " >>>>>>>>>>>开始安装docker&docker-compose"
-            bash <(curl -s -S -L https://raw.githubusercontent.com/kissyouhunter/Tools/main/install-docker.sh)
-            systemctl enable docker
-            systemctl start docker
-            TIME g "****docker和docker-compose安装完成，请返回上级菜单!****"
+        TIME y " >>>>>>>>>>>开始安装docker&docker-compose"
+		sleep 5
+        bash <(curl -s -S -L https://raw.githubusercontent.com/kissyouhunter/Tools/main/install-docker.sh)
+        TIME g "****docker和docker-compose安装完成，请返回上级菜单!****"
 	    sleep 5
         fi
     fi
   ;;
  2)
-    echo "检测 Docker......"
-    if [ -x "$(command -v docker)" ]; then
-        echo "检测到 Docker 已安装!"
-    else
-        if [ -r /etc/os-release ]; then
-            lsb_dist="$(. /etc/os-release && echo "$ID")"
-        fi
-        if [ $lsb_dist == "openwrt" ]; then
-            TIME r "****openwrt宿主机请选择4或者5安装docker****"
-            #exit 1
-        else
-            TIME y " >>>>>>>>>>>开始安装docker"
-            #apt update && apt install curl -y
-            curl -fsSL https://get.docker.com -o get-docker.sh
-            sh get-docker.sh
-            docker -v
-            systemctl enable docker
-            systemctl start docker
-            TIME g "****docker安装完成，请返回上级菜单!****"
-	    sleep 5
-        fi
-    fi
-  ;;
- 3)
-    echo "检测 Docker......"
-    if [ -x "$(command -v docker)" ]; then
-        echo "检测到 Docker 已安装!"
-        TIME y " >>>>>>>>>>>开始安装docker-compose"
-        #apt update && apt install curl -y
-        curl -L "https://github.com/docker/compose/releases/download/v2.2.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-        chmod +x /usr/local/bin/docker-compose
-        docker-compose -v
-        TIME g "****docker-compose安装完成，请返回上级菜单!****"
-	sleep 5
-    else
-        if [ -r /etc/os-release ]; then
-            lsb_dist="$(. /etc/os-release && echo "$ID")"
-        fi
-        if [ $lsb_dist == "openwrt" ]; then
-            TIME r "****openwrt宿主机请选择4或者5安装docker****"
-            #exit 1
-        elif [ -x "$(command -v docker-compose)" ]; then
-              echo "宿主机上已存在docker-compose"
-        else
-            TIME y " >>>>>>>>>>>开始安装docker&docker-compose"
-            bash <(curl -s -S -L https://raw.githubusercontent.com/kissyouhunter/Tools/main/install-docker.sh)
-            systemctl enable docker
-            systemctl start docker
-            TIME g "****docker和docker-compose安装完成，请返回上级菜单!****"
-	    sleep 5
-        fi
-    fi
-  ;;
- 4)
     TIME y " >>>>>>>>>>>开始为X86 openwrt安装docker和docker-compose"
     mkdir -p /tmp/upload/
     curl -Lo /tmp/upload/docker.zip https://mirror.ghproxy.com/https://github.com/gd0772/AutoBuild-OpenWrt/releases/download/AutoUpdate/docker_2.1.0-1_x86.zip
@@ -232,7 +169,7 @@ TIME l "<注>openwrt宿主机默认安装dockerman图形docker管理工具！"
     TIME g "****docker安装完成，请返回上级菜单!****"
     sleep 5
   ;;
- 5)
+ 3)
     TIME y " >>>>>>>>>>>开始为Arm64 openwrt安装docker和docker-compose"
     mkdir -p /tmp/upload/
     curl -Lo /tmp/upload/docker.zip https://mirror.ghproxy.com/https://github.com/gd0772/AutoBuild-OpenWrt/releases/download/AutoUpdate/docker_20.10.12-2_N1.zip
