@@ -156,7 +156,6 @@ TIME l "<注>openwrt宿主机默认安装dockerman图形docker管理工具！"
         bash <(curl -s -S -L https://raw.githubusercontent.com/kissyouhunter/Tools/main/install-docker.sh)
         TIME g "****docker和docker-compose安装完成，请返回上级菜单!****"
 	    sleep 5
-        fi
     fi
   ;;
  2)
