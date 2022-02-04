@@ -147,7 +147,7 @@ TIME l "<注>openwrt宿主机默认安装dockerman图形docker管理工具！"
  case $input1 in 
  1)
     TIME y " >>>>>>>>>>>开始为安装docker和docker-compose"
-    if [ $lsb_dist == "openwrt" ]; then
+    if [ "$lsb_dist" == "openwrt" ]; then
         TIME r "****openwrt宿主机请选择2或者3安装docker****"
     else
         TIME y " >>>>>>>>>>>开始安装docker&docker-compose"
