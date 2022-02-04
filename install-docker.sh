@@ -535,7 +535,7 @@ function ChooseMirrors() {
     echo -e ''
     echo -e "        运行环境  ${SYSTEM_NAME} ${SYSTEM_VERSION_NUMBER} ${SYSTEM_ARCH}"
     echo -e "        系统时间  $(date "+%Y-%m-%d %H:%M:%S")"
-    echo -e '                    ctrl+c退出安装'
+    echo -e '                ctrl+c退出安装'
     echo -e '#####################################################'
     CHOICE_A=$(echo -e "\n${BOLD}└ 请选择并输入你想使用的 Docker CE 源 [ 1~8 ]：${PLAIN}")
     read -p "${CHOICE_A}" INPUT
