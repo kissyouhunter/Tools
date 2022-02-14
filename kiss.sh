@@ -175,6 +175,8 @@ TIME l "<注>openwrt宿主机默认安装dockerman图形docker管理工具！"
     cd /tmp/upload/ && opkg install *.ipk && rm -f *.ipk
     docker -v && docker-compose -v
     TIME g "****docker安装完成，请返回上级菜单!****"
+    TIME g "****U盘上运行的OP，如果docker空间没有指定到 /mnt/sda4/docker ，请修改****"
+    TIME g "****dockerman > 设置 > Docker 根目录 修改为 /mnt/sda4/docker ****"
     sleep 5
   ;;
  0) 
