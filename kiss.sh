@@ -170,7 +170,7 @@ TIME l "<注>openwrt宿主机默认安装dockerman图形docker管理工具！"
  3)
     TIME y " >>>>>>>>>>>开始为Arm64 openwrt安装docker和docker-compose"
     mkdir -p /tmp/upload/
-    curl -Lo /tmp/upload/docker.zip https://mirror.ghproxy.com/https://github.com/gd0772/AutoBuild-OpenWrt/releases/download/AutoUpdate/docker_20.10.12-2_N1.zip
+    curl -Lo /tmp/upload/docker.zip https://mirror.ghproxy.com/https://github.com/kissyouhunter/Openwrt_X86-Openwrt_N1-Armbian_N1/releases/download/openwrt_n1/docker-20.10.12-1_aarch64.zip
     cd /tmp/upload/ && unzip docker.zip && rm -f docker.zip
     cd /tmp/upload/ && opkg install *.ipk && rm -f *.ipk
     docker -v && docker-compose -v
