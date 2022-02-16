@@ -1470,7 +1470,8 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   elif [ -d "$adg_path" ]; then
       ADG_PATH=$adg_path
   else
-      mkdir -p $adg_path
+      mkdir -p ${adg_path}/work
+      mkdir -p ${adg_path}/conf
       ADG_PATH=$adg_path
   fi
   CONFIG_PATH=$ADG_PATH
@@ -1497,8 +1498,8 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   log "2.开始创建容器并执行"
   docker run -dit \
       -t \
-      -v $CONFIG_PATH/work:/opt/adguardhome/work \
-      -v $CONFIG_PATH/conf:/opt/adguardhome/conf \
+      -v ${CONFIG_PATH}/work:/opt/adguardhome/work \
+      -v ${CONFIG_PATH}/conf:/opt/adguardhome/conf \
       --name $ADG_CONTAINER_NAME \
       --hostname $ADG_CONTAINER_NAME \
       --restart always \
