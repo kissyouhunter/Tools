@@ -1525,7 +1525,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   echo -e "请输入adguardhome存储的文件夹名称（如：adguardhome)，回车默认为adguardhome"
   read adg_path
   if [ -z "$adg_path" ]; then
-      AGD_PATH=$N1_ADG_FOLDER
+      ADG_PATH=$N1_ADG_FOLDER
   elif [ -d "$adg_path" ]; then
       ADG_PATH=/mnt/mmcblk2p4/$adg_path
   else
@@ -1579,7 +1579,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
     TIME g "-----------------------------------------------------------"
   exit 0
   ;;
- 3)  
+ 10)  
   TIME y " >>>>>>>>>>>开始安装adguardhome（docker版）到N1的/mnt/mmcblk2p4/"
   # 创建映射文件夹
   echo -e "请输入adguardhome存储的文件夹名称（如：adguardhome)，回车默认为adguardhome"
