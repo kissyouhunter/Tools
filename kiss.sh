@@ -25,7 +25,7 @@ V2P_PORT1=8101
 V2P_PORT2=8102
 # emby变量
 EMBY_DOCKER_IMG_NAME="xanderye/embyserver"
-EMBY_TAG="4.7.0.17"
+EMBY_TAG="4.7.0.20"
 EMBY_PATH=""
 EMBY_CONFIG_FOLDER=$(pwd)/emby
 EMBY_MOVIES_FOLDER=$(pwd)/movies
@@ -33,7 +33,7 @@ EMBY_TVSHOWS_FOLDER=$(pwd)/tvshows
 EMBY_CONTAINER_NAME=""
 EMBY_PORT=8096
 EMBY_PORT1=8920
-# emby变量
+# jellyfin变量
 JELLYFIN_DOCKER_IMG_NAME="jellyfin/jellyfin"
 JELLYFIN_PATH=""
 JELLYFIN_CONFIG_FOLDER=$(pwd)/jellyfin
@@ -71,6 +71,13 @@ TG_PATH=""
 TG_SHELL_FOLDER=$(pwd)/telethon
 N1_TG_FOLDER=/mnt/mmcblk2p4/telethon
 TG_CONTAINER_NAME=""
+# adguardhome变量
+ADG_DOCKER_IMG_NAME="adguard/adguardhome"
+TAG="latest"
+ADG_PATH=""
+ADG_CONFIG_FOLDER=$(pwd)/adguardhome
+N1_ADG_FOLDER=/mnt/mmcblk2p4/adguardhome
+ADG_CONTAINER_NAME=""
 
 log() {
     echo -e "\n$1"
@@ -123,9 +130,10 @@ TIME w "(4) 安装portainer(docker图形管理工具)"
 TIME w "(5) 安装emby或jellyfin(打造自己的爱奇艺)"
 TIME w "(6) 安装下载工具"
 TIME w "(7) TG定时发送信息工具"
+TIME w "(8) AdGuardHome DNS解析+去广告"
 TIME r "(0) 不想安装了，给老子退出！！！"
 #EOF
-read -p "Please enter your choice[0-7]: " input
+read -p "Please enter your choice[0-8]: " input
 case $input in
 #安装docker and docker-compose
 1)
@@ -1282,8 +1290,8 @@ TIME r "<注>aria2和aria2-pro 二选一"
  esac
  done
 ;;
-#安装telethon
-7)
+#安装adguardhome
+8)
 clear
 while [ "$flag" -eq 0 ]
 do
@@ -1297,7 +1305,7 @@ TIME w "(2) N1的EMMC上运行的openwrt请选择 2"
 TIME b "(0) 返回上级菜单"
 #EOF
 TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按回车！"
- read -p "Please enter your choice[0-3]: " input2
+ read -p "Please enter your choice[0-2]: " input2
  case $input2 in 
  1)
   TIME y " >>>>>>>>>>>开始安装telethon"
@@ -1322,6 +1330,159 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
         TG_CONTAINER_NAME="telethon"
     else
         TG_CONTAINER_NAME=$container_name
+    fi
+  }
+  input_container_name
+
+  TIME y " >>>>>>>>>>>配置完成，开始安装telethon"
+  log "1.开始创建配置文件目录"
+  PATH_LIST=($CONFIG_PATH)
+  for i in ${PATH_LIST[@]}; do
+      mkdir -p $i
+  done
+
+  log "2.开始创建容器并执行"
+  docker run -dit \
+      -t \
+      -v $CONFIG_PATH:/telethon \
+      --name $TG_CONTAINER_NAME \
+      --hostname $TG_CONTAINER_NAME \
+      --restart always \
+      --net host \
+      $TG_DOCKER_IMG_NAME:$TAG
+
+      if [ $? -ne 0 ] ; then
+          cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
+      fi
+
+      log "列出所有宿主机上的容器"
+      docker ps -a
+    TIME g "-----------------------------------------------------------"
+    TIME g "|         telethon启动需要一点点时间，请耐心等待！        |"
+    sleep 10
+    TIME g "|                安装完成，自动退出脚本                   |"
+    TIME g "| 使用教程https://hub.docker.com/r/kissyouhunter/telethon |"
+    TIME g "-----------------------------------------------------------"
+  exit 0
+  ;;
+ 2)  
+  TIME y " >>>>>>>>>>>开始安装telethon到N1的/mnt/mmcblk2p4/"
+  # 创建映射文件夹
+  echo -e "请输入telethon存储的文件夹名称（如：telethon)，回车默认为telethon"
+  read jd_path
+  if [ -z "$TG_path" ]; then
+      TG_PATH=$N1_TG_FOLDER
+  elif [ -d "$tg_path" ]; then
+      TG_PATH=/mnt/mmcblk2p4/$tg_path
+  else
+      mkdir -p /mnt/mmcblk2p4/$tg_path
+      TG_PATH=/mnt/mmcblk2p4/$tg_path
+  fi
+  CONFIG_PATH=$TG_PATH
+  
+  # 输入容器名
+  input_container_name() {
+    echo -e "请输入将要创建的容器名[默认为：telethon]->"
+    read container_name
+    if [ -z "$container_name" ]; then
+        TG_CONTAINER_NAME="telethon"
+    else
+        TG_CONTAINER_NAME=$container_name
+    fi
+  }
+  input_container_name
+
+  TIME y " >>>>>>>>>>>配置完成，开始安装telethon"
+  log "1.开始创建配置文件目录"
+  PATH_LIST=($CONFIG_PATH)
+  for i in ${PATH_LIST[@]}; do
+      mkdir -p $i
+  done
+
+  log "3.开始创建容器并执行"
+  docker run -dit \
+      -t \
+      -v $CONFIG_PATH:/telethon \
+      --name $TG_CONTAINER_NAME \
+      --hostname $TG_CONTAINER_NAME \
+      --restart always \
+      --net host \
+      $TG_DOCKER_IMG_NAME:$TAG
+
+      if [ $? -ne 0 ] ; then
+          cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
+      fi
+
+      log "列出所有宿主机上的容器"
+      docker ps -a
+    TIME g "-----------------------------------------------------------"
+    TIME g "|         telethon启动需要一点点时间，请耐心等待！        |"
+    sleep 10
+    TIME g "|                安装完成，自动退出脚本                   |"
+    TIME g "| 使用教程https://hub.docker.com/r/kissyouhunter/telethon |"
+    TIME g "-----------------------------------------------------------"
+  exit 0
+  ;;
+ 0) 
+ clear 
+ break
+ ;;
+ *) TIME r "----------------------------------"
+    TIME r "|          Warning!!!            |"
+    TIME r "|       请输入正确的选项!        |"
+    TIME r "----------------------------------"
+ for i in `seq -w 3 -1 1`
+   do
+     TIME r "$i";
+     sleep 1;
+   done
+ clear
+ ;;
+ esac
+ done
+ ;;
+#安装telethon
+7)
+clear
+while [ "$flag" -eq 0 ]
+do
+#cat << EOF
+
+TIME w "----------------------------------------"
+TIME w "|****Please Enter Your Choice:[0-3]****|"
+TIME w "|***************telethon***************|"
+TIME w "----------------------------------------"
+TIME w "(1) linxu系统、X86的openwrt、群辉等（docker版）请选择 1"
+TIME w "(2) N1的EMMC上运行的openwrt（docker版）请选择 2"
+TIME w "(3) linxu系统（非docker版，openwrt不可运行）"
+TIME b "(0) 返回上级菜单"
+#EOF
+TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按回车！"
+ read -p "Please enter your choice[0-3]: " input2
+ case $input2 in 
+ 1)
+  TIME y " >>>>>>>>>>>开始安装adguardhome（docker版，x86系统）"
+    # 创建映射文件夹
+  echo -e "请输入adguardhome配置文件保存的绝对路径（示例：/home/telethon)，回车默认为当前目录:"
+  read adg_path
+  if [ -z "$adg_path" ]; then
+      ADG_PATH=$ADG_CONFIG_FOLDER
+  elif [ -d "$adg_path" ]; then
+      ADG_PATH=$adg_path
+  else
+      mkdir -p $adg_path
+      ADG_PATH=$adg_path
+  fi
+  CONFIG_PATH=$ADG_PATH
+
+  # 输入容器名
+  input_container_name() {
+    echo -e "请输入将要创建的容器名[默认为：adguardhome]->"
+    read container_name
+    if [ -z "$container_name" ]; then
+        ADG_CONTAINER_NAME="adguardhome"
+    else
+        ADG_CONTAINER_NAME=$container_name
     fi
   }
   input_container_name
