@@ -1463,7 +1463,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
  1)
   TIME y " >>>>>>>>>>>开始安装adguardhome（docker版，x86系统）"
     # 创建映射文件夹
-  echo -e "请输入adguardhome配置文件保存的绝对路径（示例：/home/telethon)，回车默认为当前目录:"
+  echo -e "请输入adguardhome配置文件保存的绝对路径（示例：/home/adguardhome)，回车默认为当前目录:"
   read adg_path
   if [ -z "$adg_path" ]; then
       ADG_PATH=$ADG_CONFIG_FOLDER
@@ -1521,33 +1521,34 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   exit 0
   ;;
  2)  
-  TIME y " >>>>>>>>>>>开始安装telethon到N1的/mnt/mmcblk2p4/"
+  TIME y " >>>>>>>>>>>开始安装adguardhome（docker版，n1）"
   # 创建映射文件夹
-  echo -e "请输入telethon存储的文件夹名称（如：telethon)，回车默认为telethon"
+  echo -e "请输入adguardhome存储的文件夹名称（如：adguardhome)，回车默认为adguardhome"
   read jd_path
-  if [ -z "$TG_path" ]; then
-      TG_PATH=$N1_TG_FOLDER
-  elif [ -d "$tg_path" ]; then
-      TG_PATH=/mnt/mmcblk2p4/$tg_path
+  if [ -z "$ADG_path" ]; then
+      AGD_PATH=$N1_ADG_FOLDER
+  elif [ -d "$adg_path" ]; then
+      ADG_PATH=/mnt/mmcblk2p4/$adg_path
   else
-      mkdir -p /mnt/mmcblk2p4/$tg_path
-      TG_PATH=/mnt/mmcblk2p4/$tg_path
+      mkdir -p /mnt/mmcblk2p4/$adg_path/work
+      mkdir -p /mnt/mmcblk2p4/$adg_path/conf
+      ADG_PATH=/mnt/mmcblk2p4/$adg_path
   fi
-  CONFIG_PATH=$TG_PATH
+  CONFIG_PATH=$ADG_PATH
   
   # 输入容器名
   input_container_name() {
-    echo -e "请输入将要创建的容器名[默认为：telethon]->"
+    echo -e "请输入将要创建的容器名[默认为：adguardhome]->"
     read container_name
     if [ -z "$container_name" ]; then
-        TG_CONTAINER_NAME="telethon"
+        ADG_CONTAINER_NAME="adguardhome"
     else
-        TG_CONTAINER_NAME=$container_name
+        ADG_CONTAINER_NAME=$container_name
     fi
   }
   input_container_name
 
-  TIME y " >>>>>>>>>>>配置完成，开始安装telethon"
+  TIME y " >>>>>>>>>>>配置完成，开始安装adguardhome（docker版，n1）"
   log "1.开始创建配置文件目录"
   PATH_LIST=($CONFIG_PATH)
   for i in ${PATH_LIST[@]}; do
@@ -1557,12 +1558,13 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   log "3.开始创建容器并执行"
   docker run -dit \
       -t \
-      -v $CONFIG_PATH:/telethon \
-      --name $TG_CONTAINER_NAME \
-      --hostname $TG_CONTAINER_NAME \
+      -v ${CONFIG_PATH}/work:/opt/adguardhome/work \
+      -v ${CONFIG_PATH}/conf:/opt/adguardhome/conf \
+      --name $ADG_CONTAINER_NAME \
+      --hostname $ADG_CONTAINER_NAME \
       --restart always \
       --net host \
-      $TG_DOCKER_IMG_NAME:$TAG
+      $ADG_DOCKER_IMG_NAME:$TAG
 
       if [ $? -ne 0 ] ; then
           cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
@@ -1571,10 +1573,10 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
       log "列出所有宿主机上的容器"
       docker ps -a
     TIME g "-----------------------------------------------------------"
-    TIME g "|         telethon启动需要一点点时间，请耐心等待！        |"
+    TIME g "|        adguardhome启动需要一点点时间，请耐心等待！        |"
     sleep 10
     TIME g "|                安装完成，自动退出脚本                   |"
-    TIME g "| 使用教程https://hub.docker.com/r/kissyouhunter/telethon |"
+    TIME g "|            首次启动请访问宿主机 IP:3000                 |"
     TIME g "-----------------------------------------------------------"
   exit 0
   ;;
