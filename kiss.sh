@@ -1487,7 +1487,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   }
   input_container_name
 
-  TIME y " >>>>>>>>>>>配置完成，开始安装telethon"
+  TIME y " >>>>>>>>>>>配置完成，开始安装adguardhome（docker版，x86系统）"
   log "1.开始创建配置文件目录"
   PATH_LIST=($CONFIG_PATH)
   for i in ${PATH_LIST[@]}; do
@@ -1497,12 +1497,13 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   log "2.开始创建容器并执行"
   docker run -dit \
       -t \
-      -v $CONFIG_PATH:/telethon \
-      --name $TG_CONTAINER_NAME \
-      --hostname $TG_CONTAINER_NAME \
+      -v $CONFIG_PATH/work:/opt/adguardhome/work \
+      -v $CONFIG_PATH/conf:/opt/adguardhome/conf \
+      --name $ADG_CONTAINER_NAME \
+      --hostname $ADG_CONTAINER_NAME \
       --restart always \
       --net host \
-      $TG_DOCKER_IMG_NAME:$TAG
+      $ADG_DOCKER_IMG_NAME:$TAG
 
       if [ $? -ne 0 ] ; then
           cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
