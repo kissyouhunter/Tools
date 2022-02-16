@@ -1441,7 +1441,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
  esac
  done
  ;;
-#安装telethon
+#安装adguardhome
 8)
 clear
 while [ "$flag" -eq 0 ]
@@ -1449,7 +1449,7 @@ do
 #cat << EOF
 TIME w "----------------------------------------"
 TIME w "|****Please Enter Your Choice:[0-3]****|"
-TIME w "|***************telethon***************|"
+TIME w "|**************adguardhome*************|"
 TIME w "----------------------------------------"
 TIME w "(1) linxu系统、X86的openwrt、群辉等（docker版）请选择 1"
 TIME w "(2) N1的EMMC上运行的openwrt（docker版）请选择 2"
