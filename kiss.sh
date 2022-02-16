@@ -1290,8 +1290,8 @@ TIME r "<注>aria2和aria2-pro 二选一"
  esac
  done
 ;;
-#安装adguardhome
-8)
+#安装telethon
+7)
 clear
 while [ "$flag" -eq 0 ]
 do
@@ -1442,12 +1442,11 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
  done
  ;;
 #安装telethon
-7)
+8)
 clear
 while [ "$flag" -eq 0 ]
 do
 #cat << EOF
-
 TIME w "----------------------------------------"
 TIME w "|****Please Enter Your Choice:[0-3]****|"
 TIME w "|***************telethon***************|"
@@ -1521,7 +1520,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   exit 0
   ;;
  2)  
-  TIME y " >>>>>>>>>>>开始安装adguardhome（docker版，n1）"
+  TIME y " >>>>>>>>>>>开始安装adguardhome（docker版）到N1的/mnt/mmcblk2p4/"
   # 创建映射文件夹
   echo -e "请输入adguardhome存储的文件夹名称（如：adguardhome)，回车默认为adguardhome"
   read jd_path
@@ -1548,7 +1547,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   }
   input_container_name
 
-  TIME y " >>>>>>>>>>>配置完成，开始安装adguardhome（docker版，n1）"
+  TIME y " >>>>>>>>>>>配置完成，开始安装adguardhome（docker版）到N1的/mnt/mmcblk2p4/"
   log "1.开始创建配置文件目录"
   PATH_LIST=($CONFIG_PATH)
   for i in ${PATH_LIST[@]}; do
