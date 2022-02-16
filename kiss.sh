@@ -1369,8 +1369,8 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   TIME y " >>>>>>>>>>>开始安装telethon到N1的/mnt/mmcblk2p4/"
   # 创建映射文件夹
   echo -e "请输入telethon存储的文件夹名称（如：telethon)，回车默认为telethon"
-  read jd_path
-  if [ -z "$TG_path" ]; then
+  read tg_path
+  if [ -z "$tg_path" ]; then
       TG_PATH=$N1_TG_FOLDER
   elif [ -d "$tg_path" ]; then
       TG_PATH=/mnt/mmcblk2p4/$tg_path
@@ -1523,8 +1523,8 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   TIME y " >>>>>>>>>>>开始安装adguardhome（docker版）到N1的/mnt/mmcblk2p4/"
   # 创建映射文件夹
   echo -e "请输入adguardhome存储的文件夹名称（如：adguardhome)，回车默认为adguardhome"
-  read jd_path
-  if [ -z "$ADG_path" ]; then
+  read adg_path
+  if [ -z "$adg_path" ]; then
       AGD_PATH=$N1_ADG_FOLDER
   elif [ -d "$adg_path" ]; then
       ADG_PATH=/mnt/mmcblk2p4/$adg_path
