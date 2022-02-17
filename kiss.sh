@@ -1522,9 +1522,66 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
  2)  
   TIME y " >>>>>>>>>>>开始安装adguardhome（docker版）到N1的/mnt/mmcblk2p4/"
   # 创建映射文件夹
+  read adg_path
+  if [ -z "$adg_path" ]; then
+      ADG_PATH=$N1_ADG_FOLDER
+  elif [ -d "$adg_path" ]; then
+      ADG_PATH=/mnt/mmcblk2p4/$adg_path
+  else
+      mkdir -p /mnt/mmcblk2p4/$adg_path/work
+      mkdir -p /mnt/mmcblk2p4/$adg_path/conf
+      ADG_PATH=/mnt/mmcblk2p4/$adg_path
+  fi
+  CONFIG_PATH=$ADG_PATH
+  
+  # 输入容器名
+  input_container_name() {
+    echo -e "请输入将要创建的容器名[默认为：adguardhome]->"
+    read container_name
+    if [ -z "$container_name" ]; then
+        ADG_CONTAINER_NAME="adguardhome"
+    else
+        ADG_CONTAINER_NAME=$container_name
+    fi
+  }
+  input_container_name
+
+  TIME y " >>>>>>>>>>>配置完成，开始安装adguardhome（docker版）到N1的/mnt/mmcblk2p4/"
+  log "1.开始创建配置文件目录"
+  PATH_LIST=($CONFIG_PATH)
+  for i in ${PATH_LIST[@]}; do
+      mkdir -p $i
+  done
+
+  log "3.开始创建容器并执行"
+  docker run -dit \
+      -t \
+      -v ${CONFIG_PATH}/work:/opt/adguardhome/work \
+      -v ${CONFIG_PATH}/conf:/opt/adguardhome/conf \
+      --name $ADG_CONTAINER_NAME \
+      --hostname $ADG_CONTAINER_NAME \
+      --restart always \
+      --net host \
+      $ADG_DOCKER_IMG_NAME:$TAG
+
+      if [ $? -ne 0 ] ; then
+          cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
+      fi
+
+      log "列出所有宿主机上的容器"
+      docker ps -a
+    TIME g "-----------------------------------------------------------"
+    TIME g "|       adguardhome启动需要一点点时间，请耐心等待！       |"
+    sleep 10
+    TIME g "|                安装完成，自动退出脚本                   |"
+    TIME g "|            首次启动请访问宿主机 IP:3000                 |"
+    TIME g "-----------------------------------------------------------"
+  exit 0
+  ;;
+ 3)  
+  TIME y " >>>>>>>>>>>开始安装adguardhome（非docker版）"
   apt update && apt install curl -y
   curl -s -S -L https://raw.githubusercontent.com/AdguardTeam/AdGuardHome/master/scripts/install.sh | sh -s -- -v
-  
     TIME g "-----------------------------------------------------------"
     TIME g "|       adguardhome启动需要一点点时间，请耐心等待！       |"
     sleep 10
