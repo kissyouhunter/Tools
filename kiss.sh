@@ -178,9 +178,9 @@ TIME l "<注>openwrt宿主机默认安装dockerman图形docker管理工具！"
  3)
     TIME y " >>>>>>>>>>>开始为Arm64 openwrt安装docker和docker-compose"
     mkdir -p /tmp/upload/ && cd /tmp/upload/
-    curl -LO https://mirror.ghproxy.com/https://github.com/kissyouhunter/Openwrt_X86-Openwrt_N1-Armbian_N1/releases/download/openwrt_n1/docker-20.10.12-1_aarch64.zip
-    unzip docker-20.10.12-1_aarch64.zip && rm -f docker-20.10.12-1_aarch64.zip
-    cd /tmp/upload/docker-20.10.12-1_aarch64 && opkg install *.ipk && cd .. && rm -rf docker-20.10.12-1_aarch64/
+    curl -LO https://pan.gd772.com/d/update/docker_20.10.12-2_N1.tar.gz
+    tar -zxvf docker_20.10.12-2_N1.tar.gz && rm -f docker_20.10.12-2_N1.tar.gz
+    cd /tmp/upload/ddocker_20.10.12-2_N1 && opkg install *.ipk && cd .. && rm -rf docker_20.10.12-2_N1/
     docker -v && docker-compose -v
     TIME g "****docker安装完成，请返回上级菜单!****"
     TIME g "****U盘上运行的OP，如果docker空间没有指定到 /mnt/sda4/docker ，请修改****"
