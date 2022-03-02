@@ -180,7 +180,7 @@ TIME l "<注>openwrt宿主机默认安装dockerman图形docker管理工具！"
     mkdir -p /tmp/upload/ && cd /tmp/upload/
     curl -LO https://pan.gd772.com/d/update/docker_20.10.12-2_N1.tar.gz
     tar -zxvf docker_20.10.12-2_N1.tar.gz && rm -f docker_20.10.12-2_N1.tar.gz
-    cd /tmp/upload/ddocker_20.10.12-2_N1 && opkg install *.ipk && cd .. && rm -rf docker_20.10.12-2_N1/
+    cd /tmp/upload/ && opkg install *.ipk && rm -f *.ipk
     docker -v && docker-compose -v
     TIME g "****docker安装完成，请返回上级菜单!****"
     TIME g "****U盘上运行的OP，如果docker空间没有指定到 /mnt/sda4/docker ，请修改****"
