@@ -42,7 +42,7 @@ DockerVersionFile=docker-version.txt
 DockerCEVersionFile=docker-ce-version.txt
 DockerCECLIVersionFile=docker-ce-cli-version.txt
 PROXY_URL=https://ghproxy.com/
-DOCKER_COMPOSE_VERSION=v2.2.3
+DOCKER_COMPOSE_VERSION=v2.3.3
 DOCKER_COMPOSE_DOWNLOAD_URL=https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-Linux-x86_64
 DOCKER_COMPOSE_AARCG64_DOWNLOAD_URL=https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-Linux-aarch64
 
