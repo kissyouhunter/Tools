@@ -196,9 +196,9 @@ TIME l "<注>openwrt宿主机默认安装dockerman图形docker管理工具！"
     TIME r "|          Warning!!!            |"
     TIME r "|       请输入正确的选项!        |"
     TIME r "----------------------------------"
- for i in `seq -w 3 -1 1`
+ for i in `seq -w 2 -1 1`
    do
-     TIME r "\b\b$i";
+     #TIME r "\b\b$i";
      sleep 1;
    done
  clear
@@ -417,9 +417,9 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
     TIME r "|          Warning!!!            |"
     TIME r "|       请输入正确的选项!        |"
     TIME r "----------------------------------"
- for i in `seq -w 3 -1 1`
+ for i in `seq -w 2 -1 1`
    do
-     TIME r "\b\b$i";
+     #TIME r "\b\b$i";
      sleep 1;
    done
  clear
@@ -644,9 +644,9 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
     TIME r "|          Warning!!!            |"
     TIME r "|       请输入正确的选项!        |"
     TIME r "----------------------------------"
- for i in `seq -w 3 -1 1`
+ for i in `seq -w 2 -1 1`
    do
-     TIME r "\b\b$i";
+     #TIME r "\b\b$i";
      sleep 1;
    done
  clear
@@ -695,9 +695,9 @@ TIME b "(0) 返回上级菜单"
     TIME r "|          Warning!!!            |"
     TIME r "|       请输入正确的选项!        |"
     TIME r "----------------------------------"
- for i in `seq -w 3 -1 1`
+ for i in `seq -w 2 -1 1`
    do
-     echo -ne "\b\b$i";
+     #TIME r "\b\b$i";
      sleep 1;
    done
  clear
@@ -970,9 +970,9 @@ TIME r "<注>请使用root账户部署容器"
     TIME r "|          Warning!!!            |"
     TIME r "|       请输入正确的选项!        |"
     TIME r "----------------------------------"
- for i in `seq -w 3 -1 1`
+ for i in `seq -w 2 -1 1`
    do
-     TIME r "\b\b$i";
+     #TIME r "\b\b$i";
      sleep 1;
    done
  clear
@@ -1281,9 +1281,9 @@ TIME r "<注>aria2和aria2-pro 二选一"
     TIME r "|          Warning!!!            |"
     TIME r "|       请输入正确的选项!        |"
     TIME r "----------------------------------"
- for i in `seq -w 3 -1 1`
+ for i in `seq -w 2 -1 1`
    do
-     TIME r "\b\b$i";
+     #TIME r "\b\b$i";
      sleep 1;
    done
  clear
@@ -1432,9 +1432,9 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
     TIME r "|          Warning!!!            |"
     TIME r "|       请输入正确的选项!        |"
     TIME r "----------------------------------"
- for i in `seq -w 3 -1 1`
+ for i in `seq -w 2 -1 1`
    do
-     TIME r "\b\b$i";
+     #TIME r "\b\b$i";
      sleep 1;
    done
  clear
@@ -1599,9 +1599,9 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
     TIME r "|          Warning!!!            |"
     TIME r "|       请输入正确的选项!        |"
     TIME r "----------------------------------"
- for i in `seq -w 3 -1 1`
+ for i in `seq -w 2 -1 1`
    do
-     TIME r "\b\b$i";
+     #TIME r "\b\b$i";
      sleep 1;
    done
  clear
@@ -1613,9 +1613,9 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
  TIME r "|          Warning!!!            |"
  TIME r "|       请输入正确的选项!        |"
  TIME r  "----------------------------------"
- for i in `seq -w 3 -1 1`
+ for i in `seq -w 2 -1 1`
    do
-     TIME r "\b\b$i";
+     #TIME r "\b\b$i";
      sleep 1;
    done
  clear
