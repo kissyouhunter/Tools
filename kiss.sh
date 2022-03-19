@@ -87,7 +87,7 @@ inp() {
 }
 
 opt() {
-    echo -e "输入您的选择->"
+    echo -n -e "输入您的选择->"
 }
 cancelrun() {
     if [ $# -gt 0 ]; then
@@ -143,7 +143,7 @@ do
 #cat << EOF
 TIME w "----------------------------------------"
 TIME w "|****Please Enter Your Choice:[0-3]****|"
-TIME w "|********DOCKER & DOCKER-COMPOSE*******|"
+TIME w "|******* DOCKER & DOCKER-COMPOSE ******|"
 TIME w "----------------------------------------"
 TIME w "(1) 安装docker和docker-comopse"
 TIME w "(2) X86 openwrt安装docker和装docker-comopse"
@@ -196,7 +196,7 @@ TIME l "<注>openwrt宿主机默认安装dockerman图形docker管理工具！"
     TIME r "|          Warning!!!            |"
     TIME r "|       请输入正确的选项!        |"
     TIME r "----------------------------------"
- for i in `seq -w 2 -1 1`
+ for i in `seq -w 1 -1 1`
    do
      #TIME r "\b\b$i";
      sleep 1;
@@ -214,7 +214,7 @@ do
 #cat << EOF
 TIME w "----------------------------------------"
 TIME w "|****Please Enter Your Choice:[0-2]****|"
-TIME w "|*****************青龙*****************|"
+TIME w "|**************** 青龙 ****************|"
 TIME w "----------------------------------------"
 TIME w "(1) linxu系统、X86的openwrt、群辉等请选择 1"
 TIME w "(2) N1的EMMC上运行的openwrt请选择 2"
@@ -226,7 +226,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
  1)
   TIME y " >>>>>>>>>>>开始安装青龙"
     # 创建映射文件夹
-  echo -e "请输入青龙配置文件保存的绝对路径（示例：/home/ql)，回车默认为当前目录:"
+  echo -n -e "请输入青龙配置文件保存的绝对路径（示例：/home/ql)，回车默认为当前目录: "
   read jd_path
   if [ -z "$jd_path" ]; then
       JD_PATH=$JD_SHELL_FOLDER
@@ -245,7 +245,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
 
   # 输入容器名
   input_container_name() {
-    echo -e "请输入将要创建的容器名[默认为：ql]->"
+    echo -n -e "请输入将要创建的容器名[默认为：ql]-> "
     read container_name
     if [ -z "$container_name" ]; then
         JD_CONTAINER_NAME="ql"
@@ -319,7 +319,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
  2)  
   TIME y " >>>>>>>>>>>开始安装青龙到N1的/mnt/mmcblk2p4/"
   # 创建映射文件夹
-  echo -e "请输入青龙存储的文件夹名称（如：ql)，回车默认为ql"
+  echo -n -e "请输入青龙存储的文件夹名称（如：ql)，回车默认为 ql: "
   read jd_path
   if [ -z "$jd_path" ]; then
       JD_PATH=$N1_JD_FOLDER
@@ -338,7 +338,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   
   # 输入容器名
   input_container_name() {
-    echo -e "请输入将要创建的容器名[默认为：ql]->"
+    echo -n -e "请输入将要创建的容器名[默认为：ql]-> "
     read container_name
     if [ -z "$container_name" ]; then
         JD_CONTAINER_NAME="ql"
@@ -417,7 +417,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
     TIME r "|          Warning!!!            |"
     TIME r "|       请输入正确的选项!        |"
     TIME r "----------------------------------"
- for i in `seq -w 2 -1 1`
+ for i in `seq -w 1 -1 1`
    do
      #TIME r "\b\b$i";
      sleep 1;
@@ -435,7 +435,7 @@ do
 #cat << EOF
 TIME w "----------------------------------------"
 TIME w "|****Please Enter Your Choice:[0-2]****|"
-TIME w "|****************ELECV2P***************|"
+TIME w "|*************** ELECV2P **************|"
 TIME w "----------------------------------------"
 TIME w "(1) linxu系统、X86的openwrt、群辉等请选择 1"
 TIME w "(2) N1的EMMC上运行的openwrt请选择 2"
@@ -447,7 +447,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
  1)
   TIME y " >>>>>>>>>>>开始安装elecv2p"
   # 创建映射文件夹
-  echo -e "请输入elecv2p配置文件保存的绝对路径（示例：/home/elecv2p)，回车默认为当前目录:"
+  echo -n -e "请输入elecv2p配置文件保存的绝对路径（示例：/home/elecv2p)，回车默认为当前目录: "
   read v2p_path
   if [ -z "$v2p_path" ]; then
       V2P_PATH=$V2P_SHELL_FOLDER
@@ -467,7 +467,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   
   # 输入容器名
   input_container_name() {
-    echo -e "请输入将要创建的容器名[默认为：elecv2p]->"
+    echo -n -e "请输入将要创建的容器名[默认为：elecv2p]-> "
     read container_name
     if [ -z "$container_name" ]; then
         V2P_CONTAINER_NAME="elecv2p"
@@ -543,7 +543,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
  2)
   TIME y " >>>>>>>>>>>开始安装elecv2p到N1的/mnt/mmcblk2p4/"
   # 创建映射文件夹
-  echo -e "请输入elecv2p存储的文件夹名称（如：elecv2p)，回车默认为elecv2p"
+  echo -n -e "请输入elecv2p存储的文件夹名称（如：elecv2p)，回车默认为 elecv2p: "
   read v2p_path
   if [ -z "$v2p_path" ]; then
       V2P_PATH=$N1_V2P_FOLDER
@@ -563,7 +563,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   
   # 输入容器名
   input_container_name() {
-    echo -e "请输入将要创建的容器名[默认为：elecv2p]->"
+    echo -n -e "请输入将要创建的容器名[默认为：elecv2p]-> "
     read container_name
     if [ -z "$container_name" ]; then
         V2P_CONTAINER_NAME="elecv2p"
@@ -644,7 +644,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
     TIME r "|          Warning!!!            |"
     TIME r "|       请输入正确的选项!        |"
     TIME r "----------------------------------"
- for i in `seq -w 2 -1 1`
+ for i in `seq -w 1 -1 1`
    do
      #TIME r "\b\b$i";
      sleep 1;
@@ -662,7 +662,7 @@ do
 #cat << EOF
 TIME w "----------------------------------------"
 TIME w "|****Please Enter Your Choice:[0-1]****|"
-TIME w "|********DOCKER & DOCKER-COMPOSE*******|"
+TIME w "|******* DOCKER & DOCKER-COMPOSE ******|"
 TIME w "----------------------------------------"
 TIME w "(1) 安装portianer"
 TIME b "(0) 返回上级菜单"
@@ -695,7 +695,7 @@ TIME b "(0) 返回上级菜单"
     TIME r "|          Warning!!!            |"
     TIME r "|       请输入正确的选项!        |"
     TIME r "----------------------------------"
- for i in `seq -w 2 -1 1`
+ for i in `seq -w 1 -1 1`
    do
      #TIME r "\b\b$i";
      sleep 1;
@@ -713,9 +713,9 @@ do
 #cat << EOF
 TIME w "----------------------------------------"
 TIME w "|****Please Enter Your Choice:[0-2]****|"
-TIME w "|************EMBY & JELLYFIN***********|"
+TIME w "|*********** EMBY & JELLYFIN **********|"
 TIME w "----------------------------------------"
-TIME w "(1) 安装emby"
+TIME w "(1) 安装emby (暂无arm64)"
 TIME w "(2) 安装jellyfin"
 TIME b "(0) 返回上级菜单"
 #EOF
@@ -725,7 +725,7 @@ TIME r "<注>请使用root账户部署容器"
  1)
     TIME y " >>>>>>>>>>>开始安装emby"
   # 创建映射文件夹
-  echo -e "请输入emby配置文件保存的绝对路径（示例：/home/emby)，回车默认为当前目录:"
+  echo -n -e "请输入emby配置文件保存的绝对路径（示例：/home/emby)，回车默认为当前目录: "
   read emby_path
   if [ -z "$emby_path" ]; then
       EMBY_PATH=$EMBY_CONFIG_FOLDER
@@ -736,7 +736,7 @@ TIME r "<注>请使用root账户部署容器"
       EMBY_PATH=$emby_path
   fi
   CONFIG_PATH=$EMBY_PATH/config
-  echo -e "请输入电影文件保存的绝对路径（示例：/home/movies)，回车默认为当前目录:"
+  echo -n -e "请输入电影文件保存的绝对路径（示例：/home/movies)，回车默认为当前目录: "
   read movies_path
   if [ -z "$movies_path" ]; then
       MOVIES_PATH=$EMBY_MOVIES_FOLDER
@@ -746,7 +746,7 @@ TIME r "<注>请使用root账户部署容器"
       mkdir -p $movies_path
       MOVIES_PATH=$movies_path
   fi
-  echo -e "请输入电视剧文件保存的绝对路径（示例：/home/tvshows)，回车默认为当前目录:"
+  echo -n -e "请输入电视剧文件保存的绝对路径（示例：/home/tvshows)，回车默认为当前目录: "
   read tvshows_path
   if [ -z "$tvshows_path" ]; then
       TVSHOWS_PATH=$EMBY_TVSHOWS_FOLDER
@@ -759,7 +759,7 @@ TIME r "<注>请使用root账户部署容器"
   
   # 输入容器名
   input_container_name() {
-    echo -e "请输入将要创建的容器名[默认为：emby]->"
+    echo -n -e "请输入将要创建的容器名[默认为：emby]-> "
     read container_name
     if [ -z "$container_name" ]; then
         EMBY_CONTAINER_NAME="emby"
@@ -845,7 +845,7 @@ TIME r "<注>请使用root账户部署容器"
  2)
     TIME y " >>>>>>>>>>>开始安装jellyfin"
   # 创建映射文件夹
-  echo -e "请输入emby配置文件保存的绝对路径（示例：/home/jellyfin)，回车默认为当前目录:"
+  echo -n -e "请输入emby配置文件保存的绝对路径（示例：/home/jellyfin)，回车默认为当前目录: "
   read jellyfin_path
   if [ -z "$jellyfin_path" ]; then
       JELLYFIN_PATH=$JELLYFIN_CONFIG_FOLDER
@@ -856,7 +856,7 @@ TIME r "<注>请使用root账户部署容器"
       JELLYFIN_PATH=$jellyfin_path
   fi
   CONFIG_PATH=$JELLYFIN_PATH/config
-  echo -e "请输入电影文件保存的绝对路径（示例：/home/movies)，回车默认为当前目录:"
+  echo -n -e "请输入电影文件保存的绝对路径（示例：/home/movies)，回车默认为当前目录: "
   read movies_path
   if [ -z "$movies_path" ]; then
       MOVIES_PATH=$JELLYFIN_MOVIES_FOLDER
@@ -866,7 +866,7 @@ TIME r "<注>请使用root账户部署容器"
       mkdir -p $movies_path
       MOVIES_PATH=$movies_path
   fi
-  echo -e "请输入电视剧文件保存的绝对路径（示例：/home/tvshows)，回车默认为当前目录:"
+  echo -n -e "请输入电视剧文件保存的绝对路径（示例：/home/tvshows)，回车默认为当前目录: "
   read tvshows_path
   if [ -z "$tvshows_path" ]; then
       TVSHOWS_PATH=$JELLYFIN_TVSHOWS_FOLDER
@@ -879,7 +879,7 @@ TIME r "<注>请使用root账户部署容器"
   
   # 输入容器名
   input_container_name() {
-    echo -e "请输入将要创建的容器名[默认为：jellyfin]->"
+    echo -n -e "请输入将要创建的容器名[默认为：jellyfin]-> "
     read container_name
     if [ -z "$container_name" ]; then
         JELLYFIN_CONTAINER_NAME="jellyfin"
@@ -970,7 +970,7 @@ TIME r "<注>请使用root账户部署容器"
     TIME r "|          Warning!!!            |"
     TIME r "|       请输入正确的选项!        |"
     TIME r "----------------------------------"
- for i in `seq -w 2 -1 1`
+ for i in `seq -w 1 -1 1`
    do
      #TIME r "\b\b$i";
      sleep 1;
@@ -992,7 +992,7 @@ do
 #cat << EOF
 TIME w "----------------------------------------"
 TIME w "|****Please Enter Your Choice:[0-3]****|"
-TIME w "|************EMBY & JELLYFIN***********|"
+TIME w "|******** QBITTORRENT & ARIA2 *********|"
 TIME w "----------------------------------------"
 TIME w "(1) 安装qbittorrent增强版"
 TIME w "(2) 安装aria2"
@@ -1006,7 +1006,7 @@ TIME r "<注>aria2和aria2-pro 二选一"
  1)
     TIME y " >>>>>>>>>>>开始安装qbittorrent增强版"
   # 创建映射文件夹
-  echo -e "请输入qbittorrent增强版配置文件保存的绝对路径（示例：/home/qbittorrent)，回车默认为当前目录:"
+  echo -n -e "请输入qbittorrent增强版配置文件保存的绝对路径（示例：/home/qbittorrent)，回车默认为当前目录: "
   read qb_path
   if [ -z "$qb_path" ]; then
       QB_PATH=$QB_CONFIG_FOLDER
@@ -1017,7 +1017,7 @@ TIME r "<注>aria2和aria2-pro 二选一"
       QB_PATH=$qb_path
   fi
   #QB_CONFIG_PATH=$QB_PATH/qbittorrent
-  echo -e "请输入电影文件保存的绝对路径（示例：/home/downloads)，回车默认为当前目录:"
+  echo -n -e "请输入下载文件保存的绝对路径（示例：/home/downloads)，回车默认为当前目录: "
   read downloads_path
   if [ -z "$downloads_path" ]; then
       DOWNLOADS_PATH=$QB_DOWNLOADS_FOLDER
@@ -1030,7 +1030,7 @@ TIME r "<注>aria2和aria2-pro 二选一"
 
   # 输入容器名
   input_container_name() {
-    echo -e "请输入将要创建的容器名[默认为：qbittorrent]->"
+    echo -n -e "请输入将要创建的容器名[默认为：qbittorrent]-> "
     read container_name
     if [ -z "$container_name" ]; then
         QB_CONTAINER_NAME="qbittorrent"
@@ -1081,7 +1081,7 @@ TIME r "<注>aria2和aria2-pro 二选一"
  2)
     TIME y " >>>>>>>>>>>开始安装aria2"
   # 创建映射文件夹
-  echo -e "请输入emby配置文件保存的绝对路径（示例：/home/aria2)，回车默认为当前目录:"
+  echo -n -e "请输入aria2配置文件保存的绝对路径（示例：/home/aria2)，回车默认为当前目录: "
   read aria2_path
   if [ -z "$aria2_path" ]; then
       ARIA2_PATH=$ARIA2_CONFIG_FOLDER
@@ -1091,7 +1091,7 @@ TIME r "<注>aria2和aria2-pro 二选一"
       mkdir -p $aria2_path
       ARIA2_PATH=$aria2_path
   fi
-  echo -e "请输入下载文件保存的绝对路径（示例：/home/downloads)，回车默认为当前目录:"
+  echo -n -e "请输入下载文件保存的绝对路径（示例：/home/downloads)，回车默认为当前目录: "
   read downloads_path
   if [ -z "$downloads_path" ]; then
       DOWNLOADS_PATH=$QB_DOWNLOADS_FOLDER
@@ -1104,7 +1104,7 @@ TIME r "<注>aria2和aria2-pro 二选一"
   
   # 输入容器名
   input_container_name() {
-    echo -e "请输入将要创建的容器名[默认为：aria2]->"
+    echo -n -e "请输入将要创建的容器名[默认为：aria2]-> "
     read container_name
     if [ -z "$container_name" ]; then
         ARIA2_CONTAINER_NAME="aria2"
@@ -1118,7 +1118,7 @@ TIME r "<注>aria2和aria2-pro 二选一"
   opt
   read change_token
   if [ "$change_token" = "1" ]; then
-      echo -e "输入想修改的密钥->"
+      echo -n -e "输入想修改的密钥-> "
       read TOKEN
   fi
 
@@ -1164,7 +1164,7 @@ TIME r "<注>aria2和aria2-pro 二选一"
     TIME g "|                 安装完成，自动退出脚本                |"
     TIME g "|     aria2默认端口为8080，如有修改请访问修改的端口     |"
     TIME g "|     访问方式为宿主机ip:端口(例192.168.2.1:8080)       |"
-    TIME g "|              Aria密钥设置再面板如下位置               |"
+    TIME g "|              Aria密钥设置在面板如下位置               |"
     TIME g "|      AriaNg设置 > RPC(IP:6800) > Aria2 RPC 密钥       |"
     TIME g "---------------------------------------------------------"
   exit 0
@@ -1172,7 +1172,7 @@ TIME r "<注>aria2和aria2-pro 二选一"
  3)
     TIME y " >>>>>>>>>>>开始安装aria2-pro"
   # 创建映射文件夹
-  echo -e "请输入emby配置文件保存的绝对路径（示例：/home/aria2-pro)，回车默认为当前目录:"
+  echo -n -e "请输入aria2-pro配置文件保存的绝对路径（示例：/home/aria2-pro)，回车默认为当前目录: "
   read aria2_pro_path
   if [ -z "$aria2_pro_path" ]; then
       ARIA2_PRO_PATH=$ARIA2_PRO_CONFIG_FOLDER
@@ -1182,7 +1182,7 @@ TIME r "<注>aria2和aria2-pro 二选一"
       mkdir -p $aria2_pro_path
       ARIA2_PRO_PATH=$aria2_pro_path
   fi
-  echo -e "请输入下载文件保存的绝对路径（示例：/home/downloads)，回车默认为当前目录:"
+  echo -n -e "请输入下载文件保存的绝对路径（示例：/home/downloads)，回车默认为当前目录: "
   read downloads_path
   if [ -z "$downloads_path" ]; then
       DOWNLOADS_PATH=$QB_DOWNLOADS_FOLDER
@@ -1195,7 +1195,7 @@ TIME r "<注>aria2和aria2-pro 二选一"
   
   # 输入容器名
   input_container_name() {
-    echo -e "请输入将要创建的容器名[默认为：aria2-pro]->"
+    echo -n -e "请输入将要创建的容器名[默认为：aria2-pro]-> "
     read container_name
     if [ -z "$container_name" ]; then
         ARIA2_PRO_CONTAINER_NAME="aria2-pro"
@@ -1206,7 +1206,7 @@ TIME r "<注>aria2和aria2-pro 二选一"
   input_container_name
   # 输入容器名(面板)
   input_container_name1() {
-    echo -e "请输入将要创建的面板容器名[默认为：ariang]->"
+    echo -n -e "请输入将要创建的面板容器名[默认为：ariang]-> "
     read container_name1
     if [ -z "$container_name1" ]; then
         ARIA2_PRO_WEBUI_NAME="ariang"
@@ -1220,7 +1220,7 @@ TIME r "<注>aria2和aria2-pro 二选一"
   opt
   read change_token
   if [ "$change_token" = "1" ]; then
-      echo -e "输入想修改的密钥->"
+      echo -n -e "输入想修改的密钥-> "
       read TOKEN
   fi
 
@@ -1268,7 +1268,7 @@ TIME r "<注>aria2和aria2-pro 二选一"
     TIME g "|                    安装完成，自动退出脚本                |"
     TIME g "|     aria2-pro默认端口为8080，如有修改请访问修改的端口    |"
     TIME g "|        访问方式为宿主机ip:端口(例192.168.2.1:6880)       |"
-    TIME g "|                 Aria密钥设置再面板如下位置               |"
+    TIME g "|                 Aria密钥设置在面板如下位置               |"
     TIME g "|        AriaNg设置 > RPC(IP:6800) > Aria2 RPC 密钥        |"
     TIME g "------------------------------------------------------------"
   exit 0
@@ -1281,7 +1281,7 @@ TIME r "<注>aria2和aria2-pro 二选一"
     TIME r "|          Warning!!!            |"
     TIME r "|       请输入正确的选项!        |"
     TIME r "----------------------------------"
- for i in `seq -w 2 -1 1`
+ for i in `seq -w 1 -1 1`
    do
      #TIME r "\b\b$i";
      sleep 1;
@@ -1299,7 +1299,7 @@ do
 #cat << EOF
 TIME w "----------------------------------------"
 TIME w "|****Please Enter Your Choice:[0-2]****|"
-TIME w "|***************telethon***************|"
+TIME w "|************** telethon **************|"
 TIME w "----------------------------------------"
 TIME w "(1) linxu系统、X86的openwrt、群辉等请选择 1"
 TIME w "(2) N1的EMMC上运行的openwrt请选择 2"
@@ -1311,7 +1311,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
  1)
   TIME y " >>>>>>>>>>>开始安装telethon"
     # 创建映射文件夹
-  echo -e "请输入telethon配置文件保存的绝对路径（示例：/home/telethon)，回车默认为当前目录:"
+  echo -n -e "请输入telethon配置文件保存的绝对路径（示例：/home/telethon)，回车默认为当前目录: "
   read tg_path
   if [ -z "$tg_path" ]; then
       TG_PATH=$TG_SHELL_FOLDER
@@ -1325,7 +1325,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
 
   # 输入容器名
   input_container_name() {
-    echo -e "请输入将要创建的容器名[默认为：telethon]->"
+    echo -n -e "请输入将要创建的容器名[默认为：telethon]-> "
     read container_name
     if [ -z "$container_name" ]; then
         TG_CONTAINER_NAME="telethon"
@@ -1369,7 +1369,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
  2)  
   TIME y " >>>>>>>>>>>开始安装telethon到N1的/mnt/mmcblk2p4/"
   # 创建映射文件夹
-  echo -e "请输入telethon存储的文件夹名称（如：telethon)，回车默认为telethon"
+  echo -n -e "请输入telethon存储的文件夹名称（如：telethon)，回车默认为 telethon: "
   read tg_path
   if [ -z "$tg_path" ]; then
       TG_PATH=$N1_TG_FOLDER
@@ -1383,7 +1383,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   
   # 输入容器名
   input_container_name() {
-    echo -e "请输入将要创建的容器名[默认为：telethon]->"
+    echo -n -e "请输入将要创建的容器名[默认为：telethon]-> "
     read container_name
     if [ -z "$container_name" ]; then
         TG_CONTAINER_NAME="telethon"
@@ -1432,7 +1432,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
     TIME r "|          Warning!!!            |"
     TIME r "|       请输入正确的选项!        |"
     TIME r "----------------------------------"
- for i in `seq -w 2 -1 1`
+ for i in `seq -w 1 -1 1`
    do
      #TIME r "\b\b$i";
      sleep 1;
@@ -1450,7 +1450,7 @@ do
 #cat << EOF
 TIME w "----------------------------------------"
 TIME w "|****Please Enter Your Choice:[0-3]****|"
-TIME w "|**************adguardhome*************|"
+TIME w "|************* adguardhome ************|"
 TIME w "----------------------------------------"
 TIME w "(1) linxu系统、X86的openwrt、群辉等（docker版）请选择 1"
 TIME w "(2) N1的EMMC上运行的openwrt（docker版）请选择 2"
@@ -1463,7 +1463,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
  1)
   TIME y " >>>>>>>>>>>开始安装adguardhome（docker版，x86系统）"
     # 创建映射文件夹
-  echo -e "请输入adguardhome配置文件保存的绝对路径（示例：/home/adguardhome)，回车默认为当前目录:"
+  echo -n -e "请输入adguardhome配置文件保存的绝对路径（示例：/home/adguardhome)，回车默认为当前目录: "
   read adg_path
   if [ -z "$adg_path" ]; then
       ADG_PATH=$ADG_CONFIG_FOLDER
@@ -1478,7 +1478,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
 
   # 输入容器名
   input_container_name() {
-    echo -e "请输入将要创建的容器名[默认为：adguardhome]->"
+    echo -n -e "请输入将要创建的容器名[默认为：adguardhome]-> "
     read container_name
     if [ -z "$container_name" ]; then
         ADG_CONTAINER_NAME="adguardhome"
@@ -1537,7 +1537,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   
   # 输入容器名
   input_container_name() {
-    echo -e "请输入将要创建的容器名[默认为：adguardhome]->"
+    echo -n -e "请输入将要创建的容器名[默认为：adguardhome]-> "
     read container_name
     if [ -z "$container_name" ]; then
         ADG_CONTAINER_NAME="adguardhome"
@@ -1599,7 +1599,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
     TIME r "|          Warning!!!            |"
     TIME r "|       请输入正确的选项!        |"
     TIME r "----------------------------------"
- for i in `seq -w 2 -1 1`
+ for i in `seq -w 1 -1 1`
    do
      #TIME r "\b\b$i";
      sleep 1;
@@ -1609,11 +1609,11 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
  esac
  done
 ;;
-*)  TIME r "----------------------------------"
+*) TIME r "----------------------------------"
  TIME r "|          Warning!!!            |"
  TIME r "|       请输入正确的选项!        |"
  TIME r  "----------------------------------"
- for i in `seq -w 2 -1 1`
+ for i in `seq -w 1 -1 1`
    do
      #TIME r "\b\b$i";
      sleep 1;
