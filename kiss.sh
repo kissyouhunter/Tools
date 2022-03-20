@@ -141,7 +141,7 @@ TIME w "(8) AdGuardHome DNS解析+去广告"
 TIME w "(9) x-ui"
 TIME r "(0) 不想安装了，给老子退出！！！"
 #EOF
-read -p "Please enter your choice[0-9]: " input
+read -p "Please enter your choice[0-8]: " input
 case $input in
 #安装docker and docker-compose
 1)
@@ -204,7 +204,7 @@ TIME l "<注>openwrt宿主机默认安装dockerman图形docker管理工具！"
     TIME r "|          Warning!!!            |"
     TIME r "|       请输入正确的选项!        |"
     TIME r "----------------------------------"
- for i in $(seq -w 1 -1 1)
+ for i in `seq -w 1 -1 1`
    do
      #TIME r "\b\b$i";
      sleep 1;
@@ -233,7 +233,8 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
  case $input2 in 
  1)
   TIME y " >>>>>>>>>>>开始安装青龙"
-    # 创建映射文件夹
+  # 创建映射文件夹
+  input_container_ql1_config() {
   echo -n -e "请输入青龙配置文件保存的绝对路径（示例：/home/ql)，回车默认为当前目录: "
   read ql_path
   if [ -z "$ql_path" ]; then
@@ -250,6 +251,8 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   SCRIPT_PATH=$QL_PATH/scripts
   LOG_PATH=$QL_PATH/log
   DEPS_PATH=$QL_PATH/deps
+  }
+  input_container_ql1_config
 
   # 输入容器名
   input_container_ql1_name() {
@@ -264,6 +267,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   input_container_ql1_name
 
   # 网络模式
+  input_container_ql1_network_config() {
   inp "请选择容器的网络类型：\n1) host\n2) bridge[默认]"
   opt
   read net
@@ -277,12 +281,44 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
       opt
       read change_ql_port
       if [ "$change_ql_port" = "1" ]; then
-          echo -e "输入想修改的端口->"
+          echo -n -e "输入想修改的端口->"
           read QL_PORT
       else
           QL_PORT="5700"
       fi
   fi
+  }
+  input_container_ql1_network_config
+
+  # 确认
+  while true
+  do
+  	TIME y "青龙配置文件路径：$QL_PATH"
+  	TIME y "青龙容器名：$QL_CONTAINER_NAME"
+  	TIME y "青龙网络类型：$NETWORK"
+  	if [ "$NETWORK" = "host" ]; then
+  		TIME y "青龙面板端口：5700"
+  	elif [ "$NETWORK" = "bridge" ]; then
+  		TIME y "青龙网络请求查看端口：$QL_PORT"
+  	fi
+  	read -r -p "以上信息是否正确？[Y/n] " input21
+  	case $input21 in
+  		[yY][eE][sS]|[yY])
+  			break
+  			;;
+  		[nN][oO]|[nN])
+  			TIME w "即将返回上一步"
+  			sleep 1
+  			QL_PORT=5700
+  			input_container_ql1_config
+  			input_container_ql1_name
+  			input_container_ql1_network_config
+  			;;
+  		*)
+  			TIME r "输入错误，请输入[Y/n]"
+  			;;
+  	esac
+  done
 
   TIME y " >>>>>>>>>>>配置完成，开始安装青龙"
   log "1.开始创建配置文件目录"
@@ -319,14 +355,18 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
     TIME g "|        青龙启动需要一点点时间，请耐心等待！       |"
     sleep 10
     TIME g "|             安装完成，自动退出脚本                |"
-    TIME g "|   青龙默认端口为5700，如有修改请访问修改后的端口  |"
-    TIME g "|    访问方式为宿主机ip:端口(例192.168.2.1:5700)    |"
+    if [ "$NETWORK" = "host" ]; then
+    		TIME g "|            访问方式为 宿主机ip:5700               |"
+    elif [ "$NETWORK" = "bridge" ]; then
+    		TIME g "|            访问方式为 宿主机ip:$QL_PORT               |"
+    fi
     TIME g "-----------------------------------------------------"  
   exit 0
   ;;
  2)  
   TIME y " >>>>>>>>>>>开始安装青龙到N1的/mnt/mmcblk2p4/"
   # 创建映射文件夹
+  input_container_ql2_config() {
   echo -n -e "请输入青龙存储的文件夹名称（如：ql)，回车默认为 ql: "
   read ql_path
   if [ -z "$ql_path" ]; then
@@ -343,6 +383,8 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   SCRIPT_PATH=$QL_PATH/scripts
   LOG_PATH=$QL_PATH/log
   DEPS_PATH=$QL_PATH/deps
+  }
+  input_container_ql2_config
   
   # 输入容器名
   input_container_ql2_name() {
@@ -357,6 +399,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   input_container_ql2_name
 
   # 网络模式
+  input_container_ql2_network_config() {
   inp "请选择容器的网络类型：\n1) host\n2) bridge[默认]"
   opt
   read net
@@ -370,12 +413,44 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
       opt
       read change_ql_port
       if [ "$change_ql_port" = "1" ]; then
-          echo -e "输入想修改的端口->"
+          echo -n -e "输入想修改的端口->"
           read QL_PORT
       else
           QL_PORT="5700"
       fi
   fi
+  }
+  input_container_ql2_network_config
+
+  # 确认
+  while true
+  do
+  	TIME y "青龙配置文件路径：$QL_PATH"
+  	TIME y "青龙容器名：$QL_CONTAINER_NAME"
+  	TIME y "青龙网络类型：$NETWORK"
+  	if [ "$NETWORK" = "host" ]; then
+  		TIME y "青龙面板端口：5700"
+  	elif [ "$NETWORK" = "bridge" ]; then
+  		TIME y "青龙网络请求查看端口：$QL_PORT"
+  	fi
+  	read -r -p "以上信息是否正确？[Y/n] " input22
+  	case $input22 in
+  		[yY][eE][sS]|[yY])
+  			break
+  			;;
+  		[nN][oO]|[nN])
+  			TIME w "即将返回上一步"
+  			sleep 1
+  			QL_PORT=5700
+  			input_container_ql2_config
+  			input_container_ql2_name
+  			input_container_ql2_network_config
+  			;;
+  		*)
+  			TIME r "输入错误，请输入[Y/n]"
+  			;;
+  	esac
+  done
 
   TIME y " >>>>>>>>>>>配置完成，开始安装青龙"
   log "1.开始创建配置文件目录"
@@ -412,8 +487,11 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
     TIME g "|        青龙启动需要一点点时间，请耐心等待！       |"
     sleep 10
     TIME g "|             安装完成，自动退出脚本                |"
-    TIME g "|    青龙默认端口为9000，如有修改请访问修改的端口   |"
-    TIME g "|    访问方式为宿主机ip:端口(例192.168.2.1:9000)    |"
+    if [ "$NETWORK" = "host" ]; then
+    		TIME g "|            访问方式为 宿主机ip:5700               |"
+    elif [ "$NETWORK" = "bridge" ]; then
+    		TIME g "|            访问方式为 宿主机ip:$QL_PORT               |"
+    fi
     TIME g "-----------------------------------------------------"
   exit 0
   ;;
@@ -425,7 +503,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
     TIME r "|          Warning!!!            |"
     TIME r "|       请输入正确的选项!        |"
     TIME r "----------------------------------"
- for i in $(seq -w 1 -1 1)
+ for i in `seq -w 1 -1 1`
    do
      #TIME r "\b\b$i";
      sleep 1;
@@ -455,6 +533,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
  1)
   TIME y " >>>>>>>>>>>开始安装elecv2p"
   # 创建映射文件夹
+  input_container_v2p1_config() {
   echo -n -e "请输入elecv2p配置文件保存的绝对路径（示例：/home/elecv2p)，回车默认为当前目录: "
   read v2p_path
   if [ -z "$v2p_path" ]; then
@@ -472,6 +551,8 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   ROOTCA_PATH=$V2P_PATH/rootCA
   EFSS_PATH=$V2P_PATH/efss
   LOG_PATH=$V2P_PATH/logs
+  }
+  input_container_v2p1_config
   
   # 输入容器名
   input_container_v2p1_name() {
@@ -486,29 +567,71 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   input_container_v2p1_name
 
   # 面板端口
+  input_container_v2p1_webui_config() {
   inp "是否修改elecv2p面板端口[默认 8100]：\n1) 修改\n2) 不修改[默认]"
   opt
   read change_v2p_port
   if [ "$change_v2p_port" = "1" ]; then
-      echo -e "输入想修改的端口->"
+      echo -n -e "输入想修改的端口->"
       read V2P_PORT
   fi
+  }
+  input_container_v2p1_webui_config
+  
   # ANYPROXY端口
+  input_container_v2p1_anyproxy_config() {
   inp "是否修改elecv2p的anyproxy端口[默认 8101]：\n1) 修改\n2) 不修改[默认]"
   opt
   read change_v2p_port1
   if [ "$change_v2p_port1" = "1" ]; then
-      echo -e "输入想修改的端口->"
+      echo -n -e "输入想修改的端口->"
       read V2P_PORT1
   fi
+  }
+  input_container_v2p1_anyproxy_config
+  
   # 网络请求查看端口
+  input_container_v2p1_http_config() {
   inp "是否修改elecv2p网络请求查看端口[默认 8102]：\n1) 修改\n2) 不修改[默认]"
   opt
   read change_v2p_port2
   if [ "$change_v2p_port2" = "1" ]; then
-      echo -e "输入想修改的端口->"
+      echo -n -e "输入想修改的端口->"
       read V2P_PORT2
   fi
+  }
+  input_container_v2p1_http_config
+
+  # 确认
+  while true
+  do
+  	TIME y "elecv2p 配置文件路径：$V2P_PATH"
+  	TIME y "elecv2p 容器名：$V2P_CONTAINER_NAME"
+  	TIME y "elecv2p 面板端口：$V2P_PORT"
+  	TIME y "elecv2p anyproxy端口：$V2P_PORT1"
+  	TIME y "elecv2p 网络请求查看端口：$V2P_PORT2"
+  	read -r -p "以上信息是否正确？[Y/n] " input32
+  	case $input32 in
+  		[yY][eE][sS]|[yY])
+  			break
+  			;;
+  		[nN][oO]|[nN])
+  			TIME w "即将返回上一步"
+  			sleep 1
+  			V2P_PORT=8100
+  			V2P_PORT1=8101
+  			V2P_PORT2=8102
+  			input_container_v2p1_config
+  			input_container_v2p1_name
+  			input_container_v2p1_webui_config
+  			input_container_v2p1_anyproxy_config
+  			input_container_v2p1_http_config
+  			;;
+  		*)
+  			TIME r "输入错误，请输入[Y/n]"
+  			;;
+  	esac
+  done
 
   TIME y " >>>>>>>>>>>配置完成，开始安装elecv2p"
   log "1.开始创建配置文件目录"
@@ -543,14 +666,14 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
     TIME g "|      elev2p启动需要一点点时间，请耐心等待！       |"
     sleep 10
     TIME g "|             安装完成，自动退出脚本                |"
-    TIME g "|  elev2p默认端口为8100，如有修改请访问修改的端口   |"
-    TIME g "|    访问方式为宿主机ip:端口(例192.168.2.1:8100)    |"
+    TIME g "|            访问方式为 宿主机ip:$V2P_PORT               |"
     TIME g "-----------------------------------------------------"
   exit 0
   ;;
  2)
   TIME y " >>>>>>>>>>>开始安装elecv2p到N1的/mnt/mmcblk2p4/"
   # 创建映射文件夹
+  input_container_v2p2_config() {
   echo -n -e "请输入elecv2p存储的文件夹名称（如：elecv2p)，回车默认为 elecv2p: "
   read v2p_path
   if [ -z "$v2p_path" ]; then
@@ -568,6 +691,8 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   ROOTCA_PATH=$V2P_PATH/rootCA
   EFSS_PATH=$V2P_PATH/efss
   LOG_PATH=$V2P_PATH/logs
+  }
+  input_container_v2p2_config
   
   # 输入容器名
   input_container_v2p2_name() {
@@ -582,29 +707,71 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   input_container_v2p2_name
 
   # 面板端口
+  input_container_v2p2_webui_config() {
   inp "是否修改elecv2p面板端口[默认 8100]：\n1) 修改\n2) 不修改[默认]"
   opt
   read change_v2p_port
   if [ "$change_v2p_port" = "1" ]; then
-      echo -e "输入想修改的端口->"
+      echo -n -e "输入想修改的端口->"
       read V2P_PORT
   fi
+  }
+  input_container_v2p2_webui_config
+  
   # ANYPROXY端口
+  input_container_v2p2_anyproxy_config() {
   inp "是否修改elecv2p的anyproxy端口[默认 8101]：\n1) 修改\n2) 不修改[默认]"
   opt
   read change_v2p_port1
   if [ "$change_v2p_port1" = "1" ]; then
-      echo -e "输入想修改的端口->"
+      echo -n -e "输入想修改的端口->"
       read V2P_PORT1
   fi
+  }
+  input_container_v2p2_anyproxy_config
+  
   # 网络请求查看端口
+  input_container_v2p2_http_config() {
   inp "是否修改elecv2p网络请求查看端口[默认 8102]：\n1) 修改\n2) 不修改[默认]"
   opt
   read change_v2p_port2
   if [ "$change_v2p_port2" = "1" ]; then
-      echo -e "输入想修改的端口->"
+      echo -n -e "输入想修改的端口->"
       read V2P_PORT2
   fi
+  }
+  input_container_v2p2_http_config
+
+  # 确认
+  while true
+  do
+  	TIME y "elecv2p 配置文件路径：$V2P_PATH"
+  	TIME y "elecv2p 容器名：$V2P_CONTAINER_NAME"
+  	TIME y "elecv2p 面板端口：$V2P_PORT"
+  	TIME y "elecv2p anyproxy端口：$V2P_PORT1"
+  	TIME y "elecv2p 网络请求查看端口：$V2P_PORT2"
+  	read -r -p "以上信息是否正确？[Y/n] " input32
+  	case $input32 in
+  		[yY][eE][sS]|[yY])
+  			break
+  			;;
+  		[nN][oO]|[nN])
+  			TIME w "即将返回上一步"
+  			sleep 1
+  			V2P_PORT=8100
+  			V2P_PORT1=8101
+  			V2P_PORT2=8102
+  			input_container_v2p2_config
+  			input_container_v2p2_name
+  			input_container_v2p2_webui_config
+  			input_container_v2p2_anyproxy_config
+  			input_container_v2p2_http_config
+  			;;
+  		*)
+  			TIME r "输入错误，请输入[Y/n]"
+  			;;
+  	esac
+  done
 
   TIME y " >>>>>>>>>>>配置完成，开始安装elecv2p"
   log "1.开始创建配置文件目录"
@@ -639,8 +806,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
     TIME g "|      elev2p启动需要一点点时间，请耐心等待！       |"
     sleep 10
     TIME g "|             安装完成，自动退出脚本                |"
-    TIME g "|  elev2p默认端口为8100，如有修改请访问修改的端口   |"
-    TIME g "|    访问方式为宿主机ip:端口(例192.168.2.1:8100)    |"
+    TIME g "|            访问方式为 宿主机ip:$V2P_PORT               |"
     TIME g "-----------------------------------------------------"
   exit 0
   ;;
@@ -652,7 +818,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
     TIME r "|          Warning!!!            |"
     TIME r "|       请输入正确的选项!        |"
     TIME r "----------------------------------"
- for i in $(seq -w 1 -1 1)
+ for i in `seq -w 1 -1 1`
    do
      #TIME r "\b\b$i";
      sleep 1;
@@ -670,7 +836,7 @@ do
 #cat << EOF
 TIME w "----------------------------------------"
 TIME w "|****Please Enter Your Choice:[0-1]****|"
-TIME w "|******* DOCKER & DOCKER-COMPOSE ******|"
+TIME w "|************** PORTAINER *************|"
 TIME w "----------------------------------------"
 TIME w "(1) 安装portianer"
 TIME b "(0) 返回上级菜单"
@@ -703,7 +869,7 @@ TIME b "(0) 返回上级菜单"
     TIME r "|          Warning!!!            |"
     TIME r "|       请输入正确的选项!        |"
     TIME r "----------------------------------"
- for i in $(seq -w 1 -1 1)
+ for i in `seq -w 1 -1 1`
    do
      #TIME r "\b\b$i";
      sleep 1;
@@ -733,6 +899,7 @@ TIME r "<注>请使用root账户部署容器"
  1)
     TIME y " >>>>>>>>>>>开始安装emby"
   # 创建映射文件夹
+  input_container_emby_config() {
   echo -n -e "请输入emby配置文件保存的绝对路径（示例：/home/emby)，回车默认为当前目录: "
   read emby_path
   if [ -z "$emby_path" ]; then
@@ -764,6 +931,8 @@ TIME r "<注>请使用root账户部署容器"
       mkdir -p $tvshows_path
       TVSHOWS_PATH=$tvshows_path
   fi
+  }
+  input_container_emby_config
   
   # 输入容器名
   input_container_emby_name() {
@@ -778,21 +947,58 @@ TIME r "<注>请使用root账户部署容器"
   input_container_emby_name
 
   # 面板端口
+  input_container_emby_webui_config() {
   inp "是否修改emby面板端口[默认 8096]：\n1) 修改\n2) 不修改[默认]"
   opt
   read change_emby_port
   if [ "$change_emby_port" = "1" ]; then
-      echo -e "输入想修改的端口->"
+      echo -n -e "输入想修改的端口->"
       read EMBY_PORT
   fi
+  }
+  input_container_emby_webui_config
+  
   # https端口
+  input_container_emby_https_config() {
   inp "是否修改emby的https端口[默认 8920]：\n1) 修改\n2) 不修改[默认]"
   opt
   read change_emby_port1
   if [ "$change_emby_port1" = "1" ]; then
-      echo -e "输入想修改的端口->"
+      echo -n -e "输入想修改的端口->"
       read EMBY_PORT1
   fi
+  }
+  input_container_emby_https_config
+
+  # 确认
+  while true
+  do
+  	TIME y "emby 配置文件路径：$CONFIG_PATH"
+  	TIME y "emby 电影文件路径：$MOVIES_PATH"
+  	TIME y "emby 电视剧文件路径：$TVSHOWS_PATH"
+  	TIME y "emby 容器名：$EMBY_CONTAINER_NAME"
+  	TIME y "emby 面板端口：$EMBY_PORT"
+  	TIME y "emby https端口：$EMBY_PORT1"
+  	read -r -p "以上信息是否正确？[Y/n] " input51
+  	case $input51 in
+  		[yY][eE][sS]|[yY])
+  			break
+  			;;
+  		[nN][oO]|[nN])
+  			TIME w "即将返回上一步"
+  			sleep 1
+  			EMBY_PORT=8096
+  			EMBY_PORT1=8920
+  			input_container_emby_config
+  			input_container_emby_name
+  			input_container_emby_webui_config
+  			input_container_emby_https_config
+  			;;
+  		*)
+  			TIME r "输入错误，请输入[Y/n]"
+  			;;
+  	esac
+  done
 
   TIME y " >>>>>>>>>>>配置完成，开始安装emby"
   log "1.开始创建配置文件目录"
@@ -853,6 +1059,7 @@ TIME r "<注>请使用root账户部署容器"
  2)
     TIME y " >>>>>>>>>>>开始安装jellyfin"
   # 创建映射文件夹
+  input_container_jellyfin_config() {
   echo -n -e "请输入emby配置文件保存的绝对路径（示例：/home/jellyfin)，回车默认为当前目录: "
   read jellyfin_path
   if [ -z "$jellyfin_path" ]; then
@@ -884,6 +1091,8 @@ TIME r "<注>请使用root账户部署容器"
       mkdir -p $tvshows_path
       TVSHOWS_PATH=$tvshows_path
   fi
+  }
+  input_container_jellyfin_config
   
   # 输入容器名
   input_container_jellyfin_name() {
@@ -898,21 +1107,58 @@ TIME r "<注>请使用root账户部署容器"
   input_container_jellyfin_name
 
   # 面板端口
+  input_container_jellyfin_webui_config() {
   inp "是否修改jellyfin面板端口[默认 8096]：\n1) 修改\n2) 不修改[默认]"
   opt
   read change_jellyfin_port
   if [ "$change_jellyfin_port" = "1" ]; then
-      echo -e "输入想修改的端口->"
+      echo -n -e "输入想修改的端口->"
       read JELLYFIN_PORT
   fi
+  }
+  input_container_jellyfin_webui_config
+  
   # https端口
+  input_container_jellyfin_https_config() {
   inp "是否修改jellyfin的https端口[默认 8920]：\n1) 修改\n2) 不修改[默认]"
   opt
   read change_jellyfin_port1
   if [ "$change_jellyfin_port1" = "1" ]; then
-      echo -e "输入想修改的端口->"
+      echo -n -e "输入想修改的端口->"
       read JELLYFIN_PORT1
   fi
+  }
+  input_container_jellyfin_https_config
+
+  # 确认
+  while true
+  do
+  	TIME y "jellyfin 配置文件路径：$CONFIG_PATH"
+  	TIME y "jellyfin 电影文件路径：$MOVIES_PATH"
+  	TIME y "jellyfin 电视剧文件路径：$TVSHOWS_PATH"
+  	TIME y "jellyfin 容器名：$JELLYFIN_CONTAINER_NAME"
+  	TIME y "jellyfin 面板端口：$JELLYFIN_PORT"
+  	TIME y "jellyfin https端口：$JELLYFIN_PORT1"
+  	read -r -p "以上信息是否正确？[Y/n] " input52
+  	case $input52 in
+  		[yY][eE][sS]|[yY])
+  			break
+  			;;
+  		[nN][oO]|[nN])
+  			TIME w "即将返回上一步"
+  			sleep 1
+  			JELLYFIN_PORT=8096
+  			JELLYFIN_PORT1=8920
+  			input_container_jellyfin_config
+  			input_container_jellyfin_name
+  			input_container_jellyfin_webui_config
+  			input_container_jellyfin_https_config
+  			;;
+  		*)
+  			TIME r "输入错误，请输入[Y/n]"
+  			;;
+  	esac
+  done
 
   TIME y " >>>>>>>>>>>配置完成，开始安装jellyfin"
   log "1.开始创建配置文件目录"
@@ -978,7 +1224,7 @@ TIME r "<注>请使用root账户部署容器"
     TIME r "|          Warning!!!            |"
     TIME r "|       请输入正确的选项!        |"
     TIME r "----------------------------------"
- for i in $(seq -w 1 -1 1)
+ for i in `seq -w 1 -1 1`
    do
      #TIME r "\b\b$i";
      sleep 1;
@@ -1010,6 +1256,7 @@ TIME r "<注>aria2和aria2-pro 二选一"
  1)
     TIME y " >>>>>>>>>>>开始安装qbittorrent增强版"
   # 创建映射文件夹
+  input_container_qb_config() {
   echo -n -e "请输入qbittorrent增强版配置文件保存的绝对路径（示例：/home/qbittorrent)，回车默认为当前目录: "
   read qb_path
   if [ -z "$qb_path" ]; then
@@ -1031,6 +1278,8 @@ TIME r "<注>aria2和aria2-pro 二选一"
       mkdir -p $downloads_path
       DOWNLOADS_PATH=$downloads_path
   fi
+  }
+  input_container_qb_config
 
   # 输入容器名
   input_container_qb_name() {
@@ -1043,6 +1292,29 @@ TIME r "<注>aria2和aria2-pro 二选一"
     fi
   }
   input_container_qb_name
+
+  # 确认
+  while true
+  do
+  	TIME y "qbittorrent 配置文件路径：$QB_PATH"
+  	TIME y "qbittorrent 下载文件路径：$DOWNLOADS_PATH"
+  	TIME y "qbittorrent 容器名：$QB_CONTAINER_NAME"
+  	read -r -p "以上信息是否正确？[Y/n] " input61
+  	case $input61 in
+  		[yY][eE][sS]|[yY])
+  			break
+  			;;
+  		[nN][oO]|[nN])
+  			TIME w "即将返回上一步"
+  			sleep 1
+  			input_container_qb_config
+  			input_container_qb_name
+  			;;
+  		*)
+  			TIME r "输入错误，请输入[Y/n]"
+  			;;
+  	esac
+  done
 
   TIME y " >>>>>>>>>>>配置完成，开始安装qbittorrent"
   log "1.开始创建配置文件目录"
@@ -1085,6 +1357,7 @@ TIME r "<注>aria2和aria2-pro 二选一"
  2)
     TIME y " >>>>>>>>>>>开始安装aria2"
   # 创建映射文件夹
+  input_container_aria2_config() {
   echo -n -e "请输入aria2配置文件保存的绝对路径（示例：/home/aria2)，回车默认为当前目录: "
   read aria2_path
   if [ -z "$aria2_path" ]; then
@@ -1105,6 +1378,8 @@ TIME r "<注>aria2和aria2-pro 二选一"
       mkdir -p $downloads_path
       DOWNLOADS_PATH=$downloads_path
   fi
+  }
+  input_container_aria2_config
   
   # 输入容器名
   input_container_aria2_name() {
@@ -1117,7 +1392,9 @@ TIME r "<注>aria2和aria2-pro 二选一"
     fi
   }
   input_container_aria2_name
+  
   # TOKEN
+  input_container_aria2_token() {
   inp "是否修改密钥[默认 aria2]：\n1) 修改\n2) 不修改[默认]"
   opt
   read change_token
@@ -1125,6 +1402,33 @@ TIME r "<注>aria2和aria2-pro 二选一"
       echo -n -e "输入想修改的密钥-> "
       read TOKEN
   fi
+  }
+  input_container_aria2_token
+
+  # 确认
+  while true
+  do
+  	TIME y "aria2 配置文件路径：$ARIA2_PATH"
+  	TIME y "aria2 下载文件路径：$DOWNLOADS_PATH"
+  	TIME y "aria2 容器名：$ARIA2_CONTAINER_NAME"
+  	TIME y "aria2 密钥：$TOKEN"
+  	read -r -p "以上信息是否正确？[Y/n] " input62
+  	case $input62 in
+  		[yY][eE][sS]|[yY])
+  			break
+  			;;
+  		[nN][oO]|[nN])
+  			TIME w "即将返回上一步"
+  			sleep 1
+  			input_container_aria2_config
+  			input_container_aria2_name
+  			input_container_aria2_token
+  			;;
+  		*)
+  			TIME r "输入错误，请输入[Y/n]"
+  			;;
+  	esac
+  done
 
   TIME y " >>>>>>>>>>>配置完成，开始安装aria2"
   log "1.开始创建配置文件目录"
@@ -1171,11 +1475,13 @@ TIME r "<注>aria2和aria2-pro 二选一"
     TIME g "|              Aria密钥设置在面板如下位置               |"
     TIME g "|      AriaNg设置 > RPC(IP:6800) > Aria2 RPC 密钥       |"
     TIME g "---------------------------------------------------------"
+    TIME z "                  设置的密钥为 $TOKEN"
   exit 0
   ;;
  3)
     TIME y " >>>>>>>>>>>开始安装aria2-pro"
   # 创建映射文件夹
+  input_container_aria2_pro_config() {
   echo -n -e "请输入aria2-pro配置文件保存的绝对路径（示例：/home/aria2-pro)，回车默认为当前目录: "
   read aria2_pro_path
   if [ -z "$aria2_pro_path" ]; then
@@ -1196,6 +1502,8 @@ TIME r "<注>aria2和aria2-pro 二选一"
       mkdir -p $downloads_path
       DOWNLOADS_PATH=$downloads_path
   fi
+  }
+  input_container_aria2_pro_config
   
   # 输入容器名
   input_container_aria2_pro_name() {
@@ -1220,6 +1528,7 @@ TIME r "<注>aria2和aria2-pro 二选一"
   }
   input_container_ariang_name
   # TOKEN
+  input_container_aria2_pro_token() {
   inp "是否修改密钥[默认 aria2]：\n1) 修改\n2) 不修改[默认]"
   opt
   read change_token
@@ -1227,6 +1536,35 @@ TIME r "<注>aria2和aria2-pro 二选一"
       echo -n -e "输入想修改的密钥-> "
       read TOKEN
   fi
+  }
+  input_container_aria2_pro_token
+
+  # 确认
+  while true
+  do
+  	TIME y "aria2_pro 配置文件路径：$ARIA2_PRO_PATH"
+  	TIME y "aria2_pro 下载文件路径：$DOWNLOADS_PATH"
+  	TIME y "aria2_pro 容器名：$ARIA2_PRO_CONTAINER_NAME"
+  	TIME y "aria2_pro 面板名：$ARIA2_PRO_WEBUI_NAME"
+  	TIME y "aria2_pro 密钥：$TOKEN"
+  	read -r -p "以上信息是否正确？[Y/n] " input63
+  	case $input63 in
+  		[yY][eE][sS]|[yY])
+  			break
+  			;;
+  		[nN][oO]|[nN])
+  			TIME w "即将返回上一步"
+  			sleep 1
+  			input_container_aria2_pro_config
+  			input_container_aria2_pro_name
+  			input_container_ariang_name
+  			input_container_aria2_pro_token
+  			;;
+  		*)
+  			TIME r "输入错误，请输入[Y/n]"
+  			;;
+  	esac
+  done
 
   TIME y " >>>>>>>>>>>配置完成，开始安装aria2-pro"
   log "1.开始创建配置文件目录"
@@ -1275,6 +1613,7 @@ TIME r "<注>aria2和aria2-pro 二选一"
     TIME g "|                 Aria密钥设置在面板如下位置               |"
     TIME g "|        AriaNg设置 > RPC(IP:6800) > Aria2 RPC 密钥        |"
     TIME g "------------------------------------------------------------"
+    TIME z "                  设置的密钥为 $TOKEN"
   exit 0
   ;;
  0) 
@@ -1285,7 +1624,7 @@ TIME r "<注>aria2和aria2-pro 二选一"
     TIME r "|          Warning!!!            |"
     TIME r "|       请输入正确的选项!        |"
     TIME r "----------------------------------"
- for i in $(seq -w 1 -1 1)
+ for i in `seq -w 1 -1 1`
    do
      #TIME r "\b\b$i";
      sleep 1;
@@ -1303,7 +1642,7 @@ do
 #cat << EOF
 TIME w "----------------------------------------"
 TIME w "|****Please Enter Your Choice:[0-2]****|"
-TIME w "|************** telethon **************|"
+TIME w "|************** TELETHON **************|"
 TIME w "----------------------------------------"
 TIME w "(1) linxu系统、X86的openwrt、群辉等请选择 1"
 TIME w "(2) N1的EMMC上运行的openwrt请选择 2"
@@ -1314,7 +1653,8 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
  case $input7 in 
  1)
   TIME y " >>>>>>>>>>>开始安装telethon"
-    # 创建映射文件夹
+  # 创建映射文件夹
+  input_container_telethon1_config() {
   echo -n -e "请输入telethon配置文件保存的绝对路径（示例：/home/telethon)，回车默认为当前目录: "
   read tg_path
   if [ -z "$tg_path" ]; then
@@ -1326,6 +1666,8 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
       TG_PATH=$tg_path
   fi
   CONFIG_PATH=$TG_PATH
+  }
+  input_container_telethon1_config
 
   # 输入容器名
   input_container_telethon1_name() {
@@ -1338,6 +1680,28 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
     fi
   }
   input_container_telethon1_name
+
+  # 确认
+  while true
+  do
+  	TIME y "telethon 配置文件路径：$CONFIG_PATH"
+  	TIME y "telethon 容器名：$TG_CONTAINER_NAME"
+  	read -r -p "以上信息是否正确？[Y/n] " input71
+  	case $input71 in
+  		[yY][eE][sS]|[yY])
+  			break
+  			;;
+  		[nN][oO]|[nN])
+  			TIME w "即将返回上一步"
+  			sleep 1
+  			input_container_telethon1_config
+  			input_container_telethon1_name
+  			;;
+  		*)
+  			TIME r "输入错误，请输入[Y/n]"
+  			;;
+  	esac
+  done
 
   TIME y " >>>>>>>>>>>配置完成，开始安装telethon"
   log "1.开始创建配置文件目录"
@@ -1373,6 +1737,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
  2)  
   TIME y " >>>>>>>>>>>开始安装telethon到N1的/mnt/mmcblk2p4/"
   # 创建映射文件夹
+  input_container_telethon2_config() {
   echo -n -e "请输入telethon存储的文件夹名称（如：telethon)，回车默认为 telethon: "
   read tg_path
   if [ -z "$tg_path" ]; then
@@ -1384,6 +1749,8 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
       TG_PATH=/mnt/mmcblk2p4/$tg_path
   fi
   CONFIG_PATH=$TG_PATH
+  }
+  input_container_telethon2_config
   
   # 输入容器名
   input_container_telethon2_name() {
@@ -1396,6 +1763,28 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
     fi
   }
   input_container_telethon2_name
+
+  # 确认
+  while true
+  do
+  	TIME y "telethon 配置文件路径：$CONFIG_PATH"
+  	TIME y "telethon 容器名：$TG_CONTAINER_NAME"
+  	read -r -p "以上信息是否正确？[Y/n] " input72
+  	case $input72 in
+  		[yY][eE][sS]|[yY])
+  			break
+  			;;
+  		[nN][oO]|[nN])
+  			TIME w "即将返回上一步"
+  			sleep 1
+  			input_container_telethon2_config
+  			input_container_telethon2_name
+  			;;
+  		*)
+  			TIME r "输入错误，请输入[Y/n]"
+  			;;
+  	esac
+  done
 
   TIME y " >>>>>>>>>>>配置完成，开始安装telethon"
   log "1.开始创建配置文件目录"
@@ -1436,7 +1825,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
     TIME r "|          Warning!!!            |"
     TIME r "|       请输入正确的选项!        |"
     TIME r "----------------------------------"
- for i in $(seq -w 1 -1 1)
+ for i in `seq -w 1 -1 1`
    do
      #TIME r "\b\b$i";
      sleep 1;
@@ -1454,7 +1843,7 @@ do
 #cat << EOF
 TIME w "----------------------------------------"
 TIME w "|****Please Enter Your Choice:[0-3]****|"
-TIME w "|************* adguardhome ************|"
+TIME w "|************* ADGUARDHOME ************|"
 TIME w "----------------------------------------"
 TIME w "(1) linxu系统、X86的openwrt、群辉等（docker版）请选择 1"
 TIME w "(2) N1的EMMC上运行的openwrt（docker版）请选择 2"
@@ -1466,7 +1855,8 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
  case $input8 in 
  1)
   TIME y " >>>>>>>>>>>开始安装adguardhome（docker版，x86系统）"
-    # 创建映射文件夹
+  # 创建映射文件夹
+  input_container_adg1_config() {
   echo -n -e "请输入adguardhome配置文件保存的绝对路径（示例：/home/adguardhome)，回车默认为当前目录: "
   read adg_path
   if [ -z "$adg_path" ]; then
@@ -1479,6 +1869,8 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
       ADG_PATH=$adg_path
   fi
   CONFIG_PATH=$ADG_PATH
+  }
+  input_container_adg1_config
 
   # 输入容器名
   input_container_adg1_name() {
@@ -1491,6 +1883,28 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
     fi
   }
   input_container_adg1_name
+
+  # 确认
+  while true
+  do
+  	TIME y "adguardhome 配置文件路径：$CONFIG_PATH"
+  	TIME y "adguardhome 容器名：$ADG_CONTAINER_NAME"
+  	read -r -p "以上信息是否正确？[Y/n] " input81
+  	case $input81 in
+  		[yY][eE][sS]|[yY])
+  			break
+  			;;
+  		[nN][oO]|[nN])
+  			TIME w "即将返回上一步"
+  			sleep 1
+  			input_container_adg1_config
+  			input_container_adg1_name
+  			;;
+  		*)
+  			TIME r "输入错误，请输入[Y/n]"
+  			;;
+  	esac
+  done
 
   TIME y " >>>>>>>>>>>配置完成，开始安装adguardhome（docker版，x86系统）"
   log "1.开始创建配置文件目录"
@@ -1527,6 +1941,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
  2)  
   TIME y " >>>>>>>>>>>开始安装adguardhome（docker版）到N1的/mnt/mmcblk2p4/"
   # 创建映射文件夹
+  input_container_adg2_config() {
   echo -n -e "请输入adguardhome存储文件名名称（示例：adguardhome)，回车默认为adguardhome: "
   read adg_path
   if [ -z "$adg_path" ]; then
@@ -1539,7 +1954,9 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
       ADG_PATH=/mnt/mmcblk2p4/$adg_path
   fi
   CONFIG_PATH=$ADG_PATH
-  
+  }
+  input_container_adg2_config
+
   # 输入容器名
   input_container_adg2_name() {
     echo -n -e "请输入将要创建的容器名[默认为：adguardhome]-> "
@@ -1551,6 +1968,28 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
     fi
   }
   input_container_adg2_name
+
+  # 确认
+  while true
+  do
+  	TIME y "adguardhome 配置文件路径：$CONFIG_PATH"
+  	TIME y "adguardhome 容器名：$ADG_CONTAINER_NAME"
+  	read -r -p "以上信息是否正确？[Y/n] " input82
+  	case $input82 in
+  		[yY][eE][sS]|[yY])
+  			break
+  			;;
+  		[nN][oO]|[nN])
+  			TIME w "即将返回上一步"
+  			sleep 1
+  			input_container_adg2_config
+  			input_container_adg2_name
+  			;;
+  		*)
+  			TIME r "输入错误，请输入[Y/n]"
+  			;;
+  	esac
+  done
 
   TIME y " >>>>>>>>>>>配置完成，开始安装adguardhome（docker版）到N1的/mnt/mmcblk2p4/"
   log "1.开始创建配置文件目录"
@@ -1604,7 +2043,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
     TIME r "|          Warning!!!            |"
     TIME r "|       请输入正确的选项!        |"
     TIME r "----------------------------------"
- for i in $(seq -w 1 -1 1)
+ for i in `seq -w 1 -1 1`
    do
      #TIME r "\b\b$i";
      sleep 1;
@@ -1624,14 +2063,15 @@ TIME w "----------------------------------------"
 TIME w "|****Please Enter Your Choice:[0-3]****|"
 TIME w "|**************** X-UI ****************|"
 TIME w "----------------------------------------"
-TIME w "(1) x-ui为docker版本"
+TIME w "(1) x-ui为docer版本"
 TIME b "(0) 返回上级菜单"
 #EOF
  read -p "Please enter your choice[0-1]: " input9
  case $input9 in 
  1)
   TIME y " >>>>>>>>>>>开始安装x-ui"
-    # 创建映射文件夹
+  # 创建映射文件夹
+  input_container_xui_config() {
   echo -n -e "请输入x-ui配置文件保存的绝对路径（示例：/home/x-ui)，回车默认为当前目录: "
   read xui_path
   if [ -z "$xui_path" ]; then
@@ -1644,6 +2084,8 @@ TIME b "(0) 返回上级菜单"
       XUI_PATH=$xui_path
   fi
   CONFIG_PATH=$XUI_PATH
+  }
+  input_container_xui_config
 
   # 输入容器名
   input_container_xui_name() {
@@ -1656,6 +2098,28 @@ TIME b "(0) 返回上级菜单"
     fi
   }
   input_container_xui_name
+
+  # 确认
+  while true
+  do
+  	TIME y "x-ui 配置文件路径：$CONFIG_PATH"
+  	TIME y "x-ui 容器名：$XUI_CONTAINER_NAME"
+  	read -r -p "以上信息是否正确？[Y/n] " input91
+  	case $input91 in
+  		[yY][eE][sS]|[yY])
+  			break
+  			;;
+  		[nN][oO]|[nN])
+  			TIME w "即将返回上一步"
+  			sleep 1
+  			input_container_xui_config
+  			input_container_xui_name
+  			;;
+  		*)
+  			TIME r "输入错误，请输入[Y/n]"
+  			;;
+  	esac
+  done
 
   TIME y " >>>>>>>>>>>配置完成，开始安装x-ui"
   log "1.开始创建配置文件目录"
@@ -1697,7 +2161,7 @@ TIME b "(0) 返回上级菜单"
     TIME r "|          Warning!!!            |"
     TIME r "|       请输入正确的选项!        |"
     TIME r "----------------------------------"
- for i in $(seq -w 1 -1 1)
+ for i in `seq -w 1 -1 1`
    do
      #TIME r "\b\b$i";
      sleep 1;
@@ -1715,7 +2179,7 @@ exit 0
  TIME r "|          Warning!!!            |"
  TIME r "|       请输入正确的选项!        |"
  TIME r  "----------------------------------"
- for i in $(seq -w 1 -1 1)
+ for i in `seq -w 1 -1 1`
    do
      #TIME r "\b\b$i";
      sleep 1;
