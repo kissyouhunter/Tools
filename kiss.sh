@@ -1623,7 +1623,7 @@ TIME w "----------------------------------------"
 TIME w "|****Please Enter Your Choice:[0-3]****|"
 TIME w "|**************** X-UI ****************|"
 TIME w "----------------------------------------"
-TIME w "(1) x-ui为docer版本"
+TIME w "(1) x-ui为docker版本"
 TIME b "(0) 返回上级菜单"
 #EOF
  read -p "Please enter your choice[0-1]: " input9
