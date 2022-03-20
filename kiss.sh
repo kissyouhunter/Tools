@@ -1310,8 +1310,8 @@ TIME w "(2) N1的EMMC上运行的openwrt请选择 2"
 TIME b "(0) 返回上级菜单"
 #EOF
 TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按回车！"
- read -p "Please enter your choice[0-2]: " input2
- case $input2 in 
+ read -p "Please enter your choice[0-2]: " input7
+ case $input7 in 
  1)
   TIME y " >>>>>>>>>>>开始安装telethon"
     # 创建映射文件夹
@@ -1462,8 +1462,8 @@ TIME w "(3) linxu系统（非docker版，openwrt不可运行）"
 TIME b "(0) 返回上级菜单"
 #EOF
 TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按回车！"
- read -p "Please enter your choice[0-3]: " input2
- case $input2 in 
+ read -p "Please enter your choice[0-3]: " input8
+ case $input8 in 
  1)
   TIME y " >>>>>>>>>>>开始安装adguardhome（docker版，x86系统）"
     # 创建映射文件夹
@@ -1626,8 +1626,8 @@ TIME w "----------------------------------------"
 TIME w "(1) x-ui为docer版本"
 TIME b "(0) 返回上级菜单"
 #EOF
- read -p "Please enter your choice[0-1]: " input2
- case $input2 in 
+ read -p "Please enter your choice[0-1]: " input9
+ case $input9 in 
  1)
   TIME y " >>>>>>>>>>>开始安装x-ui"
     # 创建映射文件夹
