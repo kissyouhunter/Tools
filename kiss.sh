@@ -141,7 +141,7 @@ TIME w "(8) AdGuardHome DNS解析+去广告"
 TIME w "(9) x-ui"
 TIME r "(0) 不想安装了，给老子退出！！！"
 #EOF
-read -p "Please enter your choice[0-8]: " input
+read -p "Please enter your choice[0-9]: " input
 case $input in
 #安装docker and docker-compose
 1)
