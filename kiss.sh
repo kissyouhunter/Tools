@@ -233,8 +233,92 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
  case $input2 in 
  1)
   TIME y " >>>>>>>>>>>开始安装青龙"
+
+    input_container_ql1_info() {
+    log "列出所有宿主机上的容器"
+    docker ps -a
+    TIME g "-----------------------------------------------------"
+    TIME g "|        青龙启动需要一点点时间，请耐心等待！       |"
+    sleep 10
+    TIME g "|             安装完成，自动退出脚本                |"
+    if [ "$NETWORK" = "host" ]; then
+    		TIME g "|            访问方式为 宿主机ip:5700               |"
+    elif [ "$NETWORK" = "bridge" ]; then
+    		TIME g "|            访问方式为 宿主机ip:$QL_PORT               |"
+    fi
+    TIME g "-----------------------------------------------------"
+    exit 0
+    }
+
+  # 确认
+  input_container_ql1_check() {
+  while true
+  do
+  	TIME y "青龙配置文件路径：$QL_PATH"
+  	TIME y "青龙容器名：$QL_CONTAINER_NAME"
+  	TIME y "青龙网络类型：$NETWORK"
+    TIME y "青龙版本：$TAG"
+  	if [ "$NETWORK" = "host" ]; then
+  		TIME y "青龙面板端口：5700"
+  	elif [ "$NETWORK" = "bridge" ]; then
+  		TIME y "青龙网络请求查看端口：$QL_PORT"
+  	fi
+  	read -r -p "以上信息是否正确？[Y/n] " input21
+  	case $input21 in
+  		[yY][eE][sS]|[yY])
+  			break
+  			;;
+  		[nN][oO]|[nN])
+  			TIME w "即将返回上一步"
+  			sleep 1
+  			QL_PORT=5700
+            TAG="latest"
+  			input_container_ql1_version
+            input_container_ql1_judge
+            input_container_ql1_info
+  			;;
+  		*)
+  			TIME r "输入错误，请输入[Y/n]"
+  			;;
+  	esac
+  done
+  }
+
+  # 版本号
+  input_container_ql1_version() {
+  TIME w "青龙自2.12.0开始改变了目录结构，本脚本开始提供不同青龙版本。"
+  TIME w "请根据提示驶入对应内容。"
+  TIME w "目前提供的版本有如下："
+  TIME w "2.10、2.10.6、2.10.7、2.10.8、2.10.9、2.10.10、2.10.11、2.10.12、2.10.13"
+  TIME w "2.11.0、2.11.1、2.11.2.2.11.3和最新"
+  echo -n -e "请输入版本号（回车默认为最新版本）: "
+  read ql_version
+  if [ -z "$ql_version" ]; then
+      QL_VERSION=$TAG
+  elif [ -n "$ql_version" ]; then
+      QL_VERSION=$ql_version
+  fi
+  TAG=$QL_VERSION
+  }
+  input_container_ql1_version
+
   # 创建映射文件夹
-  input_container_ql1_config() {
+  input_container_ql1_config1() {
+  echo -n -e "请输入青龙配置文件保存的绝对路径（示例：/home/ql)，回车默认为当前目录: "
+  read ql_path
+  if [ -z "$ql_path" ]; then
+      QL_PATH=$QL_SHELL_FOLDER
+  elif [ -d "$ql_path" ]; then
+      QL_PATH=$ql_path
+  else
+      mkdir -p $ql_path
+      QL_PATH=$ql_path
+  fi
+  CONFIG_PATH=$QL_PATH
+  }
+
+  # 创建映射文件夹
+  input_container_ql1_config2() {
   echo -n -e "请输入青龙配置文件保存的绝对路径（示例：/home/ql)，回车默认为当前目录: "
   read ql_path
   if [ -z "$ql_path" ]; then
@@ -252,7 +336,6 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   LOG_PATH=$QL_PATH/log
   DEPS_PATH=$QL_PATH/deps
   }
-  input_container_ql1_config
 
   # 输入容器名
   input_container_ql1_name() {
@@ -264,7 +347,6 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
         QL_CONTAINER_NAME=$container_name
     fi
   }
-  input_container_ql1_name
 
   # 网络模式
   input_container_ql1_network_config() {
@@ -288,38 +370,34 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
       fi
   fi
   }
-  input_container_ql1_network_config
 
-  # 确认
-  while true
-  do
-  	TIME y "青龙配置文件路径：$QL_PATH"
-  	TIME y "青龙容器名：$QL_CONTAINER_NAME"
-  	TIME y "青龙网络类型：$NETWORK"
-  	if [ "$NETWORK" = "host" ]; then
-  		TIME y "青龙面板端口：5700"
-  	elif [ "$NETWORK" = "bridge" ]; then
-  		TIME y "青龙网络请求查看端口：$QL_PORT"
-  	fi
-  	read -r -p "以上信息是否正确？[Y/n] " input21
-  	case $input21 in
-  		[yY][eE][sS]|[yY])
-  			break
-  			;;
-  		[nN][oO]|[nN])
-  			TIME w "即将返回上一步"
-  			sleep 1
-  			QL_PORT=5700
-  			input_container_ql1_config
-  			input_container_ql1_name
-  			input_container_ql1_network_config
-  			;;
-  		*)
-  			TIME r "输入错误，请输入[Y/n]"
-  			;;
-  	esac
+  input_container_ql1_build1() {
+  TIME y " >>>>>>>>>>>配置完成，开始安装青龙"
+  log "1.开始创建配置文件目录"
+  PATH_LIST=($CONFIG_PATH)
+  for i in ${PATH_LIST[@]}; do
+      mkdir -p $i
   done
 
+  log "2.开始创建容器并执行"
+  docker run -dit \
+      -t \
+      -v $CONFIG_PATH:/ql/data \
+      -e ENABLE_HANGUP=false \
+      -e ENABLE_WEB_PANEL=true \
+      -p $QL_PORT:5700 \
+      --name $QL_CONTAINER_NAME \
+      --hostname $QL_CONTAINER_NAME \
+      --restart always \
+      --network $NETWORK \
+      $QL_DOCKER_IMG_NAME:$TAG
+
+      if [ $? -ne 0 ] ; then
+          cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
+      fi
+  }
+
+  input_container_ql1_build2() {
   TIME y " >>>>>>>>>>>配置完成，开始安装青龙"
   log "1.开始创建配置文件目录"
   PATH_LIST=($CONFIG_PATH $DB_PATH $REPO_PATH $SCRIPT_PATH $LOG_PATH $DEPS_PATH)
@@ -348,6 +426,24 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
       if [ $? -ne 0 ] ; then
           cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
       fi
+  }
+
+  input_container_ql1_judge() {
+  if [ $TAG == latest ]; then
+      input_container_ql1_config1
+      input_container_ql1_name
+      input_container_ql1_network_config
+      input_container_ql1_check
+      input_container_ql1_build1
+  else 
+      input_container_ql1_config2
+      input_container_ql1_name
+      input_container_ql1_network_config
+      input_container_ql1_check
+      input_container_ql1_build2
+  fi
+  }
+  input_container_ql1_judge
 
       log "列出所有宿主机上的容器"
       docker ps -a
@@ -360,13 +456,98 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
     elif [ "$NETWORK" = "bridge" ]; then
     		TIME g "|            访问方式为 宿主机ip:$QL_PORT               |"
     fi
-    TIME g "-----------------------------------------------------"  
+    TIME g "-----------------------------------------------------"
   exit 0
   ;;
  2)  
   TIME y " >>>>>>>>>>>开始安装青龙到N1的/mnt/mmcblk2p4/"
+
+    input_container_ql2_info() {
+    log "列出所有宿主机上的容器"
+    docker ps -a
+    TIME g "-----------------------------------------------------"
+    TIME g "|        青龙启动需要一点点时间，请耐心等待！       |"
+    sleep 10
+    TIME g "|             安装完成，自动退出脚本                |"
+    if [ "$NETWORK" = "host" ]; then
+    		TIME g "|            访问方式为 宿主机ip:5700               |"
+    elif [ "$NETWORK" = "bridge" ]; then
+    		TIME g "|            访问方式为 宿主机ip:$QL_PORT               |"
+    fi
+    TIME g "-----------------------------------------------------"
+    exit 0
+    }
+
+  # 确认
+  input_container_ql2_check() {
+  while true
+  do
+  	TIME y "青龙配置文件路径：$QL_PATH"
+  	TIME y "青龙容器名：$QL_CONTAINER_NAME"
+  	TIME y "青龙网络类型：$NETWORK"
+    TIME y "青龙版本：$TAG"
+  	if [ "$NETWORK" = "host" ]; then
+  		TIME y "青龙面板端口：5700"
+  	elif [ "$NETWORK" = "bridge" ]; then
+  		TIME y "青龙网络请求查看端口：$QL_PORT"
+  	fi
+  	read -r -p "以上信息是否正确？[Y/n] " input21
+  	case $input21 in
+  		[yY][eE][sS]|[yY])
+  			break
+  			;;
+  		[nN][oO]|[nN])
+  			TIME w "即将返回上一步"
+  			sleep 1
+  			QL_PORT=5700
+            TAG="latest"
+  			input_container_ql2_version
+            input_container_ql2_judge
+            input_container_ql2_info
+  			;;
+  		*)
+  			TIME r "输入错误，请输入[Y/n]"
+  			;;
+  	esac
+  done
+  }
+
+  # 版本号
+  input_container_ql2_version() {
+  TIME w "青龙自2.12.0开始改变了目录结构，本脚本开始提供不同青龙版本。"
+  TIME w "请根据提示驶入对应内容。"
+  TIME w "目前提供的版本有如下："
+  TIME w "2.10、2.10.6、2.10.7、2.10.8、2.10.9、2.10.10、2.10.11、2.10.12、2.10.13"
+  TIME w "2.11.0、2.11.1、2.11.2.2.11.3和最新"
+  echo -n -e "请输入版本号（回车默认为最新版本）: "
+  read ql_version
+  if [ -z "$ql_version" ]; then
+      QL_VERSION=$TAG
+  elif [ -n "$ql_version" ]; then
+      QL_VERSION=$ql_version
+  fi
+  TAG=$QL_VERSION
+  }
+  input_container_ql2_version
+
+
   # 创建映射文件夹
-  input_container_ql2_config() {
+  input_container_ql2_config1() {
+  echo -n -e "请输入青龙存储的文件夹名称（如：ql)，回车默认为 ql: "
+  read ql_path
+  if [ -z "$ql_path" ]; then
+      QL_PATH=$N1_QL_FOLDER
+  elif [ -d "$ql_path" ]; then
+      QL_PATH=/mnt/mmcblk2p4/$ql_path
+  else
+      mkdir -p /mnt/mmcblk2p4/$ql_path
+      QL_PATH=/mnt/mmcblk2p4/$ql_path
+  fi
+  CONFIG_PATH=$QL_PATH
+  }
+
+  # 创建映射文件夹
+  input_container_ql2_config2() {
   echo -n -e "请输入青龙存储的文件夹名称（如：ql)，回车默认为 ql: "
   read ql_path
   if [ -z "$ql_path" ]; then
@@ -384,7 +565,6 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   LOG_PATH=$QL_PATH/log
   DEPS_PATH=$QL_PATH/deps
   }
-  input_container_ql2_config
   
   # 输入容器名
   input_container_ql2_name() {
@@ -396,7 +576,6 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
         QL_CONTAINER_NAME=$container_name
     fi
   }
-  input_container_ql2_name
 
   # 网络模式
   input_container_ql2_network_config() {
@@ -420,38 +599,34 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
       fi
   fi
   }
-  input_container_ql2_network_config
 
-  # 确认
-  while true
-  do
-  	TIME y "青龙配置文件路径：$QL_PATH"
-  	TIME y "青龙容器名：$QL_CONTAINER_NAME"
-  	TIME y "青龙网络类型：$NETWORK"
-  	if [ "$NETWORK" = "host" ]; then
-  		TIME y "青龙面板端口：5700"
-  	elif [ "$NETWORK" = "bridge" ]; then
-  		TIME y "青龙网络请求查看端口：$QL_PORT"
-  	fi
-  	read -r -p "以上信息是否正确？[Y/n] " input22
-  	case $input22 in
-  		[yY][eE][sS]|[yY])
-  			break
-  			;;
-  		[nN][oO]|[nN])
-  			TIME w "即将返回上一步"
-  			sleep 1
-  			QL_PORT=5700
-  			input_container_ql2_config
-  			input_container_ql2_name
-  			input_container_ql2_network_config
-  			;;
-  		*)
-  			TIME r "输入错误，请输入[Y/n]"
-  			;;
-  	esac
+  input_container_ql2_build1() {
+  TIME y " >>>>>>>>>>>配置完成，开始安装青龙"
+  log "1.开始创建配置文件目录"
+  PATH_LIST=($CONFIG_PATH $DB_PATH $REPO_PATH $SCRIPT_PATH $LOG_PATH $DEPS_PATH)
+  for i in ${PATH_LIST[@]}; do
+      mkdir -p $i
   done
 
+  log "3.开始创建容器并执行"
+  docker run -dit \
+      -t \
+      -v $CONFIG_PATH:/ql/data \
+      -e ENABLE_HANGUP=false \
+      -e ENABLE_WEB_PANEL=true \
+      -p $QL_PORT:5700 \
+      --name $QL_CONTAINER_NAME \
+      --hostname $QL_CONTAINER_NAME \
+      --restart always \
+      --network $NETWORK \
+      $QL_DOCKER_IMG_NAME:$TAG
+
+      if [ $? -ne 0 ] ; then
+          cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
+      fi
+  }
+
+  input_container_ql2_build2() {
   TIME y " >>>>>>>>>>>配置完成，开始安装青龙"
   log "1.开始创建配置文件目录"
   PATH_LIST=($CONFIG_PATH $DB_PATH $REPO_PATH $SCRIPT_PATH $LOG_PATH $DEPS_PATH)
@@ -480,6 +655,24 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
       if [ $? -ne 0 ] ; then
           cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
       fi
+  }
+
+  input_container_ql2_judge() {
+  if [ $TAG == latest ]; then
+      input_container_ql2_config1
+      input_container_ql2_name
+      input_container_ql2_network_config
+      input_container_ql2_check
+      input_container_ql2_build1
+  else 
+      input_container_ql2_config2
+      input_container_ql2_name
+      input_container_ql2_network_config
+      input_container_ql2_check
+      input_container_ql2_build2
+  fi
+  }
+  input_container_ql2_judge
 
       log "列出所有宿主机上的容器"
       docker ps -a
