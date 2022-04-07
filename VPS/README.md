@@ -7,5 +7,5 @@ bash <(wget --no-check-certificate -qO- 'https://ghproxy.com/https://raw.githubu
 
 ```
 #DEBIAN 11
-bash <(wget --no-check-certificate -qO- 'https://ghproxy.com/https://raw.githubusercontent.com/kissyouhunter/Tools/main/VPS/InstallNET.sh') -d 11 -v 64 -p "password" -port "22" --mirror "http://mirrors.ustc.edu.cn/debian/""
+bash <(wget --no-check-certificate -qO- 'https://ghproxy.com/https://raw.githubusercontent.com/kissyouhunter/Tools/main/VPS/InstallNET.sh') -d 11 -v 64 -p "password" -port "22" --mirror "http://mirrors.ustc.edu.cn/debian/"
 ```
