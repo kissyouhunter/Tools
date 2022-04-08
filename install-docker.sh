@@ -264,8 +264,13 @@ function ConfigureDockerCEMirror() {
         apt-get update >/dev/null 2>&1
         ;;
     RedHat)
-        yum-config-manager -y --add-repo https://${SOURCE_JUDGMENT}/linux/${SOURCE_BRANCH}/docker-ce.repo
-        yum makecache >/dev/null 2>&1
+        if [ ${SOURCE_BRANCH} == almali ] || [ ${SOURCE_BRANCH} == rockyl ]; then
+            yum-config-manager -y --add-repo https://${SOURCE_JUDGMENT}/linux/centos/docker-ce.repo
+            yum makecache >/dev/null 2>&1
+        else
+            yum-config-manager -y --add-repo https://${SOURCE_JUDGMENT}/linux/${SOURCE_BRANCH}/docker-ce.repo
+            yum makecache >/dev/null 2>&1
+        fi
         ;;
     esac
 }
