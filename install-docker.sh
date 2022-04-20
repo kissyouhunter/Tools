@@ -5,7 +5,7 @@
 ## Github Repository: https://github.com/SuperManito/LinuxMirrors
 ## Gitee Repository: https://gitee.com/SuperManito/LinuxMirrors
 ## Modify SuperManito Script
-## Date: 2022-01-27
+## Date: 2022-04-21
 
 function AuthorSignature() {
     echo -e "\n${GREEN} ------------ 脚本执行结束 ------------ ${PLAIN}\n"
