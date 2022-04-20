@@ -11,4 +11,4 @@ cat mb3admin.com.cert.pem >> /etc/ssl/certs/ca-certificates.crt
 cd /usr/local/etc/nginx/conf.d/*-*-*-*
 wget https://ghproxy.com/https://raw.githubusercontent.com/kissyouhunter/Tools/main/emby/user.conf
 nginx -s reload
-done
+echo "done"
