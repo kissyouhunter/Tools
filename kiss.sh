@@ -83,8 +83,14 @@ XUI_DOCKER_IMG_NAME="kissyouhunter/x-ui"
 TAG="latest"
 XUI_PATH=""
 XUI_CONFIG_FOLDER=$(pwd)/x-ui
-#N1_ADG_FOLDER=/mnt/mmcblk2p4/adguardhome
 XUI_CONTAINER_NAME=""
+# aapanel变量
+AAPANEL_DOCKER_IMG_NAME="aapanel/aapanel"
+AAPANEL_TAG="lib"
+AAPANEL_PATH=""
+AAPANEL_CONFIG_FOLDER=$(pwd)/aapanel
+N1_AAPANEL_FOLDER=/mnt/mmcblk2p4/aapanel
+AAPANEL_CONTAINER_NAME=""
 
 log() {
     echo -e "\n$1"
@@ -139,9 +145,10 @@ TIME w "(6) 安装下载工具"
 TIME w "(7) TG定时发送信息工具"
 TIME w "(8) AdGuardHome DNS解析+去广告"
 TIME w "(9) x-ui"
+TIME w "(10) aaPanel(宝塔国际版)"
 TIME r "(0) 不想安装了，给老子退出！！！"
 #EOF
-read -p "Please enter your choice[0-9]: " input
+read -p "Please enter your choice[0-10]: " input
 case $input in
 #安装docker and docker-compose
 1)
@@ -204,7 +211,7 @@ TIME l "<注>openwrt宿主机默认安装dockerman图形docker管理工具！"
     TIME r "|          Warning!!!            |"
     TIME r "|       请输入正确的选项!        |"
     TIME r "----------------------------------"
- for i in `seq -w 1 -1 1`
+ for i in $(seq -w 1 -1 1)
    do
      #TIME r "\b\b$i";
      sleep 1;
@@ -311,7 +318,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   elif [ -d "$ql_path" ]; then
       QL_PATH=$ql_path
   else
-      mkdir -p $ql_path
+      #mkdir -p $ql_path
       QL_PATH=$ql_path
   fi
   CONFIG_PATH=$QL_PATH
@@ -326,7 +333,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   elif [ -d "$ql_path" ]; then
       QL_PATH=$ql_path
   else
-      mkdir -p $ql_path
+      #mkdir -p $ql_path
       QL_PATH=$ql_path
   fi
   CONFIG_PATH=$QL_PATH/config
@@ -540,7 +547,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   elif [ -d "$ql_path" ]; then
       QL_PATH=/mnt/mmcblk2p4/$ql_path
   else
-      mkdir -p /mnt/mmcblk2p4/$ql_path
+      #mkdir -p /mnt/mmcblk2p4/$ql_path
       QL_PATH=/mnt/mmcblk2p4/$ql_path
   fi
   CONFIG_PATH=$QL_PATH
@@ -555,7 +562,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   elif [ -d "$ql_path" ]; then
       QL_PATH=/mnt/mmcblk2p4/$ql_path
   else
-      mkdir -p /mnt/mmcblk2p4/$ql_path
+      #mkdir -p /mnt/mmcblk2p4/$ql_path
       QL_PATH=/mnt/mmcblk2p4/$ql_path
   fi
   CONFIG_PATH=$QL_PATH/config
@@ -696,7 +703,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
     TIME r "|          Warning!!!            |"
     TIME r "|       请输入正确的选项!        |"
     TIME r "----------------------------------"
- for i in `seq -w 1 -1 1`
+ for i in $(seq -w 1 -1 1)
    do
      #TIME r "\b\b$i";
      sleep 1;
@@ -734,7 +741,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   elif [ -d "$v2p_path" ]; then
       V2P_PATH=$v2p_path
   else
-      mkdir -p $v2p_path
+      #mkdir -p $v2p_path
       V2P_PATH=$v2p_path
   fi
   JSFILE_PATH=$V2P_PATH/JSFile
@@ -874,7 +881,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   elif [ -d "$v2p_path" ]; then
       V2P_PATH=/mnt/mmcblk2p4/$v2p_path
   else
-      mkdir -p /mnt/mmcblk2p4/$v2p_path
+      #mkdir -p /mnt/mmcblk2p4/$v2p_path
       V2P_PATH=/mnt/mmcblk2p4/$v2p_path
   fi
   JSFILE_PATH=$V2P_PATH/JSFile
@@ -1011,7 +1018,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
     TIME r "|          Warning!!!            |"
     TIME r "|       请输入正确的选项!        |"
     TIME r "----------------------------------"
- for i in `seq -w 1 -1 1`
+ for i in $(seq -w 1 -1 1)
    do
      #TIME r "\b\b$i";
      sleep 1;
@@ -1062,7 +1069,7 @@ TIME b "(0) 返回上级菜单"
     TIME r "|          Warning!!!            |"
     TIME r "|       请输入正确的选项!        |"
     TIME r "----------------------------------"
- for i in `seq -w 1 -1 1`
+ for i in $(seq -w 1 -1 1)
    do
      #TIME r "\b\b$i";
      sleep 1;
@@ -1100,7 +1107,7 @@ TIME r "<注>请使用root账户部署容器"
   elif [ -d "$emby_path" ]; then
       EMBY_PATH=$emby_path
   else
-      mkdir -p $emby_path
+      #mkdir -p $emby_path
       EMBY_PATH=$emby_path
   fi
   CONFIG_PATH=$EMBY_PATH/config
@@ -1111,7 +1118,7 @@ TIME r "<注>请使用root账户部署容器"
   elif [ -d "$movies_path" ]; then
       MOVIES_PATH=$movies_path
   else
-      mkdir -p $movies_path
+      #mkdir -p $movies_path
       MOVIES_PATH=$movies_path
   fi
   echo -n -e "请输入电视剧文件保存的绝对路径（示例：/home/tvshows)，回车默认为当前目录: "
@@ -1121,7 +1128,7 @@ TIME r "<注>请使用root账户部署容器"
   elif [ -d "$tvshows_path" ]; then
       TVSHOWS_PATH=$tvshows_path
   else
-      mkdir -p $tvshows_path
+      #mkdir -p $tvshows_path
       TVSHOWS_PATH=$tvshows_path
   fi
   }
@@ -1260,7 +1267,7 @@ TIME r "<注>请使用root账户部署容器"
   elif [ -d "$jellyfin_path" ]; then
       JELLYFIN_PATH=$jellyfin_path
   else
-      mkdir -p $jellyfin_path
+      #mkdir -p $jellyfin_path
       JELLYFIN_PATH=$jellyfin_path
   fi
   CONFIG_PATH=$JELLYFIN_PATH/config
@@ -1271,7 +1278,7 @@ TIME r "<注>请使用root账户部署容器"
   elif [ -d "$movies_path" ]; then
       MOVIES_PATH=$movies_path
   else
-      mkdir -p $movies_path
+      #mkdir -p $movies_path
       MOVIES_PATH=$movies_path
   fi
   echo -n -e "请输入电视剧文件保存的绝对路径（示例：/home/tvshows)，回车默认为当前目录: "
@@ -1281,7 +1288,7 @@ TIME r "<注>请使用root账户部署容器"
   elif [ -d "$tvshows_path" ]; then
       TVSHOWS_PATH=$tvshows_path
   else
-      mkdir -p $tvshows_path
+      #mkdir -p $tvshows_path
       TVSHOWS_PATH=$tvshows_path
   fi
   }
@@ -1417,7 +1424,7 @@ TIME r "<注>请使用root账户部署容器"
     TIME r "|          Warning!!!            |"
     TIME r "|       请输入正确的选项!        |"
     TIME r "----------------------------------"
- for i in `seq -w 1 -1 1`
+ for i in $(seq -w 1 -1 1)
    do
      #TIME r "\b\b$i";
      sleep 1;
@@ -1457,7 +1464,7 @@ TIME r "<注>aria2和aria2-pro 二选一"
   elif [ -d "$qb_path" ]; then
       QB_PATH=$qb_path
   else
-      mkdir -p $qb_path
+      #mkdir -p $qb_path
       QB_PATH=$qb_path
   fi
   #QB_CONFIG_PATH=$QB_PATH/qbittorrent
@@ -1468,7 +1475,7 @@ TIME r "<注>aria2和aria2-pro 二选一"
   elif [ -d "$downloads_path" ]; then
       DOWNLOADS_PATH=$downloads_path
   else
-      mkdir -p $downloads_path
+      #mkdir -p $downloads_path
       DOWNLOADS_PATH=$downloads_path
   fi
   }
@@ -1558,7 +1565,7 @@ TIME r "<注>aria2和aria2-pro 二选一"
   elif [ -d "$aria2_path" ]; then
       ARIA2_PATH=$aria2_path
   else
-      mkdir -p $aria2_path
+      #mkdir -p $aria2_path
       ARIA2_PATH=$aria2_path
   fi
   echo -n -e "请输入下载文件保存的绝对路径（示例：/home/downloads)，回车默认为当前目录: "
@@ -1568,7 +1575,7 @@ TIME r "<注>aria2和aria2-pro 二选一"
   elif [ -d "$downloads_path" ]; then
       DOWNLOADS_PATH=$downloads_path
   else
-      mkdir -p $downloads_path
+      #mkdir -p $downloads_path
       DOWNLOADS_PATH=$downloads_path
   fi
   }
@@ -1682,7 +1689,7 @@ TIME r "<注>aria2和aria2-pro 二选一"
   elif [ -d "$aria2_pro_path" ]; then
       ARIA2_PRO_PATH=$aria2_pro_path
   else
-      mkdir -p $aria2_pro_path
+      #mkdir -p $aria2_pro_path
       ARIA2_PRO_PATH=$aria2_pro_path
   fi
   echo -n -e "请输入下载文件保存的绝对路径（示例：/home/downloads)，回车默认为当前目录: "
@@ -1692,7 +1699,7 @@ TIME r "<注>aria2和aria2-pro 二选一"
   elif [ -d "$downloads_path" ]; then
       DOWNLOADS_PATH=$downloads_path
   else
-      mkdir -p $downloads_path
+      #mkdir -p $downloads_path
       DOWNLOADS_PATH=$downloads_path
   fi
   }
@@ -1817,7 +1824,7 @@ TIME r "<注>aria2和aria2-pro 二选一"
     TIME r "|          Warning!!!            |"
     TIME r "|       请输入正确的选项!        |"
     TIME r "----------------------------------"
- for i in `seq -w 1 -1 1`
+ for i in $(seq -w 1 -1 1)
    do
      #TIME r "\b\b$i";
      sleep 1;
@@ -1855,7 +1862,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   elif [ -d "$tg_path" ]; then
       TG_PATH=$tg_path
   else
-      mkdir -p $tg_path
+      #mkdir -p $tg_path
       TG_PATH=$tg_path
   fi
   CONFIG_PATH=$TG_PATH
@@ -1938,7 +1945,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   elif [ -d "$tg_path" ]; then
       TG_PATH=/mnt/mmcblk2p4/$tg_path
   else
-      mkdir -p /mnt/mmcblk2p4/$tg_path
+      #mkdir -p /mnt/mmcblk2p4/$tg_path
       TG_PATH=/mnt/mmcblk2p4/$tg_path
   fi
   CONFIG_PATH=$TG_PATH
@@ -2018,7 +2025,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
     TIME r "|          Warning!!!            |"
     TIME r "|       请输入正确的选项!        |"
     TIME r "----------------------------------"
- for i in `seq -w 1 -1 1`
+ for i in $(seq -w 1 -1 1)
    do
      #TIME r "\b\b$i";
      sleep 1;
@@ -2057,11 +2064,13 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   elif [ -d "$adg_path" ]; then
       ADG_PATH=$adg_path
   else
-      mkdir -p ${adg_path}/work
-      mkdir -p ${adg_path}/conf
+      #mkdir -p ${adg_path}/work
+      #mkdir -p ${adg_path}/conf
       ADG_PATH=$adg_path
   fi
   CONFIG_PATH=$ADG_PATH
+  WORK_PATH=$ADG_PATH/work
+  CONF_PATH=$ADG_PATH/conf
   }
   input_container_adg1_config
 
@@ -2101,7 +2110,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
 
   TIME y " >>>>>>>>>>>配置完成，开始安装adguardhome（docker版，x86系统）"
   log "1.开始创建配置文件目录"
-  PATH_LIST=($CONFIG_PATH)
+  PATH_LIST=($CONFIG_PATH $WORK_PATH $CONF_PATH)
   for i in ${PATH_LIST[@]}; do
       mkdir -p $i
   done
@@ -2109,8 +2118,8 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   log "2.开始创建容器并执行"
   docker run -dit \
       -t \
-      -v ${CONFIG_PATH}/work:/opt/adguardhome/work \
-      -v ${CONFIG_PATH}/conf:/opt/adguardhome/conf \
+      -v $WORK_PATH:/opt/adguardhome/work \
+      -v $CONF_PATH:/opt/adguardhome/conf \
       --name $ADG_CONTAINER_NAME \
       --hostname $ADG_CONTAINER_NAME \
       --restart always \
@@ -2142,11 +2151,13 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   elif [ -d "$adg_path" ]; then
       ADG_PATH=/mnt/mmcblk2p4/$adg_path
   else
-      mkdir -p /mnt/mmcblk2p4/$adg_path/work
-      mkdir -p /mnt/mmcblk2p4/$adg_path/conf
+      #mkdir -p /mnt/mmcblk2p4/$adg_path/work
+      #mkdir -p /mnt/mmcblk2p4/$adg_path/conf
       ADG_PATH=/mnt/mmcblk2p4/$adg_path
   fi
   CONFIG_PATH=$ADG_PATH
+  WORK_PATH=$ADG_PATH/work
+  CONF_PATH=$ADG_PATH/conf
   }
   input_container_adg2_config
 
@@ -2186,7 +2197,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
 
   TIME y " >>>>>>>>>>>配置完成，开始安装adguardhome（docker版）到N1的/mnt/mmcblk2p4/"
   log "1.开始创建配置文件目录"
-  PATH_LIST=($CONFIG_PATH)
+  PATH_LIST=($CONFIG_PATH $WORK_PATH $CONF_PATH)
   for i in ${PATH_LIST[@]}; do
       mkdir -p $i
   done
@@ -2194,8 +2205,8 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   log "3.开始创建容器并执行"
   docker run -dit \
       -t \
-      -v ${CONFIG_PATH}/work:/opt/adguardhome/work \
-      -v ${CONFIG_PATH}/conf:/opt/adguardhome/conf \
+      -v $WORK_PATH:/opt/adguardhome/work \
+      -v $CONF_PATH:/opt/adguardhome/conf \
       --name $ADG_CONTAINER_NAME \
       --hostname $ADG_CONTAINER_NAME \
       --restart always \
@@ -2236,7 +2247,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
     TIME r "|          Warning!!!            |"
     TIME r "|       请输入正确的选项!        |"
     TIME r "----------------------------------"
- for i in `seq -w 1 -1 1`
+ for i in $(seq -w 1 -1 1)
    do
      #TIME r "\b\b$i";
      sleep 1;
@@ -2272,11 +2283,13 @@ TIME b "(0) 返回上级菜单"
   elif [ -d "$xui_path" ]; then
       XUI_PATH=$xui_path
   else
-      mkdir -p ${xui_path}/db
-      mkdir -p ${xui_path}/cert
+      #mkdir -p ${xui_path}/db
+      #mkdir -p ${xui_path}/cert
       XUI_PATH=$xui_path
   fi
   CONFIG_PATH=$XUI_PATH
+  DB_PATH=$XUI_PATH/db
+  CERT_PATH=$XUI_PATH/cert
   }
   input_container_xui_config
 
@@ -2316,7 +2329,7 @@ TIME b "(0) 返回上级菜单"
 
   TIME y " >>>>>>>>>>>配置完成，开始安装x-ui"
   log "1.开始创建配置文件目录"
-  PATH_LIST=($CONFIG_PATH)
+  PATH_LIST=($CONFIG_PATH $DB_PATH $CERT_PATH)
   for i in ${PATH_LIST[@]}; do
       mkdir -p $i
   done
@@ -2324,8 +2337,8 @@ TIME b "(0) 返回上级菜单"
   log "2.开始创建容器并执行"
   docker run -dit \
       -t \
-      -v ${CONFIG_PATH}/db:/etc/x-ui/ \
-      -v ${CONFIG_PATH}/cert:/root/ \
+      -v $DB_PATH:/etc/x-ui/ \
+      -v $CERT_PATH/cert:/root/ \
       --name $XUI_CONTAINER_NAME \
       --hostname $XUI_CONTAINER_NAME \
       --restart always \
@@ -2354,7 +2367,7 @@ TIME b "(0) 返回上级菜单"
     TIME r "|          Warning!!!            |"
     TIME r "|       请输入正确的选项!        |"
     TIME r "----------------------------------"
- for i in `seq -w 1 -1 1`
+ for i in $(seq -w 1 -1 1)
    do
      #TIME r "\b\b$i";
      sleep 1;
@@ -2368,11 +2381,241 @@ TIME b "(0) 返回上级菜单"
 clear
 exit 0
 ;;
+#安装aapanel
+10)
+clear
+while [ "$flag" -eq 0 ]
+do
+#cat << EOF
+TIME w "----------------------------------------"
+TIME w "|****Please Enter Your Choice:[0-2]****|"
+TIME w "|******** AAPANEL(宝塔国际版) *********|"
+TIME w "----------------------------------------"
+TIME w "(1) linxu系统、X86的openwrt、群辉等请选择 1"
+TIME w "(2) N1的EMMC上运行的openwrt请选择 2"
+TIME b "(0) 返回上级菜单"
+#EOF
+TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按回车！"
+ read -p "Please enter your choice[0-2]: " input10
+ case $input10 in 
+ 1)
+  TIME y " >>>>>>>>>>>开始安装aapanel"
+  # 创建映射文件夹
+  input_container_aapanel1_config() {
+  echo -n -e "请输入aapanel配置文件保存的绝对路径（示例：/home/aapanel)，回车默认为当前目录: "
+  read aapanel_path
+  if [ -z "$aapanel_path" ]; then
+      AAPANEL_PATH=$AAPANEL_CONFIG_FOLDER
+  elif [ -d "$aapanel_path" ]; then
+      AAPANEL_PATH=$aapanel_path
+  else
+      AAPANEL_PATH=$aapanel_path
+  fi
+  CONFIG_PATH=$AAPANEL_PATH
+  WEBSITE_DATA_PATH=$AAPANEL_PATH/website_data
+  MYSQL_DATA_PATH=$AAPANEL_PATH/mysql_data
+  VHOST_PATH=$AAPANEL_PATH/vhost
+  }
+  input_container_aapanel1_config
+
+  # 输入容器名
+  input_container_aapanel1_name() {
+    echo -n -e "请输入将要创建的容器名[默认为：aapanel]-> "
+    read container_name
+    if [ -z "$container_name" ]; then
+        AAPANEL_CONTAINER_NAME="aapanel"
+    else
+        AAPANEL_CONTAINER_NAME=$container_name
+    fi
+  }
+  input_container_aapanel1_name
+
+  # 确认
+  while true
+  do
+  	TIME y "aapanel 配置文件路径：$CONFIG_PATH"
+  	TIME y "aapanel 容器名：$AAPANEL_CONTAINER_NAME"
+  	read -r -p "以上信息是否正确？[Y/n] " input101
+  	case $input101 in
+  		[yY][eE][sS]|[yY])
+  			break
+  			;;
+  		[nN][oO]|[nN])
+  			TIME w "即将返回上一步"
+  			sleep 1
+  			input_container_aapanel1_config
+  			input_container_aapanel1_name
+  			;;
+  		*)
+  			TIME r "输入错误，请输入[Y/n]"
+  			;;
+  	esac
+  done
+
+  TIME y " >>>>>>>>>>>配置完成，开始安装aapanel"
+  log "1.开始创建配置文件目录"
+  PATH_LIST=($MYSQL_DATA_PATH)
+  for i in ${PATH_LIST[@]}; do
+      mkdir -p $i
+  done
+  PATH_LIST=($WEBSITE_DATA_PATH)
+  for i in ${PATH_LIST[@]}; do
+      mkdir -p $i
+  done
+  PATH_LIST=($VHOST_PATH)
+  for i in ${PATH_LIST[@]}; do
+      mkdir -p $i
+  done
+
+  log "2.开始创建容器并执行"
+  docker run -dit \
+      -t \
+      -v $WEBSITE_DATA_PATH:/www/wwwroot \
+      -v $MYSQL_DATA_PATH:/www/server/data \
+      -v $VHOST_PATH:/www/server/panel/vhost \
+      --name $AAPANEL_CONTAINER_NAME \
+      --hostname $AAPANEL_CONTAINER_NAME \
+      --restart always \
+      --net host \
+      $AAPANEL_DOCKER_IMG_NAME:$AAPANEL_TAG
+
+      if [ $? -ne 0 ] ; then
+          cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
+      fi
+
+      log "列出所有宿主机上的容器"
+      docker ps -a
+    TIME g "-----------------------------------------------------------"
+    TIME g "|          aapanel启动需要一点点时间，请耐心等待！        |"
+    sleep 10
+    TIME g "|                安装完成，自动退出脚本                   |"
+    TIME g "|            访问方式为 宿主机ip:8888/aapanel/            |"
+    TIME g "|        默认账号：aapanel  默认密码：aapanel123          |"
+    TIME g "|   基础教程 https://wiki.991231.xyz/zh/docker/aapanel    |"
+    TIME g "-----------------------------------------------------------"
+  exit 0
+  ;;
+ 2)  
+  TIME y " >>>>>>>>>>>开始安装aapanel到N1的/mnt/mmcblk2p4/"
+  # 创建映射文件夹
+  input_container_aapanel2_config() {
+  echo -n -e "请输入telethon存储的文件夹名称（如：aapanel)，回车默认为 aapanel: "
+  read aapanel_path
+  if [ -z "$aapanel_path" ]; then
+      AAPANEL_PATH=$N1_AAPANEL_FOLDER
+  elif [ -d "$aapanel_path" ]; then
+      AAPANEL_PATH=/mnt/mmcblk2p4/$aapanel_path
+  else
+      #mkdir -p /mnt/mmcblk2p4/$aapanel_path
+      AAPANEL_PATH=/mnt/mmcblk2p4/$aapanel_path
+  fi
+  CONFIG_PATH=$AAPANEL_PATH
+  WEBSITE_DATA_PATH=$AAPANEL_PATH/website_data
+  MYSQL_DATA_PATH=$AAPANEL_PATH/mysql_data
+  VHOST_PATH=$AAPANEL_PATH/vhost
+  }
+  input_container_aapanel2_config
+  
+  # 输入容器名
+  input_container_aapanel2_name() {
+    echo -n -e "请输入将要创建的容器名[默认为：aapanel]-> "
+    read container_name
+    if [ -z "$container_name" ]; then
+        AAPANEL_CONTAINER_NAME="aapanel"
+    else
+        AAPANEL_CONTAINER_NAME=$container_name
+    fi
+  }
+  input_container_aapanel2_name
+
+  # 确认
+  while true
+  do
+  	TIME y "aapanel 配置文件路径：$CONFIG_PATH"
+  	TIME y "aapanel 容器名：$AAPANEL_CONTAINER_NAME"
+  	read -r -p "以上信息是否正确？[Y/n] " input102
+  	case $input102 in
+  		[yY][eE][sS]|[yY])
+  			break
+  			;;
+  		[nN][oO]|[nN])
+  			TIME w "即将返回上一步"
+  			sleep 1
+  			input_container_aapanel2_config
+  			input_container_aapanel2_name
+  			;;
+  		*)
+  			TIME r "输入错误，请输入[Y/n]"
+  			;;
+  	esac
+  done
+
+  TIME y " >>>>>>>>>>>配置完成，开始安装aapanel"
+  log "1.开始创建配置文件目录"
+  PATH_LIST=($MYSQL_DATA_PATH)
+  for i in ${PATH_LIST[@]}; do
+      mkdir -p $i
+  done
+  PATH_LIST=($WEBSITE_DATA_PATH)
+  for i in ${PATH_LIST[@]}; do
+      mkdir -p $i
+  done
+  PATH_LIST=($VHOST_PATH)
+  for i in ${PATH_LIST[@]}; do
+      mkdir -p $i
+  done
+
+  log "3.开始创建容器并执行"
+  docker run -dit \
+      -t \
+      -v $WEBSITE_DATA_PATH:/www/wwwroot \
+      -v $MYSQL_DATA_PATH:/www/server/data \
+      -v $VHOST_PATH:/www/server/panel/vhost \
+      --name $AAPANEL_CONTAINER_NAME \
+      --hostname $AAPANEL_CONTAINER_NAME \
+      --restart always \
+      --net host \
+      $AAPANEL_DOCKER_IMG_NAME:$AAPANEL_TAG
+
+      if [ $? -ne 0 ] ; then
+          cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
+      fi
+
+      log "列出所有宿主机上的容器"
+      docker ps -a
+    TIME g "-----------------------------------------------------------"
+    TIME g "|          aapanel启动需要一点点时间，请耐心等待！        |"
+    sleep 10
+    TIME g "|                安装完成，自动退出脚本                   |"
+    TIME g "|            访问方式为 宿主机ip:8888/aapanel/            |"
+    TIME g "|        默认账号：aapanel  默认密码：aapanel123          |"
+    TIME g "|   基础教程 https://wiki.991231.xyz/zh/docker/aapanel    |"
+    TIME g "-----------------------------------------------------------"
+  exit 0
+  ;;
+ 0) 
+ clear 
+ break
+ ;;
+ *) TIME r "----------------------------------"
+    TIME r "|          Warning!!!            |"
+    TIME r "|       请输入正确的选项!        |"
+    TIME r "----------------------------------"
+ for i in $(seq -w 1 -1 1)
+   do
+     #TIME r "\b\b$i";
+     sleep 1;
+   done
+ clear
+ ;;
+ esac
+ done
+;;
 *) TIME r "----------------------------------"
  TIME r "|          Warning!!!            |"
  TIME r "|       请输入正确的选项!        |"
  TIME r  "----------------------------------"
- for i in `seq -w 1 -1 1`
+ for i in $(seq -w 1 -1 1)
    do
      #TIME r "\b\b$i";
      sleep 1;
