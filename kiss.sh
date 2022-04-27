@@ -1057,7 +1057,6 @@ TIME b "(0) 返回上级菜单"
     TIME g "|      portainer启动需要一点点时间，请耐心等待！     |"
     sleep 10
     TIME g "|              安装完成，自动退出脚本                |"
-    TIME g "| portianer默认端口为9000，如有修改请访问修改的端口  |"
     TIME g "|   访问方式为宿主机ip:端口(例192.168.2.1:9000)      |"
     TIME g "------------------------------------------------------"
   exit 0  
@@ -1065,17 +1064,17 @@ TIME b "(0) 返回上级菜单"
  2)
     TIME y " >>>>>>>>>>>开始安装yacht"
     docker volume create yacht
-    docker run -d -p 8000:8000 -v /var/run/docker.sock:/var/run/docker.sock -v yacht:/config selfhostedpro/yacht    
+    docker run -d -p 8008:8000 -v /var/run/docker.sock:/var/run/docker.sock -v yacht:/config selfhostedpro/yacht    
     if [ $? -ne 0 ] ; then
         cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
     fi
 
     TIME g "------------------------------------------------------"
-    TIME g "|        yacht启动需要一点点时间，请耐心等待！      |"
+    TIME g "|         yacht启动需要一点点时间，请耐心等待！      |"
     sleep 10
     TIME g "|              安装完成，自动退出脚本                |"
-    TIME g "| portianer默认端口为8000，如有修改请访问修改的端口  |"
-    TIME g "|   访问方式为宿主机ip:端口(例192.168.2.1:8000)      |"
+    TIME g "|      默认账号：admin@yacht.local 密码：pass       |"
+    TIME g "|    访问方式为宿主机ip:端口(例192.168.2.1:8008)     |"
     TIME g "------------------------------------------------------"
   exit 0  
   ;;
