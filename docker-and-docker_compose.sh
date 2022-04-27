@@ -27,7 +27,6 @@ WORKING='[\033[34m*\033[0m]'
 function Combin_Function() {
     WelcomeMsg
     PermissionJudgment
-    NetWorkJudgment
     EnvJudgment
     DockerMirror
     $InstallDocker
@@ -42,20 +41,9 @@ function WelcomeMsg() {
 ## root 判断
 function PermissionJudgment() {
     if [ $UID -ne 0 ]; then
-        echo -e "\n${ERROR} Permission no enough, please use user ROOT! \n"
+        echo -e "\n${ERROR} 请切换到root再运行脚本! \n"
         exit
     fi
-    echo -e "PermissionJudgment OKEY"
-}
-
-## 网络畅通判断
-function NetWorkJudgment() {
-    ping -c 1 www.baidu.com >/dev/null 2>&1
-    if [ $? -ne 0 ]; then
-        echo -e "\n${RED} ----- Network connection error, please check the network environment and try again later! ----- ${PLAIN}\n"
-        exit
-    fi
-    echo -e "NetWorkJudgment OKEY"
 }
 
 ## 判定系统处理器架构
@@ -87,7 +75,6 @@ function EnvJudgment() {
         SOURCE_ARCH=armhf
         ;;
     esac
-    echo -e "EnvJudgment OKEY"
 }
 
 ## 判断源
