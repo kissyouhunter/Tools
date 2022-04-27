@@ -1064,7 +1064,7 @@ TIME b "(0) 返回上级菜单"
  2)
     TIME y " >>>>>>>>>>>开始安装yacht"
     docker volume create yacht
-    docker run -d -p 8008:8000 -v /var/run/docker.sock:/var/run/docker.sock -v yacht:/config selfhostedpro/yacht    
+    docker run -d -p 8008:8000 --name=yacht --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v yacht:/config selfhostedpro/yacht    
     if [ $? -ne 0 ] ; then
         cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
     fi
