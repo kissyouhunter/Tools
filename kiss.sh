@@ -166,7 +166,7 @@ TIME w "(3) Arm64 openwrt安装docker和装docker-comopse(例 N1 等)"
 TIME b "(0) 返回上级菜单"
 #EOF
 TIME l "<注>openwrt宿主机默认安装dockerman图形docker管理工具！"
- read -p "Please enter your Choice[0-5]: " input1
+ read -p "Please enter your Choice[0-3]: " input1
  case $input1 in 
  1)
     TIME y " >>>>>>>>>>>开始安装docker和docker-compose"
