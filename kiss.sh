@@ -139,7 +139,7 @@ TIME w "============================================"
 TIME w "(1) 安装docker和docker-compose"
 TIME w "(2) 安装<青龙>到宿主机"
 TIME w "(3) 安装<elecv2p>到宿主机"
-TIME w "(4) 安装portainer(docker图形管理工具)"
+TIME w "(4) 安装docker图形管理工具"
 TIME w "(5) 安装emby或jellyfin(打造自己的爱奇艺)"
 TIME w "(6) 安装下载工具"
 TIME w "(7) TG定时发送信息工具"
@@ -1035,13 +1035,14 @@ while [ "$flag" -eq 0 ]
 do
 #cat << EOF
 TIME w "----------------------------------------"
-TIME w "|****Please Enter Your Choice:[0-1]****|"
-TIME w "|************** PORTAINER *************|"
+TIME w "|****Please Enter Your Choice:[0-2]****|"
+TIME w "|********** PORTAINER & YACHT *********|"
 TIME w "----------------------------------------"
 TIME w "(1) 安装portianer"
+TIME w "(2) 安装yacht"
 TIME b "(0) 返回上级菜单"
 #EOF
- read -p "Please enter your Choice[0-1]: " input4
+ read -p "Please enter your Choice[0-2]: " input4
  case $input4 in 
  1)
     TIME y " >>>>>>>>>>>开始安装portainer"
@@ -1061,6 +1062,38 @@ TIME b "(0) 返回上级菜单"
     TIME g "------------------------------------------------------"
   exit 0  
   ;;
+ 2)
+    TIME y " >>>>>>>>>>>开始安装yacht"
+    docker volume create yacht
+    docker run -d -p 8000:8000 -v /var/run/docker.sock:/var/run/docker.sock -v yacht:/config selfhostedpro/yacht    
+    if [ $? -ne 0 ] ; then
+        cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
+    fi
+
+    TIME g "------------------------------------------------------"
+    TIME g "|        yacht启动需要一点点时间，请耐心等待！      |"
+    sleep 10
+    TIME g "|              安装完成，自动退出脚本                |"
+    TIME g "| portianer默认端口为8000，如有修改请访问修改的端口  |"
+    TIME g "|   访问方式为宿主机ip:端口(例192.168.2.1:8000)      |"
+    TIME g "------------------------------------------------------"
+  exit 0  
+  ;;
+ 0) 
+ clear 
+ break
+ ;;
+ *) TIME r "----------------------------------"
+    TIME r "|          Warning!!!            |"
+    TIME r "|       请输入正确的选项!        |"
+    TIME r "----------------------------------"
+ for i in $(seq -w 1 -1 1)
+   do
+     #TIME r "\b\b$i";
+     sleep 1;
+   done
+ clear
+ ;;
  0) 
  clear 
  break
