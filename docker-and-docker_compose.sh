@@ -161,11 +161,11 @@ function DockerMirror() {
 
 ## 安装 Docker Engine
 function DockerEngine1() {
-    wget -O get-docker.sh https://raw.githubusercontent.com/kissyouhunter/Tools/main/get-docker.sh
+    curl -Lo get-docker.sh https://raw.githubusercontent.com/kissyouhunter/Tools/main/get-docker.sh
     sh get-docker.sh
 }
 function DockerEngine2() {
-    wget -O get-docker.sh https://raw.githubusercontent.com/kissyouhunter/Tools/main/get-docker.sh
+    curl -Lo get-docker.sh https://raw.githubusercontent.com/kissyouhunter/Tools/main/get-docker.sh
     sh get-docker.sh --mirror Aliyun
 }
 
@@ -175,16 +175,16 @@ function DockerCompose() {
         [ -e $DockerCompose ] && rm -rf $DockerCompose
         if [[ ${ARCH} == "x86_64" ]]; then
             if [ ${DOCKER_COMPOSE_DOWNLOAD_PROXY} == "True" ]; then
-                wget -O $DockerCompose ${PROXY_URL}${DOCKER_COMPOSE_DOWNLOAD_URL}
+                curl -Lo $DockerCompose ${PROXY_URL}${DOCKER_COMPOSE_DOWNLOAD_URL}
             else
-                wget -O $DockerCompose ${DOCKER_COMPOSE_DOWNLOAD_URL}
+                curl -Lo $DockerCompose ${DOCKER_COMPOSE_DOWNLOAD_URL}
             fi
             chmod +x $DockerCompose
         elif [[ ${ARCH} == "aarch64" ]]; then
             if [ ${DOCKER_COMPOSE_DOWNLOAD_PROXY} == "True" ]; then
-                wget -O $DockerCompose ${PROXY_URL}${DOCKER_COMPOSE_AARCG64_DOWNLOAD_URL}
+                curl -Lo $DockerCompose ${PROXY_URL}${DOCKER_COMPOSE_AARCG64_DOWNLOAD_URL}
             else
-                wget -O $DockerCompose ${DOCKER_COMPOSE_AARCG64_DOWNLOAD_URL}
+                curl -Lo $DockerCompose ${DOCKER_COMPOSE_AARCG64_DOWNLOAD_URL}
             fi
             chmod +x $DockerCompose
         fi
