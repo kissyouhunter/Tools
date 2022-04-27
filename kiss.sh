@@ -169,12 +169,12 @@ TIME l "<注>openwrt宿主机默认安装dockerman图形docker管理工具！"
  read -p "Please enter your Choice[0-5]: " input1
  case $input1 in 
  1)
-    TIME y " >>>>>>>>>>>开始为安装docker和docker-compose"
+    TIME y " >>>>>>>>>>>开始安装docker和docker-compose"
     if [ "$lsb_dist" == "openwrt" ]; then
         TIME r "****openwrt宿主机请选择2或者3安装docker****"
     else
         TIME y " >>>>>>>>>>>开始安装docker&docker-compose"
-		sleep 5
+		sleep 1
         bash <(curl -s -S -L https://raw.githubusercontent.com/kissyouhunter/Tools/main/docker-and-docker_compose.sh)
         TIME g "****docker和docker-compose安装完成，请返回上级菜单!****"
 	   sleep 5
