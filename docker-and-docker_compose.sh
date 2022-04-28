@@ -5,7 +5,7 @@
 ## 变量
 ARCH=$(uname -m)
 DockerCompose=/usr/local/bin/docker-compose
-PROXY_URL=https://ghproxy.com/
+PROXY_URL=https://get.daocloud.io/docker/compose/releases/download/v2.4.1/docker-compose-`uname -s`-`uname -m`
 DOCKER_COMPOSE_VERSION=v2.4.1
 DOCKER_COMPOSE_DOWNLOAD_URL=https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-Linux-x86_64
 DOCKER_COMPOSE_AARCG64_DOWNLOAD_URL=https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-Linux-aarch64
@@ -162,14 +162,14 @@ function DockerCompose() {
         [ -e $DockerCompose ] && rm -rf $DockerCompose
         if [[ ${ARCH} == "x86_64" ]]; then
             if [ ${DOCKER_COMPOSE_DOWNLOAD_PROXY} == "True" ]; then
-                curl -Lo $DockerCompose ${PROXY_URL}${DOCKER_COMPOSE_DOWNLOAD_URL}
+                curl -Lo $DockerCompose ${PROXY_URL}
             else
                 curl -Lo $DockerCompose ${DOCKER_COMPOSE_DOWNLOAD_URL}
             fi
             chmod +x $DockerCompose
         elif [[ ${ARCH} == "aarch64" ]]; then
             if [ ${DOCKER_COMPOSE_DOWNLOAD_PROXY} == "True" ]; then
-                curl -Lo $DockerCompose ${PROXY_URL}${DOCKER_COMPOSE_AARCG64_DOWNLOAD_URL}
+                curl -Lo $DockerCompose ${PROXY_URL}
             else
                 curl -Lo $DockerCompose ${DOCKER_COMPOSE_AARCG64_DOWNLOAD_URL}
             fi
