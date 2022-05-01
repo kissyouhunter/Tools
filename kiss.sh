@@ -2370,7 +2370,7 @@ TIME b "(0) 返回上级菜单"
   docker run -dit \
       -t \
       -v $DB_PATH:/etc/x-ui/ \
-      -v $CERT_PATH/cert:/root/ \
+      -v $CERT_PATH:/root/ \
       --name $XUI_CONTAINER_NAME \
       --hostname $XUI_CONTAINER_NAME \
       --restart always \
