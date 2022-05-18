@@ -1040,6 +1040,7 @@ TIME w "|********** PORTAINER & YACHT *********|"
 TIME w "----------------------------------------"
 TIME w "(1) 安装portianer"
 TIME w "(2) 安装yacht"
+TIME w "(3) 安装simpledocker 中文"
 TIME b "(0) 返回上级菜单"
 #EOF
  read -p "Please enter your Choice[0-2]: " input4
@@ -1075,6 +1076,23 @@ TIME b "(0) 返回上级菜单"
     TIME g "|              安装完成，自动退出脚本                |"
     TIME g "|       默认账号：admin@yacht.local 密码：pass       |"
     TIME g "|     访问方式为宿主机ip:端口(例192.168.2.1:8008)    |"
+    TIME g "------------------------------------------------------"
+  exit 0  
+  ;;
+ 3)
+    TIME y " >>>>>>>>>>>开始安装simpledocker"
+    cd /tmp && curl -Lo docker-compose.yml https://raw.githubusercontent.com/kissyouhunter/Tools/main/simpledocker-docker-compose.yml
+    docker-compose up -d    
+    if [ $? -ne 0 ] ; then
+        cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
+    fi
+
+    TIME g "------------------------------------------------------"
+    TIME g "|     simpledocker启动需要一点点时间，请耐心等待！   |"
+    sleep 10
+    TIME g "|              安装完成，自动退出脚本                |"
+    TIME g "|            默认账号：admin 密码：12345             |"
+    TIME g "|     访问方式为宿主机ip:端口(例192.168.2.1:9009)    |"
     TIME g "------------------------------------------------------"
   exit 0  
   ;;
