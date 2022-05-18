@@ -2,8 +2,10 @@ version: '3'
 services:
   redis:
     image: redis:latest
+    restart: unless-stopped
   web:
     image: registry.cn-hangzhou.aliyuncs.com/seven-tao/simple-docker:0.0.7.2
+    restart: unless-stopped
     ports:
       - "9009:4050"
     volumes:
