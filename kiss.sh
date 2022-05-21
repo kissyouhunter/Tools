@@ -81,6 +81,7 @@ ADG_CONTAINER_NAME=""
 # x-ui变量
 XUI_DOCKER_IMG_NAME="kissyouhunter/x-ui"
 TAG="latest"
+DEV="dev"
 XUI_PATH=""
 XUI_CONFIG_FOLDER=$(pwd)/x-ui
 XUI_CONTAINER_NAME=""
@@ -2355,11 +2356,26 @@ TIME b "(0) 返回上级菜单"
   }
   input_container_xui_name
 
+  # image 版本
+  input_container_xui_image() {
+    echo -n -e "请输入将要拉取镜像[默认为：最新版本latest，输入dev为尝鲜版]-> "
+    read image_name
+    if [ -z "$image_name" ]; then
+        XUI_IMAGE_NAME="latest"
+    elif [ "$image_name" == "latest" ]; then
+        XUI_IMAGE_NAME="latest"
+    else
+        XUI_IMAGE_NAME=$DEV
+    fi
+  }
+  input_container_xui_image
+
   # 确认
   while true
   do
   	TIME y "x-ui 配置文件路径：$CONFIG_PATH"
   	TIME y "x-ui 容器名：$XUI_CONTAINER_NAME"
+    TIME y "x-ui 镜像版本：$XUI_IMAGE_NAME"
   	read -r -p "以上信息是否正确？[Y/n] " input91
   	case $input91 in
   		[yY][eE][sS]|[yY])
@@ -2370,6 +2386,7 @@ TIME b "(0) 返回上级菜单"
   			sleep 1
   			input_container_xui_config
   			input_container_xui_name
+            input_container_xui_image
   			;;
   		*)
   			TIME r "输入错误，请输入[Y/n]"
@@ -2393,7 +2410,7 @@ TIME b "(0) 返回上级菜单"
       --hostname $XUI_CONTAINER_NAME \
       --restart always \
       --net host \
-      $XUI_DOCKER_IMG_NAME:$TAG
+      $XUI_DOCKER_IMG_NAME:$XUI_IMAGE_NAME
 
       if [ $? -ne 0 ] ; then
           cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
