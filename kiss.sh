@@ -438,7 +438,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   }
 
   input_container_ql1_judge() {
-  if [ $TAG == latest ]; then
+  if [ $TAG == latest ] || [ $TAG == "2.12" ] || [ $TAG == 2.12.0 ] || [ $TAG == 2.12.1 ] || [ $TAG == 2.12.2 ] || [ $TAG == 2.13 ] || [ $TAG == 2.13.0 ] || [ $TAG == 2.13.1 ]; then
       input_container_ql1_config1
       input_container_ql1_name
       input_container_ql1_network_config
