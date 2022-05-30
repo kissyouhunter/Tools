@@ -93,11 +93,9 @@ elif [ -e "/ql/scripts" ]; then
 	pnpm install -g @types/node  
 	pnpm install -g typescript
 	pnpm install -g requests
+	pnpm install -g canvas
+	pnpm install -g crypto-js --save
 	TIME g "pnpm 执行完毕"
-	cd /ql/scripts
-	npm install canvas --build-from-source
-	npm install crypto-js --save
-	TIME g "npm 执行完毕"
 	pip3 install file-read-backwards prettytable canvas requests ping3 jieba
 	TIME g "pip3 执行完毕"
 	TIME g "依赖安装完毕，如有错误，请重试。"
