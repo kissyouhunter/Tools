@@ -1,5 +1,8 @@
 #!/bin/bash
 #author kissyouhunter
+#说明
+#青龙青龙容器后执行 rm -f qinglong.sh && curl -fsSL https://raw.githubusercontent.com/kissyouhunter/Tools/main/qinglong.sh | bash
+
 
 TIME() {
 [[ -z "$1" ]] && {
