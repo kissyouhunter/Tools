@@ -21,6 +21,8 @@ TIME() {
       }
 }
 
+TIME y "青龙安装依赖脚本，如想退出，请在10秒内输入ctrl+c退出脚本。"
+sleep 10
 TIME y "开始安装依赖，安装依赖速度取决于网速和CPU，耐心等吧！"
 sleep 2
 if [ -e "/ql/data/scripts" ]; then
