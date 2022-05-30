@@ -28,6 +28,7 @@ sleep 2
 if [ -e "/ql/data/scripts" ]; then
 	apk update
 	apk add --no-cache build-base g++ cairo-dev pango-dev giflib-dev
+	TIME g "apk 执行完毕"
 	pnpm install -g axios
 	pnpm install -g date-fns
 	pnpm install -g require
@@ -54,14 +55,17 @@ if [ -e "/ql/data/scripts" ]; then
 	pnpm install -g requests
 	pnpm install -g canvas
 	pnpm install -g crypto-js --save
+	TIME g "pnpm 执行完毕"
 	pip3 install file-read-backwards prettytable canvas requests ping3 jieba
+	TIME g "pip3 执行完毕"
 	TIME g "依赖安装完毕，如有错误，请重试。"
 	sleep 2
 	TIME g "退出脚本"
 	exit 0
 elif [ -e "/ql/scripts" ]; then
-		apk update
+	apk update
 	apk add --no-cache build-base g++ cairo-dev pango-dev giflib-dev
+	TIME g "apk 执行完毕"
 	pnpm install -g axios
 	pnpm install -g date-fns
 	pnpm install -g require
@@ -86,10 +90,13 @@ elif [ -e "/ql/scripts" ]; then
 	pnpm install -g @types/node  
 	pnpm install -g typescript
 	pnpm install -g requests
+	TIME g "pnpm 执行完毕"
 	cd /ql/scripts
 	npm install canvas --build-from-source
 	npm install crypto-js --save
+	TIME g "npm 执行完毕"
 	pip3 install file-read-backwards prettytable canvas requests ping3 jieba
+	TIME g "pip3 执行完毕"
 	TIME g "依赖安装完毕，如有错误，请重试。"
 	sleep 2
 	TIME g "退出脚本"
