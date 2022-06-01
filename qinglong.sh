@@ -60,6 +60,7 @@ if [ -e "/ql/data/scripts" ]; then
 	pnpm install -g crypto-js --save
 	TIME g "pnpm 执行完毕"
 	pip3 install file-read-backwards prettytable canvas requests ping3 jieba
+	pip3 install pillow  --no-cache-dir
 	TIME g "pip3 执行完毕"
 	TIME g "依赖安装完毕，如有错误，请重试。"
 	sleep 2
@@ -97,6 +98,7 @@ elif [ -e "/ql/scripts" ]; then
 	pnpm install -g crypto-js --save
 	TIME g "pnpm 执行完毕"
 	pip3 install file-read-backwards prettytable canvas requests ping3 jieba
+	pip3 install pillow  --no-cache-dir
 	TIME g "pip3 执行完毕"
 	TIME g "依赖安装完毕，如有错误，请重试。"
 	sleep 2
