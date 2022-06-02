@@ -1155,7 +1155,7 @@ TIME w "----------------------------------------"
 TIME w "|****Please Enter Your Choice:[0-2]****|"
 TIME w "|*********** EMBY & JELLYFIN **********|"
 TIME w "----------------------------------------"
-TIME w "(1) 安装emby (暂无arm64)"
+TIME w "(1) 安装emby (开心版暂无arm64)"
 TIME w "(2) 安装jellyfin"
 TIME b "(0) 返回上级菜单"
 #EOF
