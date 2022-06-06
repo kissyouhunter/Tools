@@ -1326,7 +1326,7 @@ TIME r "<注>请使用root账户部署容器"
     TIME y " >>>>>>>>>>>开始安装jellyfin"
   # 创建映射文件夹
   input_container_jellyfin_config() {
-  echo -n -e "请输入emby配置文件保存的绝对路径（示例：/home/jellyfin)，回车默认为当前目录: "
+  echo -n -e "请输入jellyfin配置文件保存的绝对路径（示例：/home/jellyfin)，回车默认为当前目录: "
   read jellyfin_path
   if [ -z "$jellyfin_path" ]; then
       JELLYFIN_PATH=$JELLYFIN_CONFIG_FOLDER
@@ -1637,7 +1637,7 @@ TIME r "<注>aria2和aria2-pro 二选一"
   echo -n -e "请输入下载文件保存的绝对路径（示例：/home/downloads)，回车默认为当前目录: "
   read downloads_path
   if [ -z "$downloads_path" ]; then
-      DOWNLOADS_PATH=$QB_DOWNLOADS_FOLDER
+      DOWNLOADS_PATH=$ARIA2_DOWNLOADS_FOLDER
   elif [ -d "$downloads_path" ]; then
       DOWNLOADS_PATH=$downloads_path
   else
@@ -1698,7 +1698,7 @@ TIME r "<注>aria2和aria2-pro 二选一"
 
   TIME y " >>>>>>>>>>>配置完成，开始安装aria2"
   log "1.开始创建配置文件目录"
-  PATH_LIST=($CONFIG_PATH $MOVIES_PATH $TVSHOWS_PATH)
+  PATH_LIST=($ARIA2_PATH $DOWNLOADS_PATH)
   for i in ${PATH_LIST[@]}; do
       mkdir -p $i
   done
@@ -1761,7 +1761,7 @@ TIME r "<注>aria2和aria2-pro 二选一"
   echo -n -e "请输入下载文件保存的绝对路径（示例：/home/downloads)，回车默认为当前目录: "
   read downloads_path
   if [ -z "$downloads_path" ]; then
-      DOWNLOADS_PATH=$QB_DOWNLOADS_FOLDER
+      DOWNLOADS_PATH=$ARIA2_PRO_DOWNLOADS_FOLDER
   elif [ -d "$downloads_path" ]; then
       DOWNLOADS_PATH=$downloads_path
   else
@@ -1834,7 +1834,7 @@ TIME r "<注>aria2和aria2-pro 二选一"
 
   TIME y " >>>>>>>>>>>配置完成，开始安装aria2-pro"
   log "1.开始创建配置文件目录"
-  PATH_LIST=($CONFIG_PATH $MOVIES_PATH $TVSHOWS_PATH)
+  PATH_LIST=($ARIA2_PRO_PATH $DOWNLOADS_PATH)
   for i in ${PATH_LIST[@]}; do
       mkdir -p $i
   done
