@@ -13,16 +13,16 @@ QL_SHELL_FOLDER=$(pwd)/ql
 N1_QL_FOLDER=/mnt/mmcblk2p4/ql
 QL_CONTAINER_NAME=""
 NETWORK="bridge"
-QL_PORT=5700
+QL_PORT="5700"
 # elev2p变量
 V2P_DOCKER_IMG_NAME="elecv2/elecv2p"
 V2P_PATH=""
 V2P_SHELL_FOLDER=$(pwd)/elecv2p
 N1_V2P_FOLDER=/mnt/mmcblk2p4/elecv2p
 V2P_CONTAINER_NAME=""
-V2P_PORT=8100
-V2P_PORT1=8101
-V2P_PORT2=8102
+V2P_PORT="8100"
+V2P_PORT1="8101"
+V2P_PORT2="8102"
 # emby变量
 #EMBY_DOCKER_IMG_NAME="xanderye/embyserver"
 #EMBY_TAG="4.7.0.32"
@@ -33,8 +33,8 @@ EMBY_CONFIG_FOLDER=$(pwd)/emby
 EMBY_MOVIES_FOLDER=$(pwd)/movies
 EMBY_TVSHOWS_FOLDER=$(pwd)/tvshows
 EMBY_CONTAINER_NAME=""
-EMBY_PORT=8096
-EMBY_PORT1=8920
+EMBY_PORT="8096"
+EMBY_PORT1="8920"
 # jellyfin变量
 JELLYFIN_DOCKER_IMG_NAME="jellyfin/jellyfin"
 JELLYFIN_PATH=""
@@ -42,8 +42,8 @@ JELLYFIN_CONFIG_FOLDER=$(pwd)/jellyfin
 JELLYFIN_MOVIES_FOLDER=$(pwd)/movies
 JELLYFIN_TVSHOWS_FOLDER=$(pwd)/tvshows
 JELLYFIN_CONTAINER_NAME=""
-JELLYFIN_PORT=8096
-JELLYFIN_PORT1=8920
+JELLYFIN_PORT="8096"
+JELLYFIN_PORT1="8920"
 # qbittorrent变量
 QB_DOCKER_IMG_NAME="johngong/qbittorrent"
 QB_TAG="qee-latest"
@@ -102,6 +102,7 @@ MAIARK_PATH=""
 MAIARK_CONFIG_FOLDER=$(pwd)/MaiARK
 N1_MAIARK_FOLDER=/mnt/mmcblk2p4/MarARK
 MAIARK_CONTAINER_NAME=""
+MAIARK_PORT="8082"
 
 log() {
     echo -e "\n$1"
@@ -289,7 +290,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   		[nN][oO]|[nN])
   			TIME w "即将返回上一步"
   			sleep 1
-  			QL_PORT=5700
+  			QL_PORT="5700"
             TAG="latest"
   			input_container_ql1_version
             input_container_ql1_judge
@@ -519,7 +520,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   		[nN][oO]|[nN])
   			TIME w "即将返回上一步"
   			sleep 1
-  			QL_PORT=5700
+  			QL_PORT="5700"
             TAG="latest"
   			input_container_ql2_version
             input_container_ql2_judge
@@ -833,9 +834,9 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   		[nN][oO]|[nN])
   			TIME w "即将返回上一步"
   			sleep 1
-  			V2P_PORT=8100
-  			V2P_PORT1=8101
-  			V2P_PORT2=8102
+  			V2P_PORT="8100"
+  			V2P_PORT1="8101"
+  			V2P_PORT2="8102"
   			input_container_v2p1_config
   			input_container_v2p1_name
   			input_container_v2p1_webui_config
@@ -973,9 +974,9 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   		[nN][oO]|[nN])
   			TIME w "即将返回上一步"
   			sleep 1
-  			V2P_PORT=8100
-  			V2P_PORT1=8101
-  			V2P_PORT2=8102
+  			V2P_PORT="8100"
+  			V2P_PORT1="8101"
+  			V2P_PORT2="8102"
   			input_container_v2p2_config
   			input_container_v2p2_name
   			input_container_v2p2_webui_config
@@ -1252,8 +1253,8 @@ TIME r "<注>请使用root账户部署容器"
   		[nN][oO]|[nN])
   			TIME w "即将返回上一步"
   			sleep 1
-  			EMBY_PORT=8096
-  			EMBY_PORT1=8920
+  			EMBY_PORT="8096"
+  			EMBY_PORT1="8920"
   			input_container_emby_config
   			input_container_emby_name
   			input_container_emby_webui_config
@@ -1412,8 +1413,8 @@ TIME r "<注>请使用root账户部署容器"
   		[nN][oO]|[nN])
   			TIME w "即将返回上一步"
   			sleep 1
-  			JELLYFIN_PORT=8096
-  			JELLYFIN_PORT1=8920
+  			JELLYFIN_PORT="8096"
+  			JELLYFIN_PORT1="8920"
   			input_container_jellyfin_config
   			input_container_jellyfin_name
   			input_container_jellyfin_webui_config
@@ -2739,11 +2740,37 @@ TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车�
   }
   input_container_maiark1_name
 
+  # 网络模式
+  input_container_maiark1_network_config() {
+  inp "请选择容器的网络类型：\n1) host\n2) bridge[默认]"
+  opt
+  read net
+  if [ "$net" = "1" ]; then
+      NETWORK="host"
+      MAIARK_PORT="8082"
+  fi
+  
+  if [ "$NETWORK" = "bridge" ]; then
+      inp "是否修改MaiMRK端口[默认 8082]：\n1) 修改\n2) 不修改[默认]"
+      opt
+      read change_maiark_port
+      if [ "$change_maiark_port" = "1" ]; then
+          echo -n -e "输入想修改的端口->"
+          read MAIARK_PORT
+          echo $MAIARK_PORT
+      else
+          MAIARK_PORT="8082"
+      fi
+  fi
+  }
+  input_container_maiark1_network_config
+
   # 确认
   while true
   do
   	TIME y "MaiARK 配置文件路径：$CONFIG_PATH"
   	TIME y "Maiark 容器名：$MAIARK_CONTAINER_NAME"
+    TIME y "Maiark 端口：$MAIARK_PORT"
   	read -r -p "以上信息是否正确？[Y/n] " input111
   	case $input111 in
   		[yY][eE][sS]|[yY])
@@ -2754,6 +2781,8 @@ TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车�
   			sleep 1
   			input_container_maiark1_config
   			input_container_maiark1_name
+            input_container_maiark1_network_config
+            MAIARK_PORT="8082"
   			;;
   		*)
   			TIME r "输入错误，请输入[Y/n]"
@@ -2769,12 +2798,14 @@ TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车�
   done
 
   log "2.开始创建容器并执行"
+  docker pull $MAIARK_DOCKER_IMG_NAME:$MAIARK_TAG_AMD
   docker run -d \
       -v $CONFIG_PATH:/MaiARK \
       --name $MAIARK_CONTAINER_NAME \
       --hostname $MAIARK_CONTAINER_NAME \
       --restart always \
-      --net host \
+      --network $NETWORK \
+      -p $MAIARK_PORT:8082 \
       $MAIARK_DOCKER_IMG_NAME:$MAIARK_TAG_AMD
 
       if [ $? -ne 0 ] ; then
@@ -2787,7 +2818,7 @@ TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车�
     TIME g "|           MaiARK启动需要一点点时间，请耐心等待！        |"
     sleep 10
     TIME g "|                安装完成，自动退出脚本                   |"
-    TIME g "|               访问方式为 宿主机ip:8082                  |"
+    TIME g "|              访问方式为 宿主机ip:$MAIARK_PORT                   |"
     TIME g "|    请先配置好映射文件夹下的arkconfig.json再重启容器     |"
     TIME g "|   基础教程 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX    |"
     TIME g "-----------------------------------------------------------"
@@ -2822,11 +2853,36 @@ TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车�
   }
   input_container_maiark2_name
 
+  # 网络模式
+  input_container_maiark2_network_config() {
+  inp "请选择容器的网络类型：\n1) host\n2) bridge[默认]"
+  opt
+  read net
+  if [ "$net" = "1" ]; then
+      NETWORK="host"
+      MAIARK_PORT="8082"
+  fi
+  
+  if [ "$NETWORK" = "bridge" ]; then
+      inp "是否修改MaiMRK端口[默认 8082]：\n1) 修改\n2) 不修改[默认]"
+      opt
+      read change_maiark_port
+      if [ "$change_maiark_port" = "1" ]; then
+          echo -n -e "输入想修改的端口->"
+          read MAIARK_PORT
+      else
+          MAIARK_PORT="8082"
+      fi
+  fi
+  }
+  input_container_maiark2_network_config
+
   # 确认
   while true
   do
   	TIME y "MaiARK 配置文件路径：$CONFIG_PATH"
   	TIME y "Maiark 容器名：$MAIARK_CONTAINER_NAME"
+    TIME y "Maiark 端口：$MAIARK_PORT"
   	read -r -p "以上信息是否正确？[Y/n] " input111
   	case $input111 in
   		[yY][eE][sS]|[yY])
@@ -2837,6 +2893,8 @@ TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车�
   			sleep 1
   			input_container_maiark2_config
   			input_container_maiark2_name
+            input_container_maiark2_network_config
+            MAIARK_PORT="8082"
   			;;
   		*)
   			TIME r "输入错误，请输入[Y/n]"
@@ -2852,13 +2910,15 @@ TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车�
   done
 
   log "2.开始创建容器并执行"
+  docker pull $MAIARK_DOCKER_IMG_NAME:$MAIARK_TAG_ARM
   docker run -dit \
       -t \
       -v $CONFIG_PATH:/MaiARK \
       --name $MAIARK_CONTAINER_NAME \
       --hostname $MAIARK_CONTAINER_NAME \
       --restart always \
-      --net host \
+      --network $NETWORK \
+      -p $MAIARK_PORT:8082 \
       $MAIARK_DOCKER_IMG_NAME:$MAIARK_TAG_ARM
 
       if [ $? -ne 0 ] ; then
@@ -2871,7 +2931,7 @@ TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车�
     TIME g "|           MaiARK启动需要一点点时间，请耐心等待！        |"
     sleep 10
     TIME g "|                安装完成，自动退出脚本                   |"
-    TIME g "|               访问方式为 宿主机ip:8082                  |"
+    TIME g "|              访问方式为 宿主机ip:$MAIARK_PORT                   |"
     TIME g "|    请先配置好映射文件夹下的arkconfig.json再重启容器     |"
     TIME g "|   基础教程 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX    |"
     TIME g "-----------------------------------------------------------"
@@ -2906,11 +2966,37 @@ TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车�
   }
   input_container_maiark3_name
 
+  # 网络模式
+  input_container_maiark3_network_config() {
+  inp "请选择容器的网络类型：\n1) host\n2) bridge[默认]"
+  opt
+  read net
+  if [ "$net" = "1" ]; then
+      NETWORK="host"
+      MAIARK_PORT="8082"
+  fi
+  
+  if [ "$NETWORK" = "bridge" ]; then
+      inp "是否修改MaiMRK端口[默认 8082]：\n1) 修改\n2) 不修改[默认]"
+      opt
+      read change_maiark_port
+      if [ "$change_maiark_port" = "1" ]; then
+          echo -n -e "输入想修改的端口->"
+          read MAIARK_PORT
+      else
+          MAIARK_PORT="8082"
+      fi
+  fi
+  }
+  input_container_maiark3_network_config
+
+
   # 确认
   while true
   do
   	TIME y "MaiARK 配置文件路径：$CONFIG_PATH"
   	TIME y "MaiARK 容器名：$MAIARK_CONTAINER_NAME"
+    TIME y "Maiark 端口：$MAIARK_PORT"
   	read -r -p "以上信息是否正确？[Y/n] " input113
   	case $input113 in
   		[yY][eE][sS]|[yY])
@@ -2921,6 +3007,8 @@ TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车�
   			sleep 1
   			input_container_maiark3_config
   			input_container_maiark3_name
+            input_container_maiark3_network_config
+            MAIARK_PORT="8082"
   			;;
   		*)
   			TIME r "输入错误，请输入[Y/n]"
@@ -2936,13 +3024,15 @@ TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车�
   done
 
   log "3.开始创建容器并执行"
+  docker pull $MAIARK_DOCKER_IMG_NAME:$MAIARK_TAG_ARM
   docker run -dit \
       -t \
       -v $CONFIG_PATH:/MaiARK \
       --name $MAIARK_CONTAINER_NAME \
       --hostname $MAIARK_CONTAINER_NAME \
       --restart always \
-      --net host \
+      --network $NETWORK \
+      -p $MAIARK_PORT:8082 \
       $MAIARK_DOCKER_IMG_NAME:$MAIARK_TAG_ARM
 
       if [ $? -ne 0 ] ; then
@@ -2955,7 +3045,7 @@ TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车�
     TIME g "|           MaiARK启动需要一点点时间，请耐心等待！        |"
     sleep 10
     TIME g "|                安装完成，自动退出脚本                   |"
-    TIME g "|               访问方式为 宿主机ip:8082                  |"
+    TIME g "|              访问方式为 宿主机ip:$MAIARK_PORT                   |"
     TIME g "|    请先配置好映射文件夹下的arkconfig.json再重启容器     |"
     TIME g "|   基础教程 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX    |"
     TIME g "-----------------------------------------------------------"
