@@ -2796,7 +2796,7 @@ TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车�
   done
 
   log "2.开始创建容器并执行"
-  docker pull $MAIARK_DOCKER_IMG_NAME:$MAIARK_TAG_AMD
+  docker pull $MAIARK_DOCKER_IMG_NAME:$TAG
   docker run -d \
       -v $CONFIG_PATH:/MaiARK \
       --name $MAIARK_CONTAINER_NAME \
@@ -2812,15 +2812,15 @@ TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车�
 
       log "列出所有宿主机上的容器"
       docker ps -a
-    TIME g "---------------------------------------------------------------"
-    TIME g "|                MaiARK启动需要一点点时间，请耐心等待！             |"
+    TIME g "-------------------------------------------------------------------------"
+    TIME g "|                 MaiARK启动需要一点点时间，请耐心等待！                 |"
     sleep 10
-    TIME g "|                     安装完成，自动退出脚本                      |"
-    TIME g "|              访问方式为 宿主机ip:$MAIARK_PORT                   |"
-    TIME g "|          请先配置好映射文件夹下的arkconfig.json再重启容器          |"
+    TIME g "|                        安装完成，自动退出脚本                          |"
+    TIME g "|                        访问方式为 宿主机ip:$MAIARK_PORT                        |"
+    TIME g "|           请先配置好映射文件夹下的arkconfig.json再重启容器             |"
     TIME r "|桥接模式请不要修改config下的端口8082，host模式随意(前提是指定自己在干啥)|"
-    TIME r "|               请看清映射的文件夹路径去找config文件                 |"
-    TIME g "-----------------------------------------------------------------"
+    TIME r "|               请看清映射的文件夹路径去找config文件                     |"
+    TIME g "--------------------------------------------------------------------------"
   exit 0
   ;;
  2)  
@@ -2911,7 +2911,7 @@ TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车�
   done
 
   log "3.开始创建容器并执行"
-  docker pull $MAIARK_DOCKER_IMG_NAME:$MAIARK_TAG_ARM
+  docker pull $MAIARK_DOCKER_IMG_NAME:$TAG
   docker run -dit \
       -t \
       -v $CONFIG_PATH:/MaiARK \
@@ -2928,15 +2928,15 @@ TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车�
 
       log "列出所有宿主机上的容器"
       docker ps -a
-    TIME g "---------------------------------------------------------------"
-    TIME g "|                MaiARK启动需要一点点时间，请耐心等待！             |"
+    TIME g "-------------------------------------------------------------------------"
+    TIME g "|                 MaiARK启动需要一点点时间，请耐心等待！                 |"
     sleep 10
-    TIME g "|                     安装完成，自动退出脚本                      |"
-    TIME g "|              访问方式为 宿主机ip:$MAIARK_PORT                   |"
-    TIME g "|          请先配置好映射文件夹下的arkconfig.json再重启容器          |"
+    TIME g "|                        安装完成，自动退出脚本                          |"
+    TIME g "|                        访问方式为 宿主机ip:$MAIARK_PORT                        |"
+    TIME g "|           请先配置好映射文件夹下的arkconfig.json再重启容器             |"
     TIME r "|桥接模式请不要修改config下的端口8082，host模式随意(前提是指定自己在干啥)|"
-    TIME r "|               请看清映射的文件夹路径去找config文件                 |"
-    TIME g "-----------------------------------------------------------------"
+    TIME r "|               请看清映射的文件夹路径去找config文件                     |"
+    TIME g "--------------------------------------------------------------------------"
   exit 0
   ;;
  0) 
