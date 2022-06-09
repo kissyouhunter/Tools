@@ -24,8 +24,6 @@ V2P_PORT="8100"
 V2P_PORT1="8101"
 V2P_PORT2="8102"
 # emby变量
-#EMBY_DOCKER_IMG_NAME="xanderye/embyserver"
-#EMBY_TAG="4.7.0.32"
 EMBY_DOCKER_IMG_NAME="xinjiawei1/emby_unlockd"
 EMBY_TAG="latest"
 EMBY_PATH=""
