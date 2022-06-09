@@ -2812,15 +2812,20 @@ TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车�
 
       log "列出所有宿主机上的容器"
       docker ps -a
-    TIME g "-------------------------------------------------------------------------"
-    TIME g "|                 MaiARK启动需要一点点时间，请耐心等待！                 |"
+    TIME g "------------------------------------------------------------------------------"
+    TIME g "|                   MaiARK启动需要一点点时间，请耐心等待！                   |"
     sleep 10
-    TIME g "|                        安装完成，自动退出脚本                          |"
-    TIME g "|                        访问方式为 宿主机ip:$MAIARK_PORT                        |"
-    TIME g "|           请先配置好映射文件夹下的arkconfig.json再重启容器             |"
-    TIME r "|桥接模式请不要修改config下的端口8082，host模式随意(前提是指定自己在干啥)|"
-    TIME r "|               请看清映射的文件夹路径去找config文件                     |"
-    TIME g "--------------------------------------------------------------------------"
+    TIME g "|                          安装完成，自动退出脚本                            |"
+    TIME g "|                          访问方式为 宿主机ip:$MAIARK_PORT                          |"
+    TIME g "|              请先配置好映射文件夹下的arkconfig.json再重启容器              |"
+    TIME r "|  桥接模式请不要修改config下的端口8082，host模式随意(前提是指定自己在干啥)  |"
+    TIME r "|                 请看清映射的文件夹路径去找config文件                       |"
+    TIME r "|   op用户出现“docker0: iptables: No chain/target/match by that name”错误    |"
+    TIME r "|              输入命令“/etc/init.d/dockerd restart” 重启docker              |"
+    TIME r "|                     再输入“docker start $MAIARK_CONTAINER_NAME” 启动容器                   |"
+    TIME r "|       op用户出现容器正常启动，但web界面无法方法Turbo ACC 网络加速设置      |"
+    TIME r "|进入“网络——Turbo ACC 网络加速设置” 开启或关闭“全锥型 NAT”就可正常访问web界面|"
+    TIME g "------------------------------------------------------------------------------"
   exit 0
   ;;
  2)  
@@ -2928,15 +2933,20 @@ TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车�
 
       log "列出所有宿主机上的容器"
       docker ps -a
-    TIME g "-------------------------------------------------------------------------"
-    TIME g "|                 MaiARK启动需要一点点时间，请耐心等待！                 |"
+    TIME g "------------------------------------------------------------------------------"
+    TIME g "|                   MaiARK启动需要一点点时间，请耐心等待！                   |"
     sleep 10
-    TIME g "|                        安装完成，自动退出脚本                          |"
-    TIME g "|                        访问方式为 宿主机ip:$MAIARK_PORT                        |"
-    TIME g "|           请先配置好映射文件夹下的arkconfig.json再重启容器             |"
-    TIME r "|桥接模式请不要修改config下的端口8082，host模式随意(前提是指定自己在干啥)|"
-    TIME r "|               请看清映射的文件夹路径去找config文件                     |"
-    TIME g "--------------------------------------------------------------------------"
+    TIME g "|                          安装完成，自动退出脚本                            |"
+    TIME g "|                          访问方式为 宿主机ip:$MAIARK_PORT                          |"
+    TIME g "|              请先配置好映射文件夹下的arkconfig.json再重启容器              |"
+    TIME r "|  桥接模式请不要修改config下的端口8082，host模式随意(前提是指定自己在干啥)  |"
+    TIME r "|                 请看清映射的文件夹路径去找config文件                       |"
+    TIME r "|   op用户出现“docker0: iptables: No chain/target/match by that name”错误    |"
+    TIME r "|              输入命令“/etc/init.d/dockerd restart” 重启docker              |"
+    TIME r "|                     再输入“docker start $MAIARK_CONTAINER_NAME” 启动容器                   |"
+    TIME r "|       op用户出现容器正常启动，但web界面无法方法Turbo ACC 网络加速设置      |"
+    TIME r "|进入“网络——Turbo ACC 网络加速设置” 开启或关闭“全锥型 NAT”就可正常访问web界面|"
+    TIME g "------------------------------------------------------------------------------"
   exit 0
   ;;
  0) 
