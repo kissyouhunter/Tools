@@ -96,8 +96,6 @@ N1_AAPANEL_FOLDER=/mnt/mmcblk2p4/aapanel
 AAPANEL_CONTAINER_NAME=""
 # MaiARK 变量
 MAIARK_DOCKER_IMG_NAME="kissyouhunter/maiark"
-MAIARK_TAG_AMD="amd64"
-MAIARK_TAG_ARM="arm64"
 MAIARK_PATH=""
 MAIARK_CONFIG_FOLDER=$(pwd)/MaiARK
 N1_MAIARK_FOLDER=/mnt/mmcblk2p4/MarARK
@@ -2700,16 +2698,15 @@ while [ "$flag" -eq 0 ]
 do
 #cat << EOF
 TIME w "----------------------------------------"
-TIME w "|****Please Enter Your Choice:[0-3]****|"
+TIME w "|****Please Enter Your Choice:[0-2]****|"
 TIME w "|************** MaiARK ****************|"
 TIME w "----------------------------------------"
-TIME w "(1) linxu系统、X86的openwrt、群辉等请选择 1"
-TIME w "(2) ARM CPU的linux系统、各种盒子的openwrt等请选择 2"
-TIME w "(3) N1的EMMC上运行的openwrt请选择 3"
+TIME w "(1) linxu系统、openwrt、群辉等请选择 1"
+TIME w "(2) N1的EMMC上运行的openwrt请选择 2"
 TIME b "(0) 返回上级菜单"
 #EOF
 TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车！"
- read -p "Please enter your choice[0-3]: " input11
+ read -p "Please enter your choice[0-2]: " input11
  case $input11 in 
  1)
   TIME y " >>>>>>>>>>>开始安装MaiARK (AMD64 CPU)"
@@ -2771,6 +2768,7 @@ TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车�
   	TIME y "MaiARK 配置文件路径：$CONFIG_PATH"
   	TIME y "Maiark 容器名：$MAIARK_CONTAINER_NAME"
     TIME y "Maiark 端口：$MAIARK_PORT"
+    TIME r "确认下映射路径是否正确！！！"
   	read -r -p "以上信息是否正确？[Y/n] " input111
   	case $input111 in
   		[yY][eE][sS]|[yY])
@@ -2806,7 +2804,7 @@ TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车�
       --restart always \
       --network $NETWORK \
       -p $MAIARK_PORT:8082 \
-      $MAIARK_DOCKER_IMG_NAME:$MAIARK_TAG_AMD
+      $MAIARK_DOCKER_IMG_NAME:$TAG
 
       if [ $? -ne 0 ] ; then
           cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
@@ -2814,130 +2812,18 @@ TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车�
 
       log "列出所有宿主机上的容器"
       docker ps -a
-    TIME g "-----------------------------------------------------------"
-    TIME g "|           MaiARK启动需要一点点时间，请耐心等待！        |"
+    TIME g "---------------------------------------------------------------"
+    TIME g "|                MaiARK启动需要一点点时间，请耐心等待！             |"
     sleep 10
-    TIME g "|                安装完成，自动退出脚本                   |"
+    TIME g "|                     安装完成，自动退出脚本                      |"
     TIME g "|              访问方式为 宿主机ip:$MAIARK_PORT                   |"
-    TIME g "|    请先配置好映射文件夹下的arkconfig.json再重启容器     |"
-    TIME g "|   基础教程 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX    |"
-    TIME g "-----------------------------------------------------------"
+    TIME g "|          请先配置好映射文件夹下的arkconfig.json再重启容器          |"
+    TIME r "|桥接模式请不要修改config下的端口8082，host模式随意(前提是指定自己在干啥)|"
+    TIME r "|               请看清映射的文件夹路径去找config文件                 |"
+    TIME g "-----------------------------------------------------------------"
   exit 0
   ;;
- 2)
-  TIME y " >>>>>>>>>>>开始安装MaiARK (ARM64 CPU)"
-  # 创建映射文件夹
-  input_container_maiark2_config() {
-  echo -n -e "请输入MaiARK配置文件保存的绝对路径（示例：/home/MaiARK)，回车默认为当前目录: "
-  read maiark_path
-  if [ -z "$maiark_path" ]; then
-      MAIARK_PATH=$MAIARK_CONFIG_FOLDER
-  elif [ -d "$maiark_path" ]; then
-      MAIARK_PATH=$maiark_path
-  else
-      MAIARK_PATH=$maiark_path
-  fi
-  CONFIG_PATH=$MAIARK_PATH
-  }
-  input_container_maiark2_config
-
-  # 输入容器名
-  input_container_maiark2_name() {
-    echo -n -e "请输入将要创建的容器名[默认为：maiark]-> "
-    read container_name
-    if [ -z "$container_name" ]; then
-        MAIARK_CONTAINER_NAME="maiark"
-    else
-        MAIARK_CONTAINER_NAME=$container_name
-    fi
-  }
-  input_container_maiark2_name
-
-  # 网络模式
-  input_container_maiark2_network_config() {
-  inp "请选择容器的网络类型：\n1) host\n2) bridge[默认]"
-  opt
-  read net
-  if [ "$net" = "1" ]; then
-      NETWORK="host"
-      MAIARK_PORT="8082"
-  fi
-  
-  if [ "$NETWORK" = "bridge" ]; then
-      inp "是否修改MaiMRK端口[默认 8082]：\n1) 修改\n2) 不修改[默认]"
-      opt
-      read change_maiark_port
-      if [ "$change_maiark_port" = "1" ]; then
-          echo -n -e "输入想修改的端口->"
-          read MAIARK_PORT
-      else
-          MAIARK_PORT="8082"
-      fi
-  fi
-  }
-  input_container_maiark2_network_config
-
-  # 确认
-  while true
-  do
-  	TIME y "MaiARK 配置文件路径：$CONFIG_PATH"
-  	TIME y "Maiark 容器名：$MAIARK_CONTAINER_NAME"
-    TIME y "Maiark 端口：$MAIARK_PORT"
-  	read -r -p "以上信息是否正确？[Y/n] " input111
-  	case $input111 in
-  		[yY][eE][sS]|[yY])
-  			break
-  			;;
-  		[nN][oO]|[nN])
-  			TIME w "即将返回上一步"
-  			sleep 1
-  			input_container_maiark2_config
-  			input_container_maiark2_name
-            input_container_maiark2_network_config
-            MAIARK_PORT="8082"
-  			;;
-  		*)
-  			TIME r "输入错误，请输入[Y/n]"
-  			;;
-  	esac
-  done
-
-  TIME y " >>>>>>>>>>>配置完成，开始安装MaiARK"
-  log "1.开始创建配置文件目录"
-  PATH_LIST=($CONFIG_PATH)
-  for i in ${PATH_LIST[@]}; do
-      mkdir -p $i
-  done
-
-  log "2.开始创建容器并执行"
-  docker pull $MAIARK_DOCKER_IMG_NAME:$MAIARK_TAG_ARM
-  docker run -dit \
-      -t \
-      -v $CONFIG_PATH:/MaiARK \
-      --name $MAIARK_CONTAINER_NAME \
-      --hostname $MAIARK_CONTAINER_NAME \
-      --restart always \
-      --network $NETWORK \
-      -p $MAIARK_PORT:8082 \
-      $MAIARK_DOCKER_IMG_NAME:$MAIARK_TAG_ARM
-
-      if [ $? -ne 0 ] ; then
-          cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
-      fi
-
-      log "列出所有宿主机上的容器"
-      docker ps -a
-    TIME g "-----------------------------------------------------------"
-    TIME g "|           MaiARK启动需要一点点时间，请耐心等待！        |"
-    sleep 10
-    TIME g "|                安装完成，自动退出脚本                   |"
-    TIME g "|              访问方式为 宿主机ip:$MAIARK_PORT                   |"
-    TIME g "|    请先配置好映射文件夹下的arkconfig.json再重启容器     |"
-    TIME g "|   基础教程 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX    |"
-    TIME g "-----------------------------------------------------------"
-  exit 0
-  ;;
- 3)  
+ 2)  
   TIME y " >>>>>>>>>>>开始安装MaiARK到N1的/mnt/mmcblk2p4/"
   # 创建映射文件夹
   input_container_maiark3_config() {
@@ -2997,6 +2883,7 @@ TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车�
   	TIME y "MaiARK 配置文件路径：$CONFIG_PATH"
   	TIME y "MaiARK 容器名：$MAIARK_CONTAINER_NAME"
     TIME y "Maiark 端口：$MAIARK_PORT"
+    TIME r "确认下映射路径是否正确！！！"
   	read -r -p "以上信息是否正确？[Y/n] " input113
   	case $input113 in
   		[yY][eE][sS]|[yY])
@@ -3033,7 +2920,7 @@ TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车�
       --restart always \
       --network $NETWORK \
       -p $MAIARK_PORT:8082 \
-      $MAIARK_DOCKER_IMG_NAME:$MAIARK_TAG_ARM
+      $MAIARK_DOCKER_IMG_NAME:$TAG
 
       if [ $? -ne 0 ] ; then
           cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
@@ -3041,14 +2928,15 @@ TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车�
 
       log "列出所有宿主机上的容器"
       docker ps -a
-    TIME g "-----------------------------------------------------------"
-    TIME g "|           MaiARK启动需要一点点时间，请耐心等待！        |"
+    TIME g "---------------------------------------------------------------"
+    TIME g "|                MaiARK启动需要一点点时间，请耐心等待！             |"
     sleep 10
-    TIME g "|                安装完成，自动退出脚本                   |"
+    TIME g "|                     安装完成，自动退出脚本                      |"
     TIME g "|              访问方式为 宿主机ip:$MAIARK_PORT                   |"
-    TIME g "|    请先配置好映射文件夹下的arkconfig.json再重启容器     |"
-    TIME g "|   基础教程 XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX    |"
-    TIME g "-----------------------------------------------------------"
+    TIME g "|          请先配置好映射文件夹下的arkconfig.json再重启容器          |"
+    TIME r "|桥接模式请不要修改config下的端口8082，host模式随意(前提是指定自己在干啥)|"
+    TIME r "|               请看清映射的文件夹路径去找config文件                 |"
+    TIME g "-----------------------------------------------------------------"
   exit 0
   ;;
  0) 
