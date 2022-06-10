@@ -279,7 +279,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   	if [ "$NETWORK" = "host" ]; then
   		TIME y "青龙面板端口：5700"
   	elif [ "$NETWORK" = "bridge" ]; then
-  		TIME y "青龙网络请求查看端口：$QL_PORT"
+  		TIME y "青龙面板端口：$QL_PORT"
   	fi
   	read -r -p "以上信息是否正确？[Y/n] " input21
   	case $input21 in
@@ -509,7 +509,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   	if [ "$NETWORK" = "host" ]; then
   		TIME y "青龙面板端口：5700"
   	elif [ "$NETWORK" = "bridge" ]; then
-  		TIME y "青龙网络请求查看端口：$QL_PORT"
+  		TIME y "青龙面板端口：$QL_PORT"
   	fi
   	read -r -p "以上信息是否正确？[Y/n] " input21
   	case $input21 in
