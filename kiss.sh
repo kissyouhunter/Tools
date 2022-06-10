@@ -680,18 +680,18 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   }
 
   input_container_ql2_judge() {
-  if [ $TAG == latest ]; then
-      input_container_ql2_config1
-      input_container_ql2_name
-      input_container_ql2_network_config
-      input_container_ql2_check
-      input_container_ql2_build1
-  else 
+  if [ $TAG == "2.10" ] || [ $TAG == "2.10.6" ] || [ $TAG == "2.10.7" ] || [ $TAG == "2.10.8" ] || [ $TAG == "2.10.9" ] || [ $TAG == "2.10.10" ] || [ $TAG == "2.10.11" ] || [ $TAG == "2.10.12" ] || [ $TAG == "2.10.13" ] || [ $TAG == "2.11" ] || [ $TAG == "2.11.0" ] || [ $TAG == "2.11.1" ] || [ $TAG == "2.11.2" ] || [ $TAG == "2.11.3" ]; then
       input_container_ql2_config2
       input_container_ql2_name
       input_container_ql2_network_config
       input_container_ql2_check
       input_container_ql2_build2
+  else 
+      input_container_ql2_config1
+      input_container_ql2_name
+      input_container_ql2_network_config
+      input_container_ql2_check
+      input_container_ql2_build1
   fi
   }
   input_container_ql2_judge
