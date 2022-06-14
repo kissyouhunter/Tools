@@ -410,6 +410,8 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
       --hostname $QL_CONTAINER_NAME \
       --restart always \
       --network $NETWORK \
+      --log-opt max-size=10m \
+      --log-opt max-file=5 \
       $QL_DOCKER_IMG_NAME:$TAG
 
       if [ $? -ne 0 ] ; then
@@ -441,6 +443,8 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
       --hostname $QL_CONTAINER_NAME \
       --restart always \
       --network $NETWORK \
+      --log-opt max-size=10m \
+      --log-opt max-file=5 \
       $QL_DOCKER_IMG_NAME:$TAG
 
       if [ $? -ne 0 ] ; then
@@ -641,6 +645,8 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
       --hostname $QL_CONTAINER_NAME \
       --restart always \
       --network $NETWORK \
+      --log-opt max-size=10m \
+      --log-opt max-file=5 \
       $QL_DOCKER_IMG_NAME:$TAG
 
       if [ $? -ne 0 ] ; then
@@ -672,6 +678,8 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
       --hostname $QL_CONTAINER_NAME \
       --restart always \
       --network $NETWORK \
+      --log-opt max-size=10m \
+      --log-opt max-file=5 \
       $QL_DOCKER_IMG_NAME:$TAG
 
       if [ $? -ne 0 ] ; then
