@@ -148,12 +148,14 @@ function DockerMirror() {
 
 ## 安装 Docker Engine
 function DockerEngine1() {
-    curl -Lo get-docker.sh https://raw.githubusercontent.com/kissyouhunter/Tools/main/get-docker.sh
-    sh get-docker.sh
+    bash <(wget --no-check-certificate -qO- 'https://raw.githubusercontent.com/kissyouhunter/Tools/main/get-docker.sh')
+    #curl -Lo get-docker.sh https://raw.githubusercontent.com/kissyouhunter/Tools/main/get-docker.sh
+    #sh get-docker.sh
 }
 function DockerEngine2() {
-    curl -Lo get-docker.sh https://raw.githubusercontent.com/kissyouhunter/Tools/main/get-docker.sh
-    sh get-docker.sh --mirror Aliyun
+    bash <(wget --no-check-certificate -qO- 'https://raw.githubusercontent.com/kissyouhunter/Tools/main/get-docker.sh') --mirror Aliyun
+    #curl -Lo get-docker.sh https://raw.githubusercontent.com/kissyouhunter/Tools/main/get-docker.sh
+    #sh get-docker.sh --mirror Aliyun
 }
 
 ## 安装 Docker-Compose

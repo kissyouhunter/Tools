@@ -625,7 +625,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   input_container_ql2_build1() {
   TIME y " >>>>>>>>>>>配置完成，开始安装青龙"
   log "1.开始创建配置文件目录"
-  PATH_LIST=($CONFIG_PATH $DB_PATH $REPO_PATH $SCRIPT_PATH $LOG_PATH $DEPS_PATH)
+  PATH_LIST=($CONFIG_PATH)
   for i in ${PATH_LIST[@]}; do
       mkdir -p $i
   done
@@ -656,7 +656,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
       mkdir -p $i
   done
 
-  log "3.开始创建容器并执行"
+  log "2.开始创建容器并执行"
   docker run -dit \
       -t \
       -v $CONFIG_PATH:/ql/config \
