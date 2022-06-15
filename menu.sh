@@ -364,6 +364,8 @@ function main() {
 										--hostname $QL_CONTAINER_NAME \
 										--restart always \
 										--network $NETWORK \
+										--log-opt max-size=10m \
+										--log-opt max-file=5 \
 										$QL_DOCKER_IMG_NAME:$QL_TAG
 
 									if [ $? -ne 0 ] ; then
@@ -394,6 +396,8 @@ function main() {
 										--hostname $QL_CONTAINER_NAME \
 										--restart always \
 										--network $NETWORK \
+										--log-opt max-size=10m \
+										--log-opt max-file=5 \
 										$QL_DOCKER_IMG_NAME:$QL_TAG
 
 									if [ $? -ne 0 ] ; then
