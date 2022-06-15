@@ -1105,7 +1105,7 @@ TIME b "(0) 返回上级菜单"
   ;;
  3)
     TIME y " >>>>>>>>>>>开始安装 simpledocker"
-    cd /tmp && curl -Lo docker-compose.yml https://raw.githubusercontent.com/kissyouhunter/Tools/main/simpledocker-docker-compose.yml
+    mkdir -p simpledocker && cd simpledocker && curl -Lo docker-compose.yml https://raw.githubusercontent.com/kissyouhunter/Tools/main/simpledocker-docker-compose.yml
     docker-compose up -d    
     if [ $? -ne 0 ] ; then
         cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"

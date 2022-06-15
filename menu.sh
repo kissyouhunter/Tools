@@ -102,13 +102,13 @@ function main() {
 								sleep 1
         						bash <(curl -s -S -L https://raw.githubusercontent.com/kissyouhunter/Tools/main/docker-and-docker_compose.sh)
 								if [ "$(command -v docker)" ] && [ "$(command -v docker-compose)" ]; then
-									whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "<docker>和<docker-compose>安装完成，点击 OK 返回" 10 55
+									whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "docker 和 docker-compose 安装完成，点击 OK 返回" 10 55
 									main
 								elif [ ! "$(command -v docker)" ]; then
-									whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "<docker>和<docker-compose>安装失败了,点击 OK 返回" 10 55
+									whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "docker 和 docker-compose 安装失败了,点击 OK 返回" 10 55
 									main
 								elif [ "$(command -v docker)" ] && [ ! "$(command -v docker-compose)" ]; then
-									whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "<docker>安装完成，<docker-compose>安装失败了,点击 OK 返回" 10 65
+									whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "docker 安装完成，docker-compose 安装失败了,点击 OK 返回" 10 65
 									main
 								fi
 							fi
@@ -716,205 +716,9 @@ function main() {
 							v2p1_input
 							;;
 						2 )
-							function input_container_ql2_info() {
-								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "访问方式为：宿主机ip:$QL_PORT \
-								<青龙>安装完成，点击 ok 退出脚本 " 10 50
-							}
-
-							function input_container_ql2_docker() {
-								function input_container_ql2_build1() {
-									TIME y " >>>>>>>>>>>配置完成，开始安装青龙"
-									log "1.开始创建配置文件目录"
-									PATH_LIST=($CONFIG_PATH)
-									for i in ${PATH_LIST[@]}; do
-										mkdir -p $i
-									done
-									log "2.开始创建容器并执行"
-									docker run -dit \
-										-t \
-										-v $CONFIG_PATH:/ql/data \
-										-e ENABLE_HANGUP=false \
-										-e ENABLE_WEB_PANEL=true \
-										-p $QL_PORT:5700 \
-										--name $QL_CONTAINER_NAME \
-										--hostname $QL_CONTAINER_NAME \
-										--restart always \
-										--network $NETWORK \
-										$QL_DOCKER_IMG_NAME:$QL_TAG
-
-									if [ $? -ne 0 ] ; then
-										cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
-									fi
-								}
-
-								function input_container_ql2_build2() {
-									TIME y " >>>>>>>>>>>配置完成，开始安装青龙"
-									log "1.开始创建配置文件目录"
-									PATH_LIST=($CONFIG_PATH $DB_PATH $REPO_PATH $SCRIPT_PATH $LOG_PATH $DEPS_PATH)
-									for i in ${PATH_LIST[@]}; do
-										mkdir -p $i
-									done
-									log "2.开始创建容器并执行"
-									docker run -dit \
-										-t \
-										-v $CONFIG_PATH:/ql/config \
-										-v $DB_PATH:/ql/db \
-										-v $LOG_PATH:/ql/log \
-										-v $REPO_PATH:/ql/repo \
-										-v $SCRIPT_PATH:/ql/scripts \
-										-v $DEPS_PATH:/ql/deps \
-										-e ENABLE_HANGUP=false \
-										-e ENABLE_WEB_PANEL=true \
-										-p $QL_PORT:5700 \
-										--name $QL_CONTAINER_NAME \
-										--hostname $QL_CONTAINER_NAME \
-										--restart always \
-										--network $NETWORK \
-										$QL_DOCKER_IMG_NAME:$QL_TAG
-
-									if [ $? -ne 0 ] ; then
-										cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
-									fi
-								}
-								
-								if [ $QL_TAG == "2.10" ] || [ $QL_TAG == "2.10.6" ] || [ $QL_TAG == "2.10.7" ] || [ $QL_TAG == "2.10.8" ] || [ $QL_TAG == "2.10.9" ] || [ $QL_TAG == "2.10.10" ] || [ $QL_TAG == "2.10.11" ] || [ $QL_TAG == "2.10.12" ] || [ $QL_TAG == "2.10.13" ] || [ $QL_TAG == "2.11" ] || [ $QL_TAG == "2.11.0" ] || [ $QL_TAG == "2.11.1" ] || [ $QL_TAG == "2.11.2" ] || [ $QL_TAG == "2.11.3" ]; then
-									CONFIG_PATH=$QL_PATH/config
-									DB_PATH=$QL_PATH/db
-									REPO_PATH=$QL_PATH/repo
-									SCRIPT_PATH=$QL_PATH/scripts
-									LOG_PATH=$QL_PATH/log
-									DEPS_PATH=$QL_PATH/deps
-									input_container_ql2_build2
-									sleep 10
-									input_container_ql2_info
-									docker ps -a
-								else
-									CONFIG_PATH=$QL_PATH
-									input_container_ql2_build1
-									sleep 10
-									input_container_ql2_info
-									docker ps -a
-								fi
-							}
-
-							function input_container_ql2_check() {
-								#while true
-								#do
-									if (whiptail --title "一键脚本 作者：kissyouhunter" --yesno "青龙容器名：$QL_CONTAINER_NAME \
-									青龙配置文件路径：$QL_PATH \
-									青龙网络类型：$NETWORK \
-									青龙面板端口：$QL_PORT \
-									青龙版本：$QL_TAG \
-									以上信息是否正确？" \
-									15 40) then
-										input_container_ql2_docker
-									else
-										ql2_input
-										QL_PORT="5700"
-									fi
-								#done
-							}
-
-							function input_container_ql2_version() {
-								QL2_VERSION=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "目前提供的版本有如下： \
-								2.10、2.10.6、2.10.7、2.10.8、2.10.9 \
-								2.10.10、2.10.11、2.10.12、2.10.13 \
-								2.11.0、2.11.1、2.11.2.2.11.3 \
-								2.12.0、2.12.1、2.12.2 \
-								2.13.0、2.13.1、2.13.2和最新 \
-								请输入版本号[回车默认为：latest]" 15 55 3>&1 1>&2 2>&3)
-
-								if [ -z "$QL2_VERSION" ]; then
-									QL_TAG="latest"
-								else
-									QL_TAG=$QL2_VERSION
-								fi
-							}
-
-							function ql2_input() {
-								QL2_NAME=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入将要创建的容器名[回车默认为：ql]" 10 55 3>&1 1>&2 2>&3)
-								
-								if [ -z "$QL2_NAME" ]; then
-									QL_CONTAINER_NAME="ql"
-								else
-									QL_CONTAINER_NAME=$QL2_NAME
-								fi
-
-								QL2_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入青龙存储的文件夹名称（如：ql)，回车默认为 ql:" 10 50 3>&1 1>&2 2>&3)
-
-								if [ -z "$QL2_CONFIG" ]; then
-									QL_PATH=/mnt/mmcblk2p4/ql
-								else
-									QL_PATH=/mnt/mmcblk2p4/$QL2_CONFIG
-								fi
-
-								function input_container_ql2_network_config() {
-									QL2_NETWORK=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "请选择网络模式" 15 50 2 \
-									"1" "bridge（桥接模式）" \
-									"2" "host模式" \
-									3>&1 1>&2 2>&3)
-
-									exitstatus=$?
-									if [ $exitstatus = 0 ]; then
-										case "$QL2_NETWORK" in
-											1 )
-												NETWORK="bridge"
-												function input_container_ql2_bridge_port() {
-													QL2_BRIDGE_PORT=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入桥接端口[回车默认为：5700]" 10 55 3>&1 1>&2 2>&3)
-													if [ -z "$QL2_BRIDGE_PORT" ]; then
-														QL_PORT="5700"
-													else
-														QL_PORT=$QL2_BRIDGE_PORT
-													fi
-												}
-												input_container_ql2_bridge_port
-												input_container_ql2_version
-												input_container_ql2_check
-												;;
-											2 )
-												NETWORK="host"
-												QL_PORT="5700"
-												input_container_ql2_version
-												input_container_ql2_check
-												;;
-										esac
-									else
-										echo
-									fi
-								}
-								input_container_ql2_network_config
-
-							}
-							ql2_input
-							;;							
-						0 )
-							main
-							;;
-					esac
-				else
-					echo
-				fi
-			}
-			submenu3	
-			;;
-		4 )
-			#安装portainer
-            clear
-			function submenu4() {
-				SUBMENU3=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "DOCKER 图形管理工具" 15 40 4 \
-				"1" "安装 portianer" \
-				"2" "安装 Fast Os Docker 中文" \
-				"3" "安装 simpledocker 中文" \
-				"0" "返回上级菜单" \
-				3>&1 1>&2 2>&3)
-
-				exitstatus=$?
-				if [ $exitstatus = 0 ]; then
-					case "$SUBMENU3" in
-						1 )
-							function input_container_v2p1_info() {
+							function input_container_v2p2_info() {
 								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "访问方式为：宿主机ip:$V2P_PORT \
-								<ELECV2P>安装完成，点击 ok 退出脚本 " 10 50
+								ELECV2P 安装完成，点击 ok 退出脚本 " 10 50
 							}
 
 							function input_container_v2p1_build() {
@@ -1091,178 +895,81 @@ function main() {
 							}
 							v2p1_input
 							;;
-						2 )
-							function input_container_ql2_info() {
-								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "访问方式为：宿主机ip:$QL_PORT \
-								<青龙>安装完成，点击 ok 退出脚本 " 10 50
-							}
-
-							function input_container_ql2_docker() {
-								function input_container_ql2_build1() {
-									TIME y " >>>>>>>>>>>配置完成，开始安装青龙"
-									log "1.开始创建配置文件目录"
-									PATH_LIST=($CONFIG_PATH)
-									for i in ${PATH_LIST[@]}; do
-										mkdir -p $i
-									done
-									log "2.开始创建容器并执行"
-									docker run -dit \
-										-t \
-										-v $CONFIG_PATH:/ql/data \
-										-e ENABLE_HANGUP=false \
-										-e ENABLE_WEB_PANEL=true \
-										-p $QL_PORT:5700 \
-										--name $QL_CONTAINER_NAME \
-										--hostname $QL_CONTAINER_NAME \
-										--restart always \
-										--network $NETWORK \
-										$QL_DOCKER_IMG_NAME:$QL_TAG
-
-									if [ $? -ne 0 ] ; then
-										cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
-									fi
-								}
-
-								function input_container_ql2_build2() {
-									TIME y " >>>>>>>>>>>配置完成，开始安装青龙"
-									log "1.开始创建配置文件目录"
-									PATH_LIST=($CONFIG_PATH $DB_PATH $REPO_PATH $SCRIPT_PATH $LOG_PATH $DEPS_PATH)
-									for i in ${PATH_LIST[@]}; do
-										mkdir -p $i
-									done
-									log "2.开始创建容器并执行"
-									docker run -dit \
-										-t \
-										-v $CONFIG_PATH:/ql/config \
-										-v $DB_PATH:/ql/db \
-										-v $LOG_PATH:/ql/log \
-										-v $REPO_PATH:/ql/repo \
-										-v $SCRIPT_PATH:/ql/scripts \
-										-v $DEPS_PATH:/ql/deps \
-										-e ENABLE_HANGUP=false \
-										-e ENABLE_WEB_PANEL=true \
-										-p $QL_PORT:5700 \
-										--name $QL_CONTAINER_NAME \
-										--hostname $QL_CONTAINER_NAME \
-										--restart always \
-										--network $NETWORK \
-										$QL_DOCKER_IMG_NAME:$QL_TAG
-
-									if [ $? -ne 0 ] ; then
-										cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
-									fi
-								}
-								
-								if [ $QL_TAG == "2.10" ] || [ $QL_TAG == "2.10.6" ] || [ $QL_TAG == "2.10.7" ] || [ $QL_TAG == "2.10.8" ] || [ $QL_TAG == "2.10.9" ] || [ $QL_TAG == "2.10.10" ] || [ $QL_TAG == "2.10.11" ] || [ $QL_TAG == "2.10.12" ] || [ $QL_TAG == "2.10.13" ] || [ $QL_TAG == "2.11" ] || [ $QL_TAG == "2.11.0" ] || [ $QL_TAG == "2.11.1" ] || [ $QL_TAG == "2.11.2" ] || [ $QL_TAG == "2.11.3" ]; then
-									CONFIG_PATH=$QL_PATH/config
-									DB_PATH=$QL_PATH/db
-									REPO_PATH=$QL_PATH/repo
-									SCRIPT_PATH=$QL_PATH/scripts
-									LOG_PATH=$QL_PATH/log
-									DEPS_PATH=$QL_PATH/deps
-									input_container_ql2_build2
-									sleep 10
-									input_container_ql2_info
-									docker ps -a
-								else
-									CONFIG_PATH=$QL_PATH
-									input_container_ql2_build1
-									sleep 10
-									input_container_ql2_info
-									docker ps -a
-								fi
-							}
-
-							function input_container_ql2_check() {
-								#while true
-								#do
-									if (whiptail --title "一键脚本 作者：kissyouhunter" --yesno "青龙容器名：$QL_CONTAINER_NAME \
-									青龙配置文件路径：$QL_PATH \
-									青龙网络类型：$NETWORK \
-									青龙面板端口：$QL_PORT \
-									青龙版本：$QL_TAG \
-									以上信息是否正确？" \
-									15 40) then
-										input_container_ql2_docker
-									else
-										ql2_input
-										QL_PORT="5700"
-									fi
-								#done
-							}
-
-							function input_container_ql2_version() {
-								QL2_VERSION=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "目前提供的版本有如下： \
-								2.10、2.10.6、2.10.7、2.10.8、2.10.9 \
-								2.10.10、2.10.11、2.10.12、2.10.13 \
-								2.11.0、2.11.1、2.11.2.2.11.3 \
-								2.12.0、2.12.1、2.12.2 \
-								2.13.0、2.13.1、2.13.2和最新 \
-								请输入版本号[回车默认为：latest]" 15 55 3>&1 1>&2 2>&3)
-
-								if [ -z "$QL2_VERSION" ]; then
-									QL_TAG="latest"
-								else
-									QL_TAG=$QL2_VERSION
-								fi
-							}
-
-							function ql2_input() {
-								QL2_NAME=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入将要创建的容器名[回车默认为：ql]" 10 55 3>&1 1>&2 2>&3)
-								
-								if [ -z "$QL2_NAME" ]; then
-									QL_CONTAINER_NAME="ql"
-								else
-									QL_CONTAINER_NAME=$QL2_NAME
-								fi
-
-								QL2_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入青龙存储的文件夹名称（如：ql)，回车默认为 ql:" 10 50 3>&1 1>&2 2>&3)
-
-								if [ -z "$QL2_CONFIG" ]; then
-									QL_PATH=/mnt/mmcblk2p4/ql
-								else
-									QL_PATH=/mnt/mmcblk2p4/$QL2_CONFIG
-								fi
-
-								function input_container_ql2_network_config() {
-									QL2_NETWORK=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "请选择网络模式" 15 50 2 \
-									"1" "bridge（桥接模式）" \
-									"2" "host模式" \
-									3>&1 1>&2 2>&3)
-
-									exitstatus=$?
-									if [ $exitstatus = 0 ]; then
-										case "$QL2_NETWORK" in
-											1 )
-												NETWORK="bridge"
-												function input_container_ql2_bridge_port() {
-													QL2_BRIDGE_PORT=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入桥接端口[回车默认为：5700]" 10 55 3>&1 1>&2 2>&3)
-													if [ -z "$QL2_BRIDGE_PORT" ]; then
-														QL_PORT="5700"
-													else
-														QL_PORT=$QL2_BRIDGE_PORT
-													fi
-												}
-												input_container_ql2_bridge_port
-												input_container_ql2_version
-												input_container_ql2_check
-												;;
-											2 )
-												NETWORK="host"
-												QL_PORT="5700"
-												input_container_ql2_version
-												input_container_ql2_check
-												;;
-										esac
-									else
-										echo
-									fi
-								}
-								input_container_ql2_network_config
-
-							}
-							ql2_input
 							;;							
+						0 )
+							main
+							;;
+					esac
+				else
+					echo
+				fi
+			}
+			submenu3	
+			;;
+		4 )
+			#安装portainer
+            clear
+			function submenu4() {
+				SUBMENU3=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "DOCKER 图形管理工具" 15 40 4 \
+				"1" "安装 portianer" \
+				"2" "安装 Fast Os Docker 中文" \
+				"3" "安装 simpledocker 中文" \
+				"0" "返回上级菜单" \
+				3>&1 1>&2 2>&3)
+
+				exitstatus=$?
+				if [ $exitstatus = 0 ]; then
+					case "$SUBMENU4" in
+						1 )
+							function input_container_portainer_info() {
+								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "访问方式为：宿主机ip:9000 \
+								PORTAINER 安装完成，点击 ok 退出脚本 " 10 50
+							}
+
+							function input_container_portainer_build() {
+								TIME y " >>>>>>>>>>>开始安装 portainer"
+								docker volume create portainer_data
+								docker run -d -p 8000:8000 -p 9000:9000 --name=portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce
+								if [ $? -ne 0 ] ; then
+									cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
+								fi
+							}
+							input_container_portainer_build
+							input_container_portainer_info
+							;;
+						2 )
+							function input_container_fast_info() {
+								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "访问方式为：宿主机ip:18081 \
+								Fast Os Docker 安装完成，点击 ok 退出脚本 " 10 50
+							}
+
+							function input_container_fast_build() {
+								TIME y " >>>>>>>>>>>开始安装 Fast Os Docker"
+								docker run --restart always --name fast -p 18081:8081 -d -v /var/run/docker.sock:/var/run/docker.sock wangbinxingkong/fast
+								if [ $? -ne 0 ] ; then
+									cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
+								fi
+							}
+							input_container_fast_build
+							input_container_fast_info
+							;;
+						3 )
+							function input_container_simple_info() {
+								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "访问方式为：宿主机ip:18081 \
+								simpledocker 安装完成，点击 ok 退出脚本 " 10 50
+							}
+
+							function input_container_simple_build() {
+								TIME y " >>>>>>>>>>>开始安装 Fast Os Docker"
+								mkdir -p simpledocker && cd simpledocker && curl -Lo docker-compose.yml https://raw.githubusercontent.com/kissyouhunter/Tools/main/simpledocker-docker-compose.yml
+								docker-compose up -d
+								if [ $? -ne 0 ] ; then
+									cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
+								fi
+							}
+							input_container_simple_build
+							input_container_simple_info
+							;;
 						0 )
 							main
 							;;
