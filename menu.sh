@@ -54,7 +54,8 @@ V2P_DOCKER_IMG_NAME="elecv2/elecv2p"
 # emby变量
 EMBY_DOCKER_IMG_NAME="xinjiawei1/emby_unlockd"
 EMBY_TAG="latest"
-
+# jellyfin变量
+JELLYFIN_DOCKER_IMG_NAME="jellyfin/jellyfin"
 
 #检查root环境
 #f [[ $EUID != 0 ]]; then
@@ -625,91 +626,31 @@ function main() {
 
 								function input_container_v2p1_network_config() {
 									function input_container_v2p1_webui_config() {
-										V2P1_WEBUI_PORT=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "是否修改 elecv2p 面板端口[默认 8100]" 15 50 2 \
-										"1" "修改" \
-										"2" "不修改" \
-										3>&1 1>&2 2>&3)
-
-										exitstatus=$?
-										if [ $exitstatus = 0 ]; then
-											case "$V2P1_WEBUI_PORT" in
-												1 )
-													function input_container_v2p1_webui_port() {
-														V2P1_WEBUI_PORT_CHANGE=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "输入想修改的端口" 10 55 3>&1 1>&2 2>&3)
-														if [ -z "$V2P1_WEBUI_PORT_CHANGE" ]; then
-															V2P_PORT="8100"
-														else
-															V2P_PORT=$V2P1_WEBUI_PORT_CHANGE
-														fi
-													}
-													input_container_v2p1_webui_port
-													;;
-												2 )
-													V2P_PORT="8100"
-													;;
-											esac
+										V2P1_WEBUI_PORT_CHANGE=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "输入想修改的端口" 10 55 3>&1 1>&2 2>&3)
+										if [ -z "$V2P1_WEBUI_PORT_CHANGE" ]; then
+											V2P_PORT="8100"
 										else
-											exit 0
+											V2P_PORT=$V2P1_WEBUI_PORT_CHANGE
 										fi
 									}
 									input_container_v2p1_webui_config
 
 									function input_container_v2p1_anyproxy_config() {
-										V2P1_WEBUI_PORT=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "是否修改 elecv2p 的 anyproxy 端口[默认 8101]" 15 50 2 \
-										"1" "修改" \
-										"2" "不修改" \
-										3>&1 1>&2 2>&3)
-
-										exitstatus=$?
-										if [ $exitstatus = 0 ]; then
-											case "$V2P1_WEBUI_PORT" in
-												1 )
-													function input_container_v2p1_webui_port() {
-														V2P1_WEBUI_PORT_CHANGE=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "输入想修改的端口" 10 55 3>&1 1>&2 2>&3)
-														if [ -z "$V2P1_WEBUI_PORT_CHANGE" ]; then
-															V2P_PORT1="8101"
-														else
-															V2P_PORT1=$V2P1_WEBUI_PORT_CHANGE
-														fi
-													}
-													input_container_v2p1_webui_port
-													;;
-												2 )
-													V2P_PORT1="8101"
-													;;
-											esac
+										V2P1_WEBUI_PORT_CHANGE=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "输入想修改的端口" 10 55 3>&1 1>&2 2>&3)
+										if [ -z "$V2P1_WEBUI_PORT_CHANGE" ]; then
+											V2P_PORT1="8101"
 										else
-											exit 0
+											V2P_PORT1=$V2P1_WEBUI_PORT_CHANGE
 										fi
 									}
 									input_container_v2p1_anyproxy_config
 
 									function input_container_v2p1_http_config() {
-										V2P1_WEBUI_PORT=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "是否修改 elecv2p 网络请求查看端口[默认 8102]" 15 50 2 \
-										"1" "修改" \
-										"2" "不修改" \
-										3>&1 1>&2 2>&3)
-
-										exitstatus=$?
-										if [ $exitstatus = 0 ]; then
-											case "$V2P1_WEBUI_PORT" in
-												1 )
-													function input_container_v2p1_webui_port() {
-														V2P1_WEBUI_PORT_CHANGE=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "输入想修改的端口" 10 55 3>&1 1>&2 2>&3)
-														if [ -z "$V2P1_WEBUI_PORT_CHANGE" ]; then
-															V2P_PORT2="8102"
-														else
-															V2P_PORT2=$V2P1_WEBUI_PORT_CHANGE
-														fi
-													}
-													input_container_v2p1_webui_port
-													;;
-												2 )
-													V2P_PORT2="8102"
-													;;
-											esac
+										V2P1_WEBUI_PORT_CHANGE=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "输入想修改的端口" 10 55 3>&1 1>&2 2>&3)
+										if [ -z "$V2P1_WEBUI_PORT_CHANGE" ]; then
+											V2P_PORT2="8102"
 										else
-											exit 0
+											V2P_PORT2=$V2P1_WEBUI_PORT_CHANGE
 										fi
 									}
 									input_container_v2p1_http_config
@@ -805,91 +746,31 @@ function main() {
 
 								function input_container_v2p2_network_config() {
 									function input_container_v2p2_webui_config() {
-										V2P2_WEBUI_PORT=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "是否修改 elecv2p 面板端口[默认 8100]" 15 50 2 \
-										"1" "修改" \
-										"2" "不修改" \
-										3>&1 1>&2 2>&3)
-
-										exitstatus=$?
-										if [ $exitstatus = 0 ]; then
-											case "$V2P2_WEBUI_PORT" in
-												1 )
-													function input_container_v2p2_webui_port() {
-														V2P2_WEBUI_PORT_CHANGE=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "输入想修改的端口" 10 55 3>&1 1>&2 2>&3)
-														if [ -z "$V2P2_WEBUI_PORT_CHANGE" ]; then
-															V2P_PORT="8100"
-														else
-															V2P_PORT=$V2P2_WEBUI_PORT_CHANGE
-														fi
-													}
-													input_container_v2p2_webui_port
-													;;
-												2 )
-													V2P_PORT="8100"
-													;;
-											esac
+										V2P2_WEBUI_PORT_CHANGE=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "输入想修改的端口" 10 55 3>&1 1>&2 2>&3)
+										if [ -z "$V2P2_WEBUI_PORT_CHANGE" ]; then
+											V2P_PORT="8100"
 										else
-											exit 0
+											V2P_PORT=$V2P2_WEBUI_PORT_CHANGE
 										fi
 									}
 									input_container_v2p2_webui_config
 
 									function input_container_v2p2_anyproxy_config() {
-										V2P2_WEBUI_PORT=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "是否修改 elecv2p 的 anyproxy 端口[默认 8101]" 15 50 2 \
-										"1" "修改" \
-										"2" "不修改" \
-										3>&1 1>&2 2>&3)
-
-										exitstatus=$?
-										if [ $exitstatus = 0 ]; then
-											case "$V2P2_WEBUI_PORT" in
-												1 )
-													function input_container_v2p2_webui_port() {
-														V2P2_WEBUI_PORT_CHANGE=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "输入想修改的端口" 10 55 3>&1 1>&2 2>&3)
-														if [ -z "$V2P2_WEBUI_PORT_CHANGE" ]; then
-															V2P_PORT1="8101"
-														else
-															V2P_PORT1=$V2P2_WEBUI_PORT_CHANGE
-														fi
-													}
-													input_container_v2p2_webui_port
-													;;
-												2 )
-													V2P_PORT1="8101"
-													;;
-											esac
+										V2P2_WEBUI_PORT_CHANGE=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "输入想修改的端口" 10 55 3>&1 1>&2 2>&3)
+										if [ -z "$V2P2_WEBUI_PORT_CHANGE" ]; then
+											V2P_PORT1="8101"
 										else
-											exit 0
+											V2P_PORT1=$V2P2_WEBUI_PORT_CHANGE
 										fi
 									}
 									input_container_v2p2_anyproxy_config
 
 									function input_container_v2p2_http_config() {
-										V2P2_WEBUI_PORT=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "是否修改 elecv2p 网络请求查看端口[默认 8102]" 15 50 2 \
-										"1" "修改" \
-										"2" "不修改" \
-										3>&1 1>&2 2>&3)
-
-										exitstatus=$?
-										if [ $exitstatus = 0 ]; then
-											case "$V2P2_WEBUI_PORT" in
-												1 )
-													function input_container_v2p2_webui_port() {
-														V2P2_WEBUI_PORT_CHANGE=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "输入想修改的端口" 10 55 3>&1 1>&2 2>&3)
-														if [ -z "$V2P2_WEBUI_PORT_CHANGE" ]; then
-															V2P_PORT2="8102"
-														else
-															V2P_PORT2=$V2P2_WEBUI_PORT_CHANGE
-														fi
-													}
-													input_container_v2p2_webui_port
-													;;
-												2 )
-													V2P_PORT2="8102"
-													;;
-											esac
+										V2P2_WEBUI_PORT_CHANGE=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "输入想修改的端口" 10 55 3>&1 1>&2 2>&3)
+										if [ -z "$V2P2_WEBUI_PORT_CHANGE" ]; then
+											V2P_PORT2="8102"
 										else
-											exit 0
+											V2P_PORT2=$V2P2_WEBUI_PORT_CHANGE
 										fi
 									}
 									input_container_v2p2_http_config
@@ -999,7 +880,7 @@ function main() {
 					case "$SUBMENU5" in
 						1 )
 							function input_container_emby_info() {
-								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "访问方式为宿主机ip:端口 \
+								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "访问方式为宿主机ip:$EMBY_PORT \
 								执行命令 chmod 777 /dev/dri/* 才能读取到显卡 \
 								emby 安装完成，点击 ok 退出脚本 " 10 50
 							}
@@ -1049,59 +930,241 @@ function main() {
 									cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
 								fi
 							}
-							input_container_emby_build
-							input_container_emby_info
+
+							function input_container_emby_check() {
+								if (whiptail --title "一键脚本 作者：kissyouhunter" --yesno "emby 容器名：$EMBY_CONTAINER_NAME \
+								emby 配置文件路径：$CONFIG_PATH \
+								emby 电影文件路径：$MOVIES_PATH \
+								emby 电视剧文件路径：$TVSHOWS_PATH \
+								emby 面板端口：$EMBY_PORT \
+								emby https 端口：$EMBY_PORT1 \
+								以上信息是否正确？" \
+								15 50) then
+									input_container_emby_build
+									sleep 10
+									input_container_emby_info
+									docker ps -a
+								else
+									input_container_emby_input
+									EMBY_PORT="8096"
+									EMBY_PORT1="8920"
+								fi
+							}
 
 							function input_container_emby_input() {
-								EMBY_NAME=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入将要创建的容器名[回车默认为：emby]" 10 55 3>&1 1>&2 2>&3)
+								function input_container_emby_name() {
+									EMBY_NAME=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入将要创建的容器名[回车默认为：emby]" 10 55 3>&1 1>&2 2>&3)
 
-								if [ -z "$EMBY_NAME" ]; then
-									EMBY_CONTAINER_NAME="emby"
-								else
-									EMBY_CONTAINER_NAME=$EMBY_NAME
-								fi
+									if [ -z "$EMBY_NAME" ]; then
+										EMBY_CONTAINER_NAME="emby"
+									else
+										EMBY_CONTAINER_NAME=$EMBY_NAME
+									fi
+								}
+								input_container_emby_name
 
-								EMBY_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入 emby 配置文件保存的绝对路径（示例：/home/emby)，回车默认为当前目录:" 10 55 3>&1 1>&2 2>&3)
+								function input_container_emby_config() {
+									EMBY_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入 emby 配置文件保存的绝对路径（示例：/home/emby)，回车默认为当前目录:" 10 55 3>&1 1>&2 2>&3)
 
-								if [ -z "$EMBY_CONFIG" ]; then
-									EMBY_PATH=$(pwd)/emby
-								else
-									EMBY_PATH=$EMBY_CONFIG
-								fi
+									if [ -z "$EMBY_CONFIG" ]; then
+										EMBY_PATH=$(pwd)/emby
+									else
+										EMBY_PATH=$EMBY_CONFIG
+									fi
+									CONFIG_PATH=$EMBY_PATH/config
+								}
+								input_container_emby_config
+
+								function input_container_emby_movies_config() {
+									MOVIES_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入电影文件保存的绝对路径（示例：/home/movies)，回车默认为当前目录:" 10 55 3>&1 1>&2 2>&3)
+								
+									if [ -z "$MOVIES_CONFIG" ]; then
+										MOVIES_PATH=$(pwd)/movies
+									else
+										MOVIES_PATH=$MOVIES_CONFIG
+									fi
+								}
+								input_container_emby_movies_config
+
+								function input_container_emby_tvshows_config() {
+									TVSHOWS_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入电影文件保存的绝对路径（示例：/home/movies)，回车默认为当前目录:" 10 55 3>&1 1>&2 2>&3)
+								
+									if [ -z "$TVSHOWS_CONFIG" ]; then
+										TVSHOWS_PATH=$(pwd)/movies
+									else
+										TVSHOWS_PATH=$TVSHOWS_CONFIG
+									fi
+								}
+								input_container_emby_tvshows_config
+
+								function input_container_emby_webui_config() {
+									EMBY_WEBUI_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入 emby 面板端口[默认 8096]" 10 55 3>&1 1>&2 2>&3)
+
+									if [ -z "$EMBY_WEBUI_CONFIG" ]; then
+										EMBY_PORT="8096"
+									else
+										EMBY_PORT=$EMBY_WEBUI_CONFIG
+									fi									
+								}
+								input_container_emby_webui_config
+
+								function input_container_emby_https_config() {
+									EMBY_HTTPS_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入 emby 的 https 端口[默认 8920]" 10 55 3>&1 1>&2 2>&3)
+
+									if [ -z "$EMBY_HTTPS_CONFIG" ]; then
+										EMBY_PORT1="8920"
+									else
+										EMBY_PORT1=$EMBY_HTTPS_CONFIG
+									fi									
+								}
+								input_container_emby_https_config
+								input_container_emby_check
 							}
+							input_container_emby_input
 							;;
 						2 )
-							function input_container_fast_info() {
-								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "访问方式为：宿主机ip:18081 \
-								Fast Os Docker 安装完成，点击 ok 退出脚本 " 10 50
+							function input_container_jellyfin_info() {
+								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "访问方式为宿主机ip:端口 \
+								执行命令 chmod 777 /dev/dri/* 才能读取到显卡 \
+								jellyfin 安装完成，点击 ok 退出脚本 " 10 50
 							}
 
-							function input_container_fast_build() {
-								TIME y " >>>>>>>>>>>开始安装 Fast Os Docker"
-								docker run --restart always --name fast -p 18081:8081 -d -v /var/run/docker.sock:/var/run/docker.sock wangbinxingkong/fast
+							function input_container_jellyfin_build() {
+								TIME y " >>>>>>>>>>>配置完成，开始安装 jellyfin"
+								log "1.开始创建配置文件目录"
+								PATH_LIST=($CONFIG_PATH $MOVIES_PATH $TVSHOWS_PATH)
+								for i in ${PATH_LIST[@]}; do
+									mkdir -p $i
+								done
+
+								log "2.开始创建容器并执行"
+	     							if [ -d "/dev/dri" ]; then
+          								docker run -dit \
+              								--name $JELLYFIN_CONTAINER_NAME \
+              								--hostname $JELLYFIN_CONTAINER_NAME \
+              								--restart always \
+              								-v $CONFIG_PATH:/config \
+              								-v $MOVIES_PATH:/mnt/movies \
+              								-v $TVSHOWS_PATH:/mnt/tvshows \
+              								-p $JELLYFIN_PORT:8096 -p $JELLYFIN_PORT1:8920 \
+              								-e TZ=Asia/Shanghai \
+              								--device /dev/dri:/dev/dri \
+              								-e UMASK_SET=022 \
+              								-e UID=0 \
+              								-e GID=0 \
+              								-e GIDLIST=0 \
+              								$JELLYFIN_DOCKER_IMG_NAME:$TAG
+      								else
+          								docker run -dit \
+              								--name $JELLYFIN_CONTAINER_NAME \
+              								--hostname $JELLYFIN_CONTAINER_NAME \
+              								--restart always \
+              								-v $CONFIG_PATH:/config \
+              								-v $MOVIES_PATH:/mnt/movies \
+              								-v $TVSHOWS_PATH:/mnt/tvshows \
+              								-p $JELLYFIN_PORT:8096 -p $JELLYFIN_PORT1:8920 \
+              								-e TZ=Asia/Shanghai \
+              								-e UMASK_SET=022 \
+              								-e UID=0 \
+              								-e GID=0 \
+              								-e GIDLIST=0 \
+				              				$JELLYFIN_DOCKER_IMG_NAME:$TAG
+								    fi
 								if [ $? -ne 0 ] ; then
 									cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
 								fi
 							}
-							input_container_fast_build
-							input_container_fast_info
-							;;
-						3 )
-							function input_container_simple_info() {
-								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "访问方式为：宿主机ip:18081 \
-								simpledocker 安装完成，点击 ok 退出脚本 " 10 50
-							}
 
-							function input_container_simple_build() {
-								TIME y " >>>>>>>>>>>开始安装 Fast Os Docker"
-								mkdir -p simpledocker && cd simpledocker && curl -Lo docker-compose.yml https://raw.githubusercontent.com/kissyouhunter/Tools/main/simpledocker-docker-compose.yml
-								docker-compose up -d
-								if [ $? -ne 0 ] ; then
-									cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
+							function input_container_emby_check() {
+								if (whiptail --title "一键脚本 作者：kissyouhunter" --yesno "jellyfin 容器名：$JELLYFIN_CONTAINER_NAME \
+								jellyfin 配置文件路径：$CONFIG_PATH \
+								jellyfin 电影文件路径：$MOVIES_PATH \
+								jellyfin 电视剧文件路径：$TVSHOWS_PATH \
+								jellyfin 面板端口：$JELLYFIN_PORT \
+								jellyfin https端口：$JELLYFIN_PORT1 \
+								以上信息是否正确？" \
+								15 50) then
+									input_container_jellyfin_build
+									sleep 10
+									input_container_jellyfin_info
+									docker ps -a
+								else
+									input_container_jellyfin_input
+									EMBY_PORT="8096"
+									EMBY_PORT1="8920"
 								fi
 							}
-							input_container_simple_build
-							input_container_simple_info
+
+							function input_container_jellyfin_input() {
+								function input_container_jellyfin_name() {
+									JELLYFIN_NAME=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入将要创建的容器名[回车默认为：jellyfin]" 10 55 3>&1 1>&2 2>&3)
+
+									if [ -z "$JELLYFIN_NAME" ]; then
+										JELLYFIN_CONTAINER_NAME="emby"
+									else
+										JELLYFIN_CONTAINER_NAME=$JELLYFIN_NAME
+									fi
+								}
+								input_container_jellyfin_name
+
+								function input_container_jellyfin_config() {
+									JELLYFIN_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入 jellyfin 配置文件保存的绝对路径（示例：/home/jellyfin)，回车默认为当前目录:" 10 55 3>&1 1>&2 2>&3)
+
+									if [ -z "$JELLYFIN_CONFIG" ]; then
+										JELLYFIN_PATH=$(pwd)/jellyfin
+									else
+										JELLYFIN_PATH=$JELLYFIN_CONFIG
+									fi
+									CONFIG_PATH=$JELLYFIN_PATH/config
+								}
+								input_container_jellyfin_config
+
+								function input_container_jellyfin_movies_config() {
+									MOVIES_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入电影文件保存的绝对路径（示例：/home/movies)，回车默认为当前目录:" 10 55 3>&1 1>&2 2>&3)
+								
+									if [ -z "$MOVIES_CONFIG" ]; then
+										MOVIES_PATH=$(pwd)/movies
+									else
+										MOVIES_PATH=$MOVIES_CONFIG
+									fi
+								}
+								input_container_jellyfin_movies_config
+
+								function input_container_jellyfin_tvshows_config() {
+									TVSHOWS_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入电影文件保存的绝对路径（示例：/home/movies)，回车默认为当前目录:" 10 55 3>&1 1>&2 2>&3)
+								
+									if [ -z "$TVSHOWS_CONFIG" ]; then
+										TVSHOWS_PATH=$(pwd)/movies
+									else
+										TVSHOWS_PATH=$TVSHOWS_CONFIG
+									fi
+								}
+								input_container_jellyfin_tvshows_config
+
+								function input_container_jellyfin_webui_config() {
+									JELLYFIN_WEBUI_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入 jellyfin 面板端口[默认 8096]" 10 55 3>&1 1>&2 2>&3)
+
+									if [ -z "$JELLYFIN_WEBUI_CONFIG" ]; then
+										JELLYFIN_PORT="8096"
+									else
+										JELLYFIN_PORT=$JELLYFIN_WEBUI_CONFIG
+									fi									
+								}
+								input_container_jellyfin_webui_config
+
+								function input_container_jellyfin_https_config() {
+									JELLYFIN_HTTPS_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入 jellyfin 的 https 端口[默认 8920]" 10 55 3>&1 1>&2 2>&3)
+
+									if [ -z "$JELLYFIN_HTTPS_CONFIG" ]; then
+										JELLYFIN_PORT1="8920"
+									else
+										JELLYFIN_PORT1=$JELLYFIN_HTTPS_CONFIG
+									fi									
+								}
+								input_container_jellyfin_https_config
+								input_container_jellyfin_check
+							}
+							input_container_jellyfin_input
 							;;
 						0 )
 							main

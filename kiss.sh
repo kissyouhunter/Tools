@@ -1235,7 +1235,7 @@ TIME r "<注>请使用 root 账户部署容器"
   
   # https端口
   input_container_emby_https_config() {
-  inp "是否修改 emby 的https端口[默认 8920]：\n1) 修改\n2) 不修改[默认]"
+  inp "是否修改 emby 的 https 端口[默认 8920]：\n1) 修改\n2) 不修改[默认]"
   opt
   read change_emby_port1
   if [ "$change_emby_port1" = "1" ]; then
@@ -1253,7 +1253,7 @@ TIME r "<注>请使用 root 账户部署容器"
   	TIME y "emby 电视剧文件路径：$TVSHOWS_PATH"
   	TIME y "emby 容器名：$EMBY_CONTAINER_NAME"
   	TIME y "emby 面板端口：$EMBY_PORT"
-  	TIME y "emby https端口：$EMBY_PORT1"
+  	TIME y "emby https 端口：$EMBY_PORT1"
   	read -r -p "以上信息是否正确？[Y/n] " input51
   	case $input51 in
   		[yY][eE][sS]|[yY])
