@@ -120,25 +120,25 @@ function main() {
 							unzip docker-2010.12-1_x86_64.zip && rm -f docker-2010.12-1_x86_64.zip
 							cd /tmp/upload/docker-2010.12-1_x86_64 && opkg install *.ipk && cd .. && rm -rf docker-2010.12-1_x86_64/
 							if [ "$(command -v docker)" ]; then
-								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "<docker>和<docker-compose>安装完成，点击 OK 返回" 10 55
+								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "docker 和 docker-compose 安装完成，点击 OK 返回" 10 55
 							else
-								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "<docker>和<docker-compose>安装失败，点击 OK 返回" 10 55
+								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "docker 和 docker-compose 安装失败，点击 OK 返回" 10 55
 							fi
 							main
 							;;
 						3 )
-						    TIME y " >>>>>>>>>>>开始为Arm64 openwrt安装docker和docker-compose"
+						    TIME y " >>>>>>>>>>>开始为 Arm64 openwrt 安装 docker 和 docker-compose"
 							mkdir -p /tmp/upload/ && cd /tmp/upload/
 							curl -LO https://tt.kisssik.ga/d/aliyun/files/docker-20.10.15-1_aarch64.zip
 							unzip docker-20.10.15-1_aarch64.zip && rm -f docker-20.10.15-1_aarch64.zip
 							cd /tmp/upload/docker-20.10.15-1_aarch64 && opkg install *.ipk
 							cd /tmp/upload && rm -rf docker-20.10.15-1_aarch64/
 							if [ "$(command -v docker)" ]; then
-								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "<docker>和<docker-compose>安装完成，点击 OK 返回 \
+								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "docker 和 docker-compose 安装完成，点击 OK 返回 \
 								U盘上运行的OP，如果docker空间没有指定到 /mnt/sda4/docker ，请修改 \
 								dockerman > 设置 > Docker 根目录 修改为 /mnt/sda4/docker" 10 70
 							else
-								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "<docker>和<docker-compose>安装失败，点击 OK 返回" 10 55
+								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "docker 和 docker-compose 安装失败，点击 OK 返回" 10 55
 							fi
 							main
 							;;
@@ -156,9 +156,9 @@ function main() {
 			#安装青龙
             clear
 			function submenu2() {
-				SUBMENU2=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "安装 <青龙>" 15 52 3 \
-				"1" "linxu系统、X86的openwrt、群辉等请选择 1" \
-				"2" "N1的EMMC上运行的openwrt请选择 2" \
+				SUBMENU2=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "安装 青龙" 15 52 3 \
+				"1" "linxu系统、X86 的 openwrt、群辉等请选择 1" \
+				"2" "N1 的 EMMC 上运行的 openwrt 请选择 2" \
 				"0" "返回上级菜单" \
 				3>&1 1>&2 2>&3)
 
@@ -168,7 +168,7 @@ function main() {
 						1 )
 							function input_container_ql1_info() {
 								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "访问方式为：宿主机ip:$QL_PORT \
-								<青龙>安装完成，点击 ok 退出脚本 " 10 50
+								青龙 安装完成，点击 ok 退出脚本 " 10 50
 							}
 
 							function input_container_ql1_docker() {
@@ -342,7 +342,7 @@ function main() {
 						2 )
 							function input_container_ql2_info() {
 								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "访问方式为：宿主机ip:$QL_PORT \
-								<青龙>安装完成，点击 ok 退出脚本 " 10 50
+								青龙 安装完成，点击 ok 退出脚本 " 10 50
 							}
 
 							function input_container_ql2_docker() {
@@ -526,9 +526,9 @@ function main() {
 			#安装elecv2p
             clear
 			function submenu3() {
-				SUBMENU3=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "安装 <ELECV2P>" 15 52 3 \
-				"1" "linxu系统、X86的openwrt、群辉等请选择 1" \
-				"2" "N1的EMMC上运行的openwrt请选择 2" \
+				SUBMENU3=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "安装 ELECV2P" 15 52 3 \
+				"1" "linxu系统、X86 的 openwrt、群辉等请选择 1" \
+				"2" "N1 的 EMMC 上运行的 openwrt 请选择 2" \
 				"0" "返回上级菜单" \
 				3>&1 1>&2 2>&3)
 
@@ -538,11 +538,11 @@ function main() {
 						1 )
 							function input_container_v2p1_info() {
 								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "访问方式为：宿主机ip:$V2P_PORT \
-								<ELECV2P>安装完成，点击 ok 退出脚本 " 10 50
+								ELECV2P 安装完成，点击 ok 退出脚本 " 10 50
 							}
 
 							function input_container_v2p1_build() {
-								TIME y " >>>>>>>>>>>配置完成，开始安装elecv2p"
+								TIME y " >>>>>>>>>>>配置完成，开始安装 elecv2p"
 								log "1.开始创建配置文件目录"
 								PATH_LIST=($JSFILE_PATH $LISTS_PATH $STORE_PATH $SHELL_PATH $ROOTCA_PATH $EFSS_PATH $LOG_PATH)
 								for i in ${PATH_LIST[@]}; do
@@ -601,7 +601,7 @@ function main() {
 								input_container_v2p1_name
 
 								function input_container_v2p1_config() {
-									V2P1_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入elecv2p配置文件保存的绝对路径 \
+									V2P1_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入 elecv2p 配置文件保存的绝对路径 \
 									（示例：/home/elecv2p)，回车默认为当前目录:" 10 50 3>&1 1>&2 2>&3)
 
 									if [ -z "$V2P1_CONFIG" ]; then
@@ -621,7 +621,7 @@ function main() {
 
 								function input_container_v2p1_network_config() {
 									function input_container_v2p1_webui_config() {
-										V2P1_WEBUI_PORT=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "是否修改elecv2p面板端口[默认 8100]" 15 50 2 \
+										V2P1_WEBUI_PORT=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "是否修改 elecv2p 面板端口[默认 8100]" 15 50 2 \
 										"1" "修改" \
 										"2" "不修改" \
 										3>&1 1>&2 2>&3)
@@ -651,7 +651,7 @@ function main() {
 									input_container_v2p1_webui_config
 
 									function input_container_v2p1_anyproxy_config() {
-										V2P1_WEBUI_PORT=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "是否修改elecv2p的anyproxy端口[默认 8101]" 15 50 2 \
+										V2P1_WEBUI_PORT=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "是否修改 elecv2p 的 anyproxy 端口[默认 8101]" 15 50 2 \
 										"1" "修改" \
 										"2" "不修改" \
 										3>&1 1>&2 2>&3)
@@ -681,7 +681,7 @@ function main() {
 									input_container_v2p1_anyproxy_config
 
 									function input_container_v2p1_http_config() {
-										V2P1_WEBUI_PORT=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "是否修改elecv2p网络请求查看端口[默认 8102]" 15 50 2 \
+										V2P1_WEBUI_PORT=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "是否修改 elecv2p 网络请求查看端口[默认 8102]" 15 50 2 \
 										"1" "修改" \
 										"2" "不修改" \
 										3>&1 1>&2 2>&3)
@@ -721,8 +721,8 @@ function main() {
 								ELECV2P 安装完成，点击 ok 退出脚本 " 10 50
 							}
 
-							function input_container_v2p1_build() {
-								TIME y " >>>>>>>>>>>配置完成，开始安装elecv2p"
+							function input_container_v2p2_build() {
+								TIME y " >>>>>>>>>>>配置完成，开始安装 elecv2p"
 								log "1.开始创建配置文件目录"
 								PATH_LIST=($JSFILE_PATH $LISTS_PATH $STORE_PATH $SHELL_PATH $ROOTCA_PATH $EFSS_PATH $LOG_PATH)
 								for i in ${PATH_LIST[@]}; do
@@ -748,7 +748,7 @@ function main() {
 								fi
 							}
 
-							function input_container_v2p1_check() {
+							function input_container_v2p2_check() {
 								if (whiptail --title "一键脚本 作者：kissyouhunter" --yesno "elecv2p 容器名：$V2P_CONTAINER_NAME \
 								elecv2p 面板端口：$V2P_PORT \
 								elecv2p anyproxy端口：$V2P_PORT1 \
@@ -756,9 +756,9 @@ function main() {
 								elecv2p 配置文件路径：$V2P_PATH \
 								以上信息是否正确？" \
 								15 50) then
-									input_container_v2p1_build
+									input_container_v2p2_build
 									sleep 10
-									input_container_v2p1_info
+									input_container_v2p2_info
 									docker ps -a
 								else
 									v2p1_input
@@ -768,26 +768,26 @@ function main() {
 								fi
 							}
 
-							function v2p1_input() {
-								function input_container_v2p1_name() {
-									V2P1_NAME=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入将要创建的容器名[默认为：elecv2p]" 10 55 3>&1 1>&2 2>&3)
+							function v2p2_input() {
+								function input_container_v2p2_name() {
+									V2P2_NAME=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入将要创建的容器名[默认为：elecv2p]" 10 55 3>&1 1>&2 2>&3)
 								
-									if [ -z "$V2P1_NAME" ]; then
+									if [ -z "$V2P2_NAME" ]; then
 										V2P_CONTAINER_NAME="elecv2p"
 									else
 										V2P_CONTAINER_NAME=$V2P1_NAME
 									fi
 								}
-								input_container_v2p1_name
+								input_container_v2p2_name
 
-								function input_container_v2p1_config() {
-									V2P1_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入elecv2p配置文件保存的绝对路径 \
-									（示例：/home/elecv2p)，回车默认为当前目录:" 10 50 3>&1 1>&2 2>&3)
+								function input_container_v2p2_config() {
+									V2P2_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入 elecv2p 存储的文件夹名称 \
+									（如：elecv2p)，回车默认为当前目录:" 10 50 3>&1 1>&2 2>&3)
 
-									if [ -z "$V2P1_CONFIG" ]; then
-										V2P_PATH=$(pwd)/elecv2p
+									if [ -z "$V2P2_CONFIG" ]; then
+										V2P_PATH=/mnt/mmcblk2p4/elecv2p
 									else
-										V2P_PATH=$V2P1_CONFIG
+										V2P_PATH=/mnt/mmcblk2p4/$V2P1_CONFIG
 									fi
 									JSFILE_PATH=$V2P_PATH/JSFile
  	 								LISTS_PATH=$V2P_PATH/Lists
@@ -797,28 +797,28 @@ function main() {
   									EFSS_PATH=$V2P_PATH/efss
   									LOG_PATH=$V2P_PATH/logs
 								}
-								input_container_v2p1_config
+								input_container_v2p2_config
 
-								function input_container_v2p1_network_config() {
-									function input_container_v2p1_webui_config() {
-										V2P1_WEBUI_PORT=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "是否修改elecv2p面板端口[默认 8100]" 15 50 2 \
+								function input_container_v2p2_network_config() {
+									function input_container_v2p2_webui_config() {
+										V2P2_WEBUI_PORT=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "是否修改 elecv2p 面板端口[默认 8100]" 15 50 2 \
 										"1" "修改" \
 										"2" "不修改" \
 										3>&1 1>&2 2>&3)
 
 										exitstatus=$?
 										if [ $exitstatus = 0 ]; then
-											case "$V2P1_WEBUI_PORT" in
+											case "$V2P2_WEBUI_PORT" in
 												1 )
-													function input_container_v2p1_webui_port() {
-														V2P1_WEBUI_PORT_CHANGE=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "输入想修改的端口" 10 55 3>&1 1>&2 2>&3)
-														if [ -z "$V2P1_WEBUI_PORT_CHANGE" ]; then
+													function input_container_v2p2_webui_port() {
+														V2P2_WEBUI_PORT_CHANGE=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "输入想修改的端口" 10 55 3>&1 1>&2 2>&3)
+														if [ -z "$V2P2_WEBUI_PORT_CHANGE" ]; then
 															V2P_PORT="8100"
 														else
-															V2P_PORT=$V2P1_WEBUI_PORT_CHANGE
+															V2P_PORT=$V2P2_WEBUI_PORT_CHANGE
 														fi
 													}
-													input_container_v2p1_webui_port
+													input_container_v2p2_webui_port
 													;;
 												2 )
 													V2P_PORT="8100"
@@ -828,27 +828,27 @@ function main() {
 											exit 0
 										fi
 									}
-									input_container_v2p1_webui_config
+									input_container_v2p2_webui_config
 
-									function input_container_v2p1_anyproxy_config() {
-										V2P1_WEBUI_PORT=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "是否修改elecv2p的anyproxy端口[默认 8101]" 15 50 2 \
+									function input_container_v2p2_anyproxy_config() {
+										V2P2_WEBUI_PORT=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "是否修改 elecv2p 的 anyproxy 端口[默认 8101]" 15 50 2 \
 										"1" "修改" \
 										"2" "不修改" \
 										3>&1 1>&2 2>&3)
 
 										exitstatus=$?
 										if [ $exitstatus = 0 ]; then
-											case "$V2P1_WEBUI_PORT" in
+											case "$V2P2_WEBUI_PORT" in
 												1 )
-													function input_container_v2p1_webui_port() {
-														V2P1_WEBUI_PORT_CHANGE=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "输入想修改的端口" 10 55 3>&1 1>&2 2>&3)
-														if [ -z "$V2P1_WEBUI_PORT_CHANGE" ]; then
+													function input_container_v2p2_webui_port() {
+														V2P2_WEBUI_PORT_CHANGE=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "输入想修改的端口" 10 55 3>&1 1>&2 2>&3)
+														if [ -z "$V2P2_WEBUI_PORT_CHANGE" ]; then
 															V2P_PORT1="8101"
 														else
-															V2P_PORT1=$V2P1_WEBUI_PORT_CHANGE
+															V2P_PORT1=$V2P2_WEBUI_PORT_CHANGE
 														fi
 													}
-													input_container_v2p1_webui_port
+													input_container_v2p2_webui_port
 													;;
 												2 )
 													V2P_PORT1="8101"
@@ -858,27 +858,27 @@ function main() {
 											exit 0
 										fi
 									}
-									input_container_v2p1_anyproxy_config
+									input_container_v2p2_anyproxy_config
 
-									function input_container_v2p1_http_config() {
-										V2P1_WEBUI_PORT=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "是否修改elecv2p网络请求查看端口[默认 8102]" 15 50 2 \
+									function input_container_v2p2_http_config() {
+										V2P2_WEBUI_PORT=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "是否修改 elecv2p 网络请求查看端口[默认 8102]" 15 50 2 \
 										"1" "修改" \
 										"2" "不修改" \
 										3>&1 1>&2 2>&3)
 
 										exitstatus=$?
 										if [ $exitstatus = 0 ]; then
-											case "$V2P1_WEBUI_PORT" in
+											case "$V2P2_WEBUI_PORT" in
 												1 )
-													function input_container_v2p1_webui_port() {
-														V2P1_WEBUI_PORT_CHANGE=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "输入想修改的端口" 10 55 3>&1 1>&2 2>&3)
-														if [ -z "$V2P1_WEBUI_PORT_CHANGE" ]; then
+													function input_container_v2p2_webui_port() {
+														V2P2_WEBUI_PORT_CHANGE=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "输入想修改的端口" 10 55 3>&1 1>&2 2>&3)
+														if [ -z "$V2P2_WEBUI_PORT_CHANGE" ]; then
 															V2P_PORT2="8102"
 														else
-															V2P_PORT2=$V2P1_WEBUI_PORT_CHANGE
+															V2P_PORT2=$V2P2_WEBUI_PORT_CHANGE
 														fi
 													}
-													input_container_v2p1_webui_port
+													input_container_v2p2_webui_port
 													;;
 												2 )
 													V2P_PORT2="8102"
@@ -888,13 +888,12 @@ function main() {
 											exit 0
 										fi
 									}
-									input_container_v2p1_http_config
-									input_container_v2p1_check
+									input_container_v2p2_http_config
+									input_container_v2p2_check
 								}
-								input_container_v2p1_network_config
+								input_container_v2p2_network_config
 							}
-							v2p1_input
-							;;
+							v2p2_input
 							;;							
 						0 )
 							main
