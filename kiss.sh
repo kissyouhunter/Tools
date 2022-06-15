@@ -172,18 +172,18 @@ TIME w "----------------------------------------"
 TIME w "|****Please Enter Your Choice:[0-3]****|"
 TIME w "|******* DOCKER & DOCKER-COMPOSE ******|"
 TIME w "----------------------------------------"
-TIME w "(1) 安装<docker>和<docker-compose>"
-TIME w "(2) X86 openwrt安装docker和装docker-comopse"
-TIME w "(3) Arm64 openwrt安装docker和装docker-comopse(例 N1 等)"
+TIME w "(1) 安装 docker 和 docker-compose "
+TIME w "(2) X86 openwrt 安装 docker 和 docker-comopse"
+TIME w "(3) Arm64 openwrt 安装 docker和 docker-comopse(例 N1 等)"
 TIME b "(0) 返回上级菜单"
 #EOF
-TIME l "<注>openwrt宿主机默认安装dockerman图形docker管理工具！"
+TIME l "<注>openwrt 宿主机默认安装 dockerman 图形 docker 管理工具！"
  read -p "Please enter your Choice[0-3]: " input1
  case $input1 in 
  1)
-    TIME y " >>>>>>>>>>>开始安装docker和docker-compose"
+    TIME y " >>>>>>>>>>>开始安装 docker 和 docker-compose"
     if [ "$lsb_dist" == "openwrt" ]; then
-        TIME r "****openwrt宿主机请选择2或者3安装docker****"
+        TIME r "****openwrt 宿主机请选择 2 或者 3 安装 docker****"
     else
 		sleep 1
         bash <(curl -s -S -L https://raw.githubusercontent.com/kissyouhunter/Tools/main/docker-and-docker_compose.sh)
@@ -192,7 +192,7 @@ TIME l "<注>openwrt宿主机默认安装dockerman图形docker管理工具！"
     fi
   ;;
  2)
-    TIME y " >>>>>>>>>>>开始为X86 openwrt安装docker和docker-compose"
+    TIME y " >>>>>>>>>>>开始为 X86 openwrt 安装 docker 和 docker-compose"
     mkdir -p /tmp/upload/ && cd /tmp/upload/
     curl -LO https://tt.kisssik.ga/d/aliyun/files/docker-2010.12-1_x86_64.zip
     unzip docker-2010.12-1_x86_64.zip && rm -f docker-2010.12-1_x86_64.zip
@@ -202,15 +202,15 @@ TIME l "<注>openwrt宿主机默认安装dockerman图形docker管理工具！"
     sleep 5
   ;;
  3)
-    TIME y " >>>>>>>>>>>开始为Arm64 openwrt安装docker和docker-compose"
+    TIME y " >>>>>>>>>>>开始为 Arm64 openwrt 安装 docker 和 docker-compose"
     mkdir -p /tmp/upload/ && cd /tmp/upload/
     curl -LO https://tt.kisssik.ga/d/aliyun/files/docker-20.10.15-1_aarch64.zip
     unzip docker-20.10.15-1_aarch64.zip && rm -f docker-20.10.15-1_aarch64.zip
     cd /tmp/upload/docker-20.10.15-1_aarch64 && opkg install *.ipk
     cd /tmp/upload && rm -rf docker-20.10.15-1_aarch64/
     docker -v && docker-compose -v
-    TIME g "****docker安装完成，请返回上级菜单!****"
-    TIME g "****U盘上运行的OP，如果docker空间没有指定到 /mnt/sda4/docker ，请修改****"
+    TIME g "****docker 安装完成，请返回上级菜单!****"
+    TIME g "****U盘上运行的 OP ，如果 docker 空间没有指定到 /mnt/sda4/docker ，请修改****"
     TIME g "****dockerman > 设置 > Docker 根目录 修改为 /mnt/sda4/docker ****"
     sleep 5
   ;;
@@ -242,8 +242,8 @@ TIME w "----------------------------------------"
 TIME w "|****Please Enter Your Choice:[0-2]****|"
 TIME w "|**************** 青龙 ****************|"
 TIME w "----------------------------------------"
-TIME w "(1) linxu系统、X86的openwrt、群辉等请选择 1"
-TIME w "(2) N1的EMMC上运行的openwrt请选择 2"
+TIME w "(1) linxu系统、X86 的 openwrt、群辉等请选择 1"
+TIME w "(2) N1 的 EMMC 上运行的 openwrt 请选择 2"
 TIME b "(0) 返回上级菜单"
 #EOF
 TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按回车！"
@@ -484,7 +484,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   exit 0
   ;;
  2)  
-  TIME y " >>>>>>>>>>>开始安装青龙到N1的/mnt/mmcblk2p4/"
+  TIME y " >>>>>>>>>>>开始安装青龙到 N1 的 /mnt/mmcblk2p4/"
 
     input_container_ql2_info() {
     log "列出所有宿主机上的容器"
@@ -746,18 +746,18 @@ TIME w "----------------------------------------"
 TIME w "|****Please Enter Your Choice:[0-2]****|"
 TIME w "|*************** ELECV2P **************|"
 TIME w "----------------------------------------"
-TIME w "(1) linxu系统、X86的openwrt、群辉等请选择 1"
-TIME w "(2) N1的EMMC上运行的openwrt请选择 2"
+TIME w "(1) linxu系统、X86 的 openwrt、群辉等请选择 1"
+TIME w "(2) N1 的 EMMC 上运行的 openwrt 请选择 2"
 TIME b "(0) 返回上级菜单"
 #EOF
 TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按回车！"
  read -p "Please enter your Choice[0-2]: " input3
  case $input3 in 
  1)
-  TIME y " >>>>>>>>>>>开始安装elecv2p"
+  TIME y " >>>>>>>>>>>开始安装 elecv2p"
   # 创建映射文件夹
   input_container_v2p1_config() {
-  echo -n -e "请输入elecv2p配置文件保存的绝对路径（示例：/home/elecv2p)，回车默认为当前目录: "
+  echo -n -e "请输入 elecv2p 配置文件保存的绝对路径（示例：/home/elecv2p)，回车默认为当前目录: "
   read v2p_path
   if [ -z "$v2p_path" ]; then
       V2P_PATH=$V2P_SHELL_FOLDER
@@ -791,7 +791,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
 
   # 面板端口
   input_container_v2p1_webui_config() {
-  inp "是否修改elecv2p面板端口[默认 8100]：\n1) 修改\n2) 不修改[默认]"
+  inp "是否修改 elecv2p 面板端口[默认 8100]：\n1) 修改\n2) 不修改[默认]"
   opt
   read change_v2p_port
   if [ "$change_v2p_port" = "1" ]; then
@@ -803,7 +803,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   
   # ANYPROXY端口
   input_container_v2p1_anyproxy_config() {
-  inp "是否修改elecv2p的anyproxy端口[默认 8101]：\n1) 修改\n2) 不修改[默认]"
+  inp "是否修改 elecv2p 的 anyproxy 端口[默认 8101]：\n1) 修改\n2) 不修改[默认]"
   opt
   read change_v2p_port1
   if [ "$change_v2p_port1" = "1" ]; then
@@ -815,7 +815,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   
   # 网络请求查看端口
   input_container_v2p1_http_config() {
-  inp "是否修改elecv2p网络请求查看端口[默认 8102]：\n1) 修改\n2) 不修改[默认]"
+  inp "是否修改 elecv2p 网络请求查看端口[默认 8102]：\n1) 修改\n2) 不修改[默认]"
   opt
   read change_v2p_port2
   if [ "$change_v2p_port2" = "1" ]; then
@@ -856,7 +856,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   	esac
   done
 
-  TIME y " >>>>>>>>>>>配置完成，开始安装elecv2p"
+  TIME y " >>>>>>>>>>>配置完成，开始安装 elecv2p"
   log "1.开始创建配置文件目录"
   PATH_LIST=($JSFILE_PATH $LISTS_PATH $STORE_PATH $SHELL_PATH $ROOTCA_PATH $EFSS_PATH $LOG_PATH)
   for i in ${PATH_LIST[@]}; do
@@ -886,7 +886,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
       log "列出所有宿主机上的容器"
       docker ps -a
     TIME g "-----------------------------------------------------"
-    TIME g "|      elev2p启动需要一点点时间，请耐心等待！       |"
+    TIME g "|      elev2p 启动需要一点点时间，请耐心等待！      |"
     sleep 10
     TIME g "|             安装完成，自动退出脚本                |"
     TIME g "|            访问方式为 宿主机ip:$V2P_PORT               |"
@@ -894,10 +894,10 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   exit 0
   ;;
  2)
-  TIME y " >>>>>>>>>>>开始安装elecv2p到N1的/mnt/mmcblk2p4/"
+  TIME y " >>>>>>>>>>>开始安装 elecv2p 到 N1 的 /mnt/mmcblk2p4/"
   # 创建映射文件夹
   input_container_v2p2_config() {
-  echo -n -e "请输入elecv2p存储的文件夹名称（如：elecv2p)，回车默认为 elecv2p: "
+  echo -n -e "请输入 elecv2p 存储的文件夹名称（如：elecv2p)，回车默认为 elecv2p: "
   read v2p_path
   if [ -z "$v2p_path" ]; then
       V2P_PATH=$N1_V2P_FOLDER
@@ -931,7 +931,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
 
   # 面板端口
   input_container_v2p2_webui_config() {
-  inp "是否修改elecv2p面板端口[默认 8100]：\n1) 修改\n2) 不修改[默认]"
+  inp "是否修改 elecv2p 面板端口[默认 8100]：\n1) 修改\n2) 不修改[默认]"
   opt
   read change_v2p_port
   if [ "$change_v2p_port" = "1" ]; then
@@ -943,7 +943,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   
   # ANYPROXY端口
   input_container_v2p2_anyproxy_config() {
-  inp "是否修改elecv2p的anyproxy端口[默认 8101]：\n1) 修改\n2) 不修改[默认]"
+  inp "是否修改 elecv2p 的 anyproxy 端口[默认 8101]：\n1) 修改\n2) 不修改[默认]"
   opt
   read change_v2p_port1
   if [ "$change_v2p_port1" = "1" ]; then
@@ -955,7 +955,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   
   # 网络请求查看端口
   input_container_v2p2_http_config() {
-  inp "是否修改elecv2p网络请求查看端口[默认 8102]：\n1) 修改\n2) 不修改[默认]"
+  inp "是否修改 elecv2p 网络请求查看端口[默认 8102]：\n1) 修改\n2) 不修改[默认]"
   opt
   read change_v2p_port2
   if [ "$change_v2p_port2" = "1" ]; then
@@ -996,7 +996,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   	esac
   done
 
-  TIME y " >>>>>>>>>>>配置完成，开始安装elecv2p"
+  TIME y " >>>>>>>>>>>配置完成，开始安装 elecv2p"
   log "1.开始创建配置文件目录"
   PATH_LIST=($JSFILE_PATH $LISTS_PATH $STORE_PATH $SHELL_PATH $ROOTCA_PATH $EFSS_PATH $LOG_PATH)
   for i in ${PATH_LIST[@]}; do
@@ -1026,7 +1026,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
       log "列出所有宿主机上的容器"
       docker ps -a
     TIME g "-----------------------------------------------------"
-    TIME g "|      elev2p启动需要一点点时间，请耐心等待！       |"
+    TIME g "|      elev2p 启动需要一点点时间，请耐心等待！      |"
     sleep 10
     TIME g "|             安装完成，自动退出脚本                |"
     TIME g "|            访问方式为 宿主机ip:$V2P_PORT               |"
@@ -1079,7 +1079,7 @@ TIME b "(0) 返回上级菜单"
       log "列出所有宿主机上的容器"
       docker ps -a
     TIME g "------------------------------------------------------"
-    TIME g "|      portainer启动需要一点点时间，请耐心等待！     |"
+    TIME g "|      portainer 启动需要一点点时间，请耐心等待！    |"
     sleep 10
     TIME g "|              安装完成，自动退出脚本                |"
     TIME g "|   访问方式为宿主机ip:端口(例192.168.2.1:9000)      |"
@@ -1095,7 +1095,7 @@ TIME b "(0) 返回上级菜单"
       log "列出所有宿主机上的容器"
       docker ps -a
     TIME g "------------------------------------------------------"
-    TIME g "|          fast启动需要一点点时间，请耐心等待！      |"
+    TIME g "|          fast 启动需要一点点时间，请耐心等待！     |"
     sleep 10
     TIME g "|              安装完成，自动退出脚本                |"
     TIME g "|            首次登陆注册账号和密码即可              |"
@@ -1113,7 +1113,7 @@ TIME b "(0) 返回上级菜单"
       log "列出所有宿主机上的容器"
       docker ps -a
     TIME g "------------------------------------------------------"
-    TIME g "|     simpledocker启动需要一点点时间，请耐心等待！   |"
+    TIME g "|    simpledocker 启动需要一点点时间，请耐心等待！   |"
     sleep 10
     TIME g "|              安装完成，自动退出脚本                |"
     TIME g "|           默认账号：admin 密码：123456             |"
@@ -1164,18 +1164,18 @@ TIME w "----------------------------------------"
 TIME w "|****Please Enter Your Choice:[0-2]****|"
 TIME w "|*********** EMBY & JELLYFIN **********|"
 TIME w "----------------------------------------"
-TIME w "(1) 安装emby (开心版暂无arm64)"
-TIME w "(2) 安装jellyfin"
+TIME w "(1) 安装 emby (开心版暂无 arm64)"
+TIME w "(2) 安装 jellyfin"
 TIME b "(0) 返回上级菜单"
 #EOF
-TIME r "<注>请使用root账户部署容器"
+TIME r "<注>请使用 root 账户部署容器"
  read -p "Please enter your Choice[0-2]: " input5
  case $input5 in 
  1)
-    TIME y " >>>>>>>>>>>开始安装emby"
+    TIME y " >>>>>>>>>>>开始安装 emby"
   # 创建映射文件夹
   input_container_emby_config() {
-  echo -n -e "请输入emby配置文件保存的绝对路径（示例：/home/emby)，回车默认为当前目录: "
+  echo -n -e "请输入 emby 配置文件保存的绝对路径（示例：/home/emby)，回车默认为当前目录: "
   read emby_path
   if [ -z "$emby_path" ]; then
       EMBY_PATH=$EMBY_CONFIG_FOLDER
@@ -1223,7 +1223,7 @@ TIME r "<注>请使用root账户部署容器"
 
   # 面板端口
   input_container_emby_webui_config() {
-  inp "是否修改emby面板端口[默认 8096]：\n1) 修改\n2) 不修改[默认]"
+  inp "是否修改 emby 面板端口[默认 8096]：\n1) 修改\n2) 不修改[默认]"
   opt
   read change_emby_port
   if [ "$change_emby_port" = "1" ]; then
@@ -1235,7 +1235,7 @@ TIME r "<注>请使用root账户部署容器"
   
   # https端口
   input_container_emby_https_config() {
-  inp "是否修改emby的https端口[默认 8920]：\n1) 修改\n2) 不修改[默认]"
+  inp "是否修改 emby 的https端口[默认 8920]：\n1) 修改\n2) 不修改[默认]"
   opt
   read change_emby_port1
   if [ "$change_emby_port1" = "1" ]; then
@@ -1275,7 +1275,7 @@ TIME r "<注>请使用root账户部署容器"
   	esac
   done
 
-  TIME y " >>>>>>>>>>>配置完成，开始安装emby"
+  TIME y " >>>>>>>>>>>配置完成，开始安装 emby"
   log "1.开始创建配置文件目录"
   PATH_LIST=($CONFIG_PATH $MOVIES_PATH $TVSHOWS_PATH)
   for i in ${PATH_LIST[@]}; do
@@ -1322,20 +1322,20 @@ TIME r "<注>请使用root账户部署容器"
       log "列出所有宿主机上的容器"
       docker ps -a
     TIME g "-----------------------------------------------------------------"
-    TIME g "|              emby启动需要一点点时间，请耐心等待！             |"
+    TIME g "|              emby 启动需要一点点时间，请耐心等待！            |"
     sleep 10
     TIME g "|                    安装完成，自动退出脚本                     |"
-    TIME g "|         emby默认端口为8096，如有修改请访问修改的端口          |"
+    TIME g "|         emby 默认端口为8096，如有修改请访问修改的端口         |"
     TIME g "|         访问方式为宿主机ip:端口(例192.168.2.1:8096)           |"
-    TIME g "|   openwrt需要先执行命令 chmod 777 /dev/dri/* 才能读取到显卡   |"
+    TIME g "|   openwrt 需要先执行命令 chmod 777 /dev/dri/* 才能读取到显卡  |"
     TIME g "-----------------------------------------------------------------"
   exit 0
   ;;
  2)
-    TIME y " >>>>>>>>>>>开始安装jellyfin"
+    TIME y " >>>>>>>>>>>开始安装 jellyfin"
   # 创建映射文件夹
   input_container_jellyfin_config() {
-  echo -n -e "请输入jellyfin配置文件保存的绝对路径（示例：/home/jellyfin)，回车默认为当前目录: "
+  echo -n -e "请输入 jellyfin 配置文件保存的绝对路径（示例：/home/jellyfin)，回车默认为当前目录: "
   read jellyfin_path
   if [ -z "$jellyfin_path" ]; then
       JELLYFIN_PATH=$JELLYFIN_CONFIG_FOLDER
@@ -1383,7 +1383,7 @@ TIME r "<注>请使用root账户部署容器"
 
   # 面板端口
   input_container_jellyfin_webui_config() {
-  inp "是否修改jellyfin面板端口[默认 8096]：\n1) 修改\n2) 不修改[默认]"
+  inp "是否修改 jellyfin 面板端口[默认 8096]：\n1) 修改\n2) 不修改[默认]"
   opt
   read change_jellyfin_port
   if [ "$change_jellyfin_port" = "1" ]; then
@@ -1395,7 +1395,7 @@ TIME r "<注>请使用root账户部署容器"
   
   # https端口
   input_container_jellyfin_https_config() {
-  inp "是否修改jellyfin的https端口[默认 8920]：\n1) 修改\n2) 不修改[默认]"
+  inp "是否修改 jellyfin 的 https 端口[默认 8920]：\n1) 修改\n2) 不修改[默认]"
   opt
   read change_jellyfin_port1
   if [ "$change_jellyfin_port1" = "1" ]; then
@@ -1435,7 +1435,7 @@ TIME r "<注>请使用root账户部署容器"
   	esac
   done
 
-  TIME y " >>>>>>>>>>>配置完成，开始安装jellyfin"
+  TIME y " >>>>>>>>>>>配置完成，开始安装 jellyfin"
   log "1.开始创建配置文件目录"
   PATH_LIST=($CONFIG_PATH $MOVIES_PATH $TVSHOWS_PATH)
   for i in ${PATH_LIST[@]}; do
@@ -1482,12 +1482,12 @@ TIME r "<注>请使用root账户部署容器"
       log "列出所有宿主机上的容器"
       docker ps -a
     TIME g "-----------------------------------------------------------------"
-    TIME g "|              emby启动需要一点点时间，请耐心等待！             |"
+    TIME g "|         jellyfin 启动需要一点点时间，请耐心等待！         |"
     sleep 10
     TIME g "|                    安装完成，自动退出脚本                     |"
-    TIME g "|       jellyfin默认端口为8096，如有修改请访问修改的端口        |"
+    TIME g "|       jellyfin 默认端口为8096，如有修改请访问修改的端口       |"
     TIME g "|         访问方式为宿主机ip:端口(例192.168.2.1:8096)           |"
-    TIME g "|   openwrt需要先执行命令 chmod 777 /dev/dri/* 才能读取到显卡   |"
+    TIME g "|   openwrt 需要先执行命令 chmod 777 /dev/dri/* 才能读取到显卡  |"
     TIME g "-----------------------------------------------------------------"
   exit 0
   ;;
