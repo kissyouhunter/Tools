@@ -1519,20 +1519,20 @@ TIME w "----------------------------------------"
 TIME w "|****Please Enter Your Choice:[0-3]****|"
 TIME w "|******** QBITTORRENT & ARIA2 *********|"
 TIME w "----------------------------------------"
-TIME w "(1) 安装qbittorrent增强版"
-TIME w "(2) 安装aria2"
-TIME w "(3) 安装aria2-pro"
+TIME w "(1) 安装 qbittorrent 增强版"
+TIME w "(2) 安装 aria2"
+TIME w "(3) 安装 aria2-pro"
 TIME b "(0) 返回上级菜单"
 #EOF
-TIME r "<注>请使用root账户部署容器"
-TIME r "<注>aria2和aria2-pro 二选一"
+TIME r "<注>请使用 root 账户部署容器"
+TIME r "<注> aria2 和 aria2-pro 二选一"
  read -p "Please enter your Choice[0-3]: " input6
  case $input6 in 
  1)
-    TIME y " >>>>>>>>>>>开始安装qbittorrent增强版"
+    TIME y " >>>>>>>>>>>开始安装 qbittorrent 增强版"
   # 创建映射文件夹
   input_container_qb_config() {
-  echo -n -e "请输入qbittorrent增强版配置文件保存的绝对路径（示例：/home/qbittorrent)，回车默认为当前目录: "
+  echo -n -e "请输入 qbittorrent 增强版配置文件保存的绝对路径（示例：/home/qbittorrent)，回车默认为当前目录: "
   read qb_path
   if [ -z "$qb_path" ]; then
       QB_PATH=$QB_CONFIG_FOLDER
@@ -1591,7 +1591,7 @@ TIME r "<注>aria2和aria2-pro 二选一"
   	esac
   done
 
-  TIME y " >>>>>>>>>>>配置完成，开始安装qbittorrent"
+  TIME y " >>>>>>>>>>>配置完成，开始安装 qbittorrent 增强版"
   log "1.开始创建配置文件目录"
   PATH_LIST=($CONFIG_PATH $MOVIES_PATH $TVSHOWS_PATH)
   for i in ${PATH_LIST[@]}; do
@@ -1620,20 +1620,20 @@ TIME r "<注>aria2和aria2-pro 二选一"
       log "列出所有宿主机上的容器"
       docker ps -a
     TIME g "---------------------------------------------------------"
-    TIME g "|      qbittorrent启动需要一点点时间，请耐心等待！      |"
+    TIME g "|      qbittorrent 启动需要一点点时间，请耐心等待！     |"
     sleep 10
     TIME g "|               安装完成，自动退出脚本                  |"
-    TIME g "|  qbittorrent默认端口为8989，如有修改请访问修改的端口  |"
+    TIME g "|  qbittorrent 默认端口为8989，如有修改请访问修改的端口 |"
     TIME g "|     访问方式为宿主机ip:端口(例192.168.2.1:8989)       |"
-    TIME g "|         默认用户名admin，默认密码adminadmin           |"
+    TIME g "|         默认用户名admin，默认密码 adminadmin          |"
     TIME g "---------------------------------------------------------"
   exit 0
   ;;
  2)
-    TIME y " >>>>>>>>>>>开始安装aria2"
+    TIME y " >>>>>>>>>>>开始安装 aria2"
   # 创建映射文件夹
   input_container_aria2_config() {
-  echo -n -e "请输入aria2配置文件保存的绝对路径（示例：/home/aria2)，回车默认为当前目录: "
+  echo -n -e "请输入 aria2 配置文件保存的绝对路径（示例：/home/aria2)，回车默认为当前目录: "
   read aria2_path
   if [ -z "$aria2_path" ]; then
       ARIA2_PATH=$ARIA2_CONFIG_FOLDER
@@ -1705,7 +1705,7 @@ TIME r "<注>aria2和aria2-pro 二选一"
   	esac
   done
 
-  TIME y " >>>>>>>>>>>配置完成，开始安装aria2"
+  TIME y " >>>>>>>>>>>配置完成，开始安装 aria2"
   log "1.开始创建配置文件目录"
   PATH_LIST=($ARIA2_PATH $DOWNLOADS_PATH)
   for i in ${PATH_LIST[@]}; do
@@ -1742,22 +1742,22 @@ TIME r "<注>aria2和aria2-pro 二选一"
       log "列出所有宿主机上的容器"
       docker ps -a
     TIME g "---------------------------------------------------------"
-    TIME g "|          aria2启动需要一点点时间，请耐心等待！        |"
+    TIME g "|         aria2 启动需要一点点时间，请耐心等待！        |"
     sleep 10
     TIME g "|                 安装完成，自动退出脚本                |"
-    TIME g "|     aria2默认端口为8080，如有修改请访问修改的端口     |"
+    TIME g "|     aria2 默认端口为8080，如有修改请访问修改的端口    |"
     TIME g "|     访问方式为宿主机ip:端口(例192.168.2.1:8080)       |"
     TIME g "|              Aria密钥设置在面板如下位置               |"
-    TIME g "|      AriaNg设置 > RPC(IP:6800) > Aria2 RPC 密钥       |"
+    TIME g "|      AriaNg 设置 > RPC(IP:6800) > Aria2 RPC 密钥      |"
     TIME g "---------------------------------------------------------"
     TIME z "                  设置的密钥为 $TOKEN"
   exit 0
   ;;
  3)
-    TIME y " >>>>>>>>>>>开始安装aria2-pro"
+    TIME y " >>>>>>>>>>>开始安装 aria2-pro"
   # 创建映射文件夹
   input_container_aria2_pro_config() {
-  echo -n -e "请输入aria2-pro配置文件保存的绝对路径（示例：/home/aria2-pro)，回车默认为当前目录: "
+  echo -n -e "请输入 aria2-pro 配置文件保存的绝对路径（示例：/home/aria2-pro)，回车默认为当前目录: "
   read aria2_pro_path
   if [ -z "$aria2_pro_path" ]; then
       ARIA2_PRO_PATH=$ARIA2_PRO_CONFIG_FOLDER
@@ -1841,7 +1841,7 @@ TIME r "<注>aria2和aria2-pro 二选一"
   	esac
   done
 
-  TIME y " >>>>>>>>>>>配置完成，开始安装aria2-pro"
+  TIME y " >>>>>>>>>>>配置完成，开始安装 aria2-pro"
   log "1.开始创建配置文件目录"
   PATH_LIST=($ARIA2_PRO_PATH $DOWNLOADS_PATH)
   for i in ${PATH_LIST[@]}; do
@@ -1880,13 +1880,13 @@ TIME r "<注>aria2和aria2-pro 二选一"
       log "列出所有宿主机上的容器"
       docker ps -a
     TIME g "------------------------------------------------------------"
-    TIME g "|         aria2-pro启动需要一点点时间，请耐心等待！        |"
+    TIME g "|         aria2-pro 启动需要一点点时间，请耐心等待！       |"
     sleep 10
     TIME g "|                    安装完成，自动退出脚本                |"
-    TIME g "|     aria2-pro默认端口为8080，如有修改请访问修改的端口    |"
+    TIME g "|    aria2-pro 默认端口为8080，如有修改请访问修改的端口    |"
     TIME g "|        访问方式为宿主机ip:端口(例192.168.2.1:6880)       |"
     TIME g "|                 Aria密钥设置在面板如下位置               |"
-    TIME g "|        AriaNg设置 > RPC(IP:6800) > Aria2 RPC 密钥        |"
+    TIME g "|        AriaNg 设置 > RPC(IP:6800) > Aria2 RPC 密钥       |"
     TIME g "------------------------------------------------------------"
     TIME z "                  设置的密钥为 $TOKEN"
   exit 0
@@ -1919,18 +1919,18 @@ TIME w "----------------------------------------"
 TIME w "|****Please Enter Your Choice:[0-2]****|"
 TIME w "|************** TELETHON **************|"
 TIME w "----------------------------------------"
-TIME w "(1) linxu系统、X86的openwrt、群辉等请选择 1"
-TIME w "(2) N1的EMMC上运行的openwrt请选择 2"
+TIME w "(1) linxu系统、X86 的 openwrt、群辉等请选择 1"
+TIME w "(2) N1 的 EMMC 上运行的 openwrt 请选择 2"
 TIME b "(0) 返回上级菜单"
 #EOF
 TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按回车！"
  read -p "Please enter your choice[0-2]: " input7
  case $input7 in 
  1)
-  TIME y " >>>>>>>>>>>开始安装telethon"
+  TIME y " >>>>>>>>>>>开始安装 telethon"
   # 创建映射文件夹
   input_container_telethon1_config() {
-  echo -n -e "请输入telethon配置文件保存的绝对路径（示例：/home/telethon)，回车默认为当前目录: "
+  echo -n -e "请输入 telethon 配置文件保存的绝对路径（示例：/home/telethon)，回车默认为当前目录: "
   read tg_path
   if [ -z "$tg_path" ]; then
       TG_PATH=$TG_SHELL_FOLDER
@@ -1978,7 +1978,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   	esac
   done
 
-  TIME y " >>>>>>>>>>>配置完成，开始安装telethon"
+  TIME y " >>>>>>>>>>>配置完成，开始安装 telethon"
   log "1.开始创建配置文件目录"
   PATH_LIST=($CONFIG_PATH)
   for i in ${PATH_LIST[@]}; do
@@ -2002,7 +2002,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
       log "列出所有宿主机上的容器"
       docker ps -a
     TIME g "-----------------------------------------------------------"
-    TIME g "|         telethon启动需要一点点时间，请耐心等待！        |"
+    TIME g "|         telethon 启动需要一点点时间，请耐心等待！       |"
     sleep 10
     TIME g "|                安装完成，自动退出脚本                   |"
     TIME g "| 使用教程https://hub.docker.com/r/kissyouhunter/telethon |"
@@ -2010,10 +2010,10 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   exit 0
   ;;
  2)  
-  TIME y " >>>>>>>>>>>开始安装telethon到N1的/mnt/mmcblk2p4/"
+  TIME y " >>>>>>>>>>>开始安装 telethon 到 N1 的 /mnt/mmcblk2p4/"
   # 创建映射文件夹
   input_container_telethon2_config() {
-  echo -n -e "请输入telethon存储的文件夹名称（如：telethon)，回车默认为 telethon: "
+  echo -n -e "请输入 telethon 存储的文件夹名称（如：telethon)，回车默认为 telethon: "
   read tg_path
   if [ -z "$tg_path" ]; then
       TG_PATH=$N1_TG_FOLDER
@@ -2061,7 +2061,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   	esac
   done
 
-  TIME y " >>>>>>>>>>>配置完成，开始安装telethon"
+  TIME y " >>>>>>>>>>>配置完成，开始安装 telethon"
   log "1.开始创建配置文件目录"
   PATH_LIST=($CONFIG_PATH)
   for i in ${PATH_LIST[@]}; do
@@ -2085,7 +2085,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
       log "列出所有宿主机上的容器"
       docker ps -a
     TIME g "-----------------------------------------------------------"
-    TIME g "|         telethon启动需要一点点时间，请耐心等待！        |"
+    TIME g "|         telethon 启动需要一点点时间，请耐心等待！       |"
     sleep 10
     TIME g "|                安装完成，自动退出脚本                   |"
     TIME g "| 使用教程https://hub.docker.com/r/kissyouhunter/telethon |"
@@ -2120,8 +2120,8 @@ TIME w "----------------------------------------"
 TIME w "|****Please Enter Your Choice:[0-3]****|"
 TIME w "|************* ADGUARDHOME ************|"
 TIME w "----------------------------------------"
-TIME w "(1) linxu系统、X86的openwrt、群辉等（docker版）请选择 1"
-TIME w "(2) N1的EMMC上运行的openwrt（docker版）请选择 2"
+TIME w "(1) linxu系统、X86 的 openwrt、群辉等（docker 版）请选择 1"
+TIME w "(2) N1 的 EMMC 上运行的 openwrt（docker 版）请选择 2"
 TIME w "(3) linxu系统（非docker版，openwrt不可运行）"
 TIME b "(0) 返回上级菜单"
 #EOF
@@ -2129,10 +2129,10 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
  read -p "Please enter your choice[0-3]: " input8
  case $input8 in 
  1)
-  TIME y " >>>>>>>>>>>开始安装adguardhome（docker版，x86系统）"
+  TIME y " >>>>>>>>>>>开始安装 adguardhome（docker 版，x86 系统）"
   # 创建映射文件夹
   input_container_adg1_config() {
-  echo -n -e "请输入adguardhome配置文件保存的绝对路径（示例：/home/adguardhome)，回车默认为当前目录: "
+  echo -n -e "请输入 adguardhome 配置文件保存的绝对路径（示例：/home/adguardhome)，回车默认为当前目录: "
   read adg_path
   if [ -z "$adg_path" ]; then
       ADG_PATH=$ADG_CONFIG_FOLDER
@@ -2183,7 +2183,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   	esac
   done
 
-  TIME y " >>>>>>>>>>>配置完成，开始安装adguardhome（docker版，x86系统）"
+  TIME y " >>>>>>>>>>>配置完成，开始安装 adguardhome（docker 版，x86 系统）"
   log "1.开始创建配置文件目录"
   PATH_LIST=($CONFIG_PATH $WORK_PATH $CONF_PATH)
   for i in ${PATH_LIST[@]}; do
@@ -2208,7 +2208,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
       log "列出所有宿主机上的容器"
       docker ps -a
     TIME g "-----------------------------------------------------------"
-    TIME g "|       adguardhome启动需要一点点时间，请耐心等待！       |"
+    TIME g "|       adguardhome 启动需要一点点时间，请耐心等待！      |"
     sleep 10
     TIME g "|                安装完成，自动退出脚本                   |"
     TIME g "|            首次启动请访问宿主机 IP:3000                 |"
@@ -2216,10 +2216,10 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   exit 0
   ;;
  2)  
-  TIME y " >>>>>>>>>>>开始安装adguardhome（docker版）到N1的/mnt/mmcblk2p4/"
+  TIME y " >>>>>>>>>>>开始安装 adguardhome（docker 版）到 N1 的 /mnt/mmcblk2p4/"
   # 创建映射文件夹
   input_container_adg2_config() {
-  echo -n -e "请输入adguardhome存储文件名名称（示例：adguardhome)，回车默认为adguardhome: "
+  echo -n -e "请输入 adguardhome 存储文件名名称（示例：adguardhome)，回车默认为adguardhome: "
   read adg_path
   if [ -z "$adg_path" ]; then
       ADG_PATH=$N1_ADG_FOLDER
@@ -2270,7 +2270,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   	esac
   done
 
-  TIME y " >>>>>>>>>>>配置完成，开始安装adguardhome（docker版）到N1的/mnt/mmcblk2p4/"
+  TIME y " >>>>>>>>>>>配置完成，开始安装 adguardhome（docker 版）到 N1 的 /mnt/mmcblk2p4/"
   log "1.开始创建配置文件目录"
   PATH_LIST=($CONFIG_PATH $WORK_PATH $CONF_PATH)
   for i in ${PATH_LIST[@]}; do
@@ -2303,11 +2303,11 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   exit 0
   ;;
  3)  
-  TIME y " >>>>>>>>>>>开始安装adguardhome（非docker版）"
+  TIME y " >>>>>>>>>>>开始安装 adguardhome（非docker版）"
   apt update && apt install curl -y
   curl -s -S -L https://raw.githubusercontent.com/AdguardTeam/AdGuardHome/master/scripts/install.sh | sh -s -- -v
     TIME g "-----------------------------------------------------------"
-    TIME g "|       adguardhome启动需要一点点时间，请耐心等待！       |"
+    TIME g "|       adguardhome 启动需要一点点时间，请耐心等待！      |"
     sleep 10
     TIME g "|                安装完成，自动退出脚本                   |"
     TIME g "|            首次启动请访问宿主机 IP:3000                 |"
@@ -2342,7 +2342,7 @@ TIME w "----------------------------------------"
 TIME w "|****Please Enter Your Choice:[0-3]****|"
 TIME w "|**************** X-UI ****************|"
 TIME w "----------------------------------------"
-TIME w "(1) x-ui为docer版本"
+TIME w "(1) x-ui 为 docker 版本"
 TIME b "(0) 返回上级菜单"
 #EOF
  read -p "Please enter your choice[0-1]: " input9
