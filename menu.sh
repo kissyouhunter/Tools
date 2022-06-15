@@ -580,7 +580,7 @@ function main() {
 								elecv2p 网络请求查看端口：$V2P_PORT2 \
 								elecv2p 配置文件路径：$V2P_PATH \
 								以上信息是否正确？" \
-								15 50) then
+								11 50) then
 									input_container_v2p1_build
 									sleep 10
 									input_container_v2p1_info
@@ -626,7 +626,7 @@ function main() {
 
 								function input_container_v2p1_network_config() {
 									function input_container_v2p1_webui_config() {
-										V2P1_WEBUI_PORT_CHANGE=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "输入想修改的端口" 10 55 3>&1 1>&2 2>&3)
+										V2P1_WEBUI_PORT_CHANGE=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "输入 elecv2p 面板端口[默认 8100]" 10 55 3>&1 1>&2 2>&3)
 										if [ -z "$V2P1_WEBUI_PORT_CHANGE" ]; then
 											V2P_PORT="8100"
 										else
@@ -636,7 +636,7 @@ function main() {
 									input_container_v2p1_webui_config
 
 									function input_container_v2p1_anyproxy_config() {
-										V2P1_WEBUI_PORT_CHANGE=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "输入想修改的端口" 10 55 3>&1 1>&2 2>&3)
+										V2P1_WEBUI_PORT_CHANGE=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "输入 elecv2p 的 anyproxy 端口[默认 8101]" 10 55 3>&1 1>&2 2>&3)
 										if [ -z "$V2P1_WEBUI_PORT_CHANGE" ]; then
 											V2P_PORT1="8101"
 										else
@@ -646,7 +646,7 @@ function main() {
 									input_container_v2p1_anyproxy_config
 
 									function input_container_v2p1_http_config() {
-										V2P1_WEBUI_PORT_CHANGE=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "输入想修改的端口" 10 55 3>&1 1>&2 2>&3)
+										V2P1_WEBUI_PORT_CHANGE=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "输入 elecv2p 网络请求查看端口[默认 8102]" 10 55 3>&1 1>&2 2>&3)
 										if [ -z "$V2P1_WEBUI_PORT_CHANGE" ]; then
 											V2P_PORT2="8102"
 										else
@@ -746,7 +746,7 @@ function main() {
 
 								function input_container_v2p2_network_config() {
 									function input_container_v2p2_webui_config() {
-										V2P2_WEBUI_PORT_CHANGE=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "输入想修改的端口" 10 55 3>&1 1>&2 2>&3)
+										V2P2_WEBUI_PORT_CHANGE=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "输入 elecv2p 面板端口[默认 8100]" 10 55 3>&1 1>&2 2>&3)
 										if [ -z "$V2P2_WEBUI_PORT_CHANGE" ]; then
 											V2P_PORT="8100"
 										else
@@ -756,7 +756,7 @@ function main() {
 									input_container_v2p2_webui_config
 
 									function input_container_v2p2_anyproxy_config() {
-										V2P2_WEBUI_PORT_CHANGE=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "输入想修改的端口" 10 55 3>&1 1>&2 2>&3)
+										V2P2_WEBUI_PORT_CHANGE=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "输入 elecv2p 的 anyproxy 端口[默认 8101]" 10 55 3>&1 1>&2 2>&3)
 										if [ -z "$V2P2_WEBUI_PORT_CHANGE" ]; then
 											V2P_PORT1="8101"
 										else
@@ -766,7 +766,7 @@ function main() {
 									input_container_v2p2_anyproxy_config
 
 									function input_container_v2p2_http_config() {
-										V2P2_WEBUI_PORT_CHANGE=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "输入想修改的端口" 10 55 3>&1 1>&2 2>&3)
+										V2P2_WEBUI_PORT_CHANGE=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "输入 elecv2p 网络请求查看端口[默认 8102]" 10 55 3>&1 1>&2 2>&3)
 										if [ -z "$V2P2_WEBUI_PORT_CHANGE" ]; then
 											V2P_PORT2="8102"
 										else
