@@ -63,17 +63,17 @@ function main() {
 	clear
 	MENU=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "Github: https://github.com/kissyouhunter \
 	安装过程中如想退出，请狂按 ESC" 20 55 11 \
-	"1" "安装<docker>和<docker-compose>" \
-	"2" "安装<青龙>到宿主机" \
-	"3" "安装<elecv2p>到宿主机" \
-	"4" "安装docker图形管理工具" \
-	"5" "安装<emby>或<jellyfin>(打造自己的爱奇艺)" \
+	"1" "安装 docker 和 docker-compose" \
+	"2" "安装 青龙 到宿主机" \
+	"3" "安装 elecv2p> 到宿主机" \
+	"4" "安装 docker 图形管理工具" \
+	"5" "安装 emby 或 jellyfin (打造自己的爱奇艺)" \
 	"6" "安装下载工具" \
-	"7" "<Telegram>定时发送信息工具" \
-	"8" "<AdGuardHome>DNS解析+去广告" \
+	"7" "Telegram 定时发送信息工具" \
+	"8" "AdGuardHome DNS解析+去广告" \
 	"9" "x-ui" \
-	"10" "<aaPanel>(宝塔国际版)" \
-	"11" "<MaiARK>(对接青龙提交京东CK)" \
+	"10" "aaPanel (宝塔国际版)" \
+	"11" "MaiARK (对接青龙提交京东CK)" \
 	3>&1 1>&2 2>&3)
 
 	exitstatus=$?	
@@ -896,7 +896,383 @@ function main() {
 				fi
 			}
 			submenu3	
-			;;		
+			;;
+		4 )
+			#安装portainer
+            clear
+			function submenu4() {
+				SUBMENU3=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "DOCKER 图形管理工具" 15 40 4 \
+				"1" "安装 portianer" \
+				"2" "安装 Fast Os Docker 中文" \
+				"3" "安装 simpledocker 中文" \
+				"0" "返回上级菜单" \
+				3>&1 1>&2 2>&3)
+
+				exitstatus=$?
+				if [ $exitstatus = 0 ]; then
+					case "$SUBMENU3" in
+						1 )
+							function input_container_v2p1_info() {
+								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "访问方式为：宿主机ip:$V2P_PORT \
+								<ELECV2P>安装完成，点击 ok 退出脚本 " 10 50
+							}
+
+							function input_container_v2p1_build() {
+								TIME y " >>>>>>>>>>>配置完成，开始安装elecv2p"
+								log "1.开始创建配置文件目录"
+								PATH_LIST=($JSFILE_PATH $LISTS_PATH $STORE_PATH $SHELL_PATH $ROOTCA_PATH $EFSS_PATH $LOG_PATH)
+								for i in ${PATH_LIST[@]}; do
+									mkdir -p $i
+								done
+								log "2.开始创建容器并执行"
+								docker run -dit \
+									-v $JSFILE_PATH:/usr/local/app/script/JSFile \
+									-v $LISTS_PATH:/usr/local/app/script/Lists \
+									-v $STORE_PATH:/usr/local/app/script/Store \
+									-v $SHELL_PATH:/usr/local/app/script/Shell \
+									-v $ROOTCA_PATH:/usr/local/app/rootCA \
+									-v $EFSS_PATH:/usr/local/app/efss \
+									-p $V2P_PORT:80 -p $V2P_PORT1:8001 -p $V2P_PORT2:8002 \
+									-e TZ=Asia/Shanghai \
+									--name $V2P_CONTAINER_NAME \
+									--hostname $V2P_CONTAINER_NAME \
+									--restart always \
+									$V2P_DOCKER_IMG_NAME:$TAG
+
+								if [ $? -ne 0 ] ; then
+									cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
+								fi
+							}
+
+							function input_container_v2p1_check() {
+								if (whiptail --title "一键脚本 作者：kissyouhunter" --yesno "elecv2p 容器名：$V2P_CONTAINER_NAME \
+								elecv2p 面板端口：$V2P_PORT \
+								elecv2p anyproxy端口：$V2P_PORT1 \
+								elecv2p 网络请求查看端口：$V2P_PORT2 \
+								elecv2p 配置文件路径：$V2P_PATH \
+								以上信息是否正确？" \
+								15 50) then
+									input_container_v2p1_build
+									sleep 10
+									input_container_v2p1_info
+									docker ps -a
+								else
+									v2p1_input
+									V2P_PORT="8100"
+									V2P_PORT1="8101"
+									V2P_PORT2="8102"
+								fi
+							}
+
+							function v2p1_input() {
+								function input_container_v2p1_name() {
+									V2P1_NAME=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入将要创建的容器名[默认为：elecv2p]" 10 55 3>&1 1>&2 2>&3)
+								
+									if [ -z "$V2P1_NAME" ]; then
+										V2P_CONTAINER_NAME="elecv2p"
+									else
+										V2P_CONTAINER_NAME=$V2P1_NAME
+									fi
+								}
+								input_container_v2p1_name
+
+								function input_container_v2p1_config() {
+									V2P1_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入elecv2p配置文件保存的绝对路径 \
+									（示例：/home/elecv2p)，回车默认为当前目录:" 10 50 3>&1 1>&2 2>&3)
+
+									if [ -z "$V2P1_CONFIG" ]; then
+										V2P_PATH=$(pwd)/elecv2p
+									else
+										V2P_PATH=$V2P1_CONFIG
+									fi
+									JSFILE_PATH=$V2P_PATH/JSFile
+ 	 								LISTS_PATH=$V2P_PATH/Lists
+ 									STORE_PATH=$V2P_PATH/Store
+  									SHELL_PATH=$V2P_PATH/Shell
+  									ROOTCA_PATH=$V2P_PATH/rootCA
+  									EFSS_PATH=$V2P_PATH/efss
+  									LOG_PATH=$V2P_PATH/logs
+								}
+								input_container_v2p1_config
+
+								function input_container_v2p1_network_config() {
+									function input_container_v2p1_webui_config() {
+										V2P1_WEBUI_PORT=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "是否修改elecv2p面板端口[默认 8100]" 15 50 2 \
+										"1" "修改" \
+										"2" "不修改" \
+										3>&1 1>&2 2>&3)
+
+										exitstatus=$?
+										if [ $exitstatus = 0 ]; then
+											case "$V2P1_WEBUI_PORT" in
+												1 )
+													function input_container_v2p1_webui_port() {
+														V2P1_WEBUI_PORT_CHANGE=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "输入想修改的端口" 10 55 3>&1 1>&2 2>&3)
+														if [ -z "$V2P1_WEBUI_PORT_CHANGE" ]; then
+															V2P_PORT="8100"
+														else
+															V2P_PORT=$V2P1_WEBUI_PORT_CHANGE
+														fi
+													}
+													input_container_v2p1_webui_port
+													;;
+												2 )
+													V2P_PORT="8100"
+													;;
+											esac
+										else
+											exit 0
+										fi
+									}
+									input_container_v2p1_webui_config
+
+									function input_container_v2p1_anyproxy_config() {
+										V2P1_WEBUI_PORT=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "是否修改elecv2p的anyproxy端口[默认 8101]" 15 50 2 \
+										"1" "修改" \
+										"2" "不修改" \
+										3>&1 1>&2 2>&3)
+
+										exitstatus=$?
+										if [ $exitstatus = 0 ]; then
+											case "$V2P1_WEBUI_PORT" in
+												1 )
+													function input_container_v2p1_webui_port() {
+														V2P1_WEBUI_PORT_CHANGE=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "输入想修改的端口" 10 55 3>&1 1>&2 2>&3)
+														if [ -z "$V2P1_WEBUI_PORT_CHANGE" ]; then
+															V2P_PORT1="8101"
+														else
+															V2P_PORT1=$V2P1_WEBUI_PORT_CHANGE
+														fi
+													}
+													input_container_v2p1_webui_port
+													;;
+												2 )
+													V2P_PORT1="8101"
+													;;
+											esac
+										else
+											exit 0
+										fi
+									}
+									input_container_v2p1_anyproxy_config
+
+									function input_container_v2p1_http_config() {
+										V2P1_WEBUI_PORT=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "是否修改elecv2p网络请求查看端口[默认 8102]" 15 50 2 \
+										"1" "修改" \
+										"2" "不修改" \
+										3>&1 1>&2 2>&3)
+
+										exitstatus=$?
+										if [ $exitstatus = 0 ]; then
+											case "$V2P1_WEBUI_PORT" in
+												1 )
+													function input_container_v2p1_webui_port() {
+														V2P1_WEBUI_PORT_CHANGE=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "输入想修改的端口" 10 55 3>&1 1>&2 2>&3)
+														if [ -z "$V2P1_WEBUI_PORT_CHANGE" ]; then
+															V2P_PORT2="8102"
+														else
+															V2P_PORT2=$V2P1_WEBUI_PORT_CHANGE
+														fi
+													}
+													input_container_v2p1_webui_port
+													;;
+												2 )
+													V2P_PORT2="8102"
+													;;
+											esac
+										else
+											exit 0
+										fi
+									}
+									input_container_v2p1_http_config
+									input_container_v2p1_check
+								}
+								input_container_v2p1_network_config
+							}
+							v2p1_input
+							;;
+						2 )
+							function input_container_ql2_info() {
+								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "访问方式为：宿主机ip:$QL_PORT \
+								<青龙>安装完成，点击 ok 退出脚本 " 10 50
+							}
+
+							function input_container_ql2_docker() {
+								function input_container_ql2_build1() {
+									TIME y " >>>>>>>>>>>配置完成，开始安装青龙"
+									log "1.开始创建配置文件目录"
+									PATH_LIST=($CONFIG_PATH)
+									for i in ${PATH_LIST[@]}; do
+										mkdir -p $i
+									done
+									log "2.开始创建容器并执行"
+									docker run -dit \
+										-t \
+										-v $CONFIG_PATH:/ql/data \
+										-e ENABLE_HANGUP=false \
+										-e ENABLE_WEB_PANEL=true \
+										-p $QL_PORT:5700 \
+										--name $QL_CONTAINER_NAME \
+										--hostname $QL_CONTAINER_NAME \
+										--restart always \
+										--network $NETWORK \
+										$QL_DOCKER_IMG_NAME:$QL_TAG
+
+									if [ $? -ne 0 ] ; then
+										cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
+									fi
+								}
+
+								function input_container_ql2_build2() {
+									TIME y " >>>>>>>>>>>配置完成，开始安装青龙"
+									log "1.开始创建配置文件目录"
+									PATH_LIST=($CONFIG_PATH $DB_PATH $REPO_PATH $SCRIPT_PATH $LOG_PATH $DEPS_PATH)
+									for i in ${PATH_LIST[@]}; do
+										mkdir -p $i
+									done
+									log "2.开始创建容器并执行"
+									docker run -dit \
+										-t \
+										-v $CONFIG_PATH:/ql/config \
+										-v $DB_PATH:/ql/db \
+										-v $LOG_PATH:/ql/log \
+										-v $REPO_PATH:/ql/repo \
+										-v $SCRIPT_PATH:/ql/scripts \
+										-v $DEPS_PATH:/ql/deps \
+										-e ENABLE_HANGUP=false \
+										-e ENABLE_WEB_PANEL=true \
+										-p $QL_PORT:5700 \
+										--name $QL_CONTAINER_NAME \
+										--hostname $QL_CONTAINER_NAME \
+										--restart always \
+										--network $NETWORK \
+										$QL_DOCKER_IMG_NAME:$QL_TAG
+
+									if [ $? -ne 0 ] ; then
+										cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
+									fi
+								}
+								
+								if [ $QL_TAG == "2.10" ] || [ $QL_TAG == "2.10.6" ] || [ $QL_TAG == "2.10.7" ] || [ $QL_TAG == "2.10.8" ] || [ $QL_TAG == "2.10.9" ] || [ $QL_TAG == "2.10.10" ] || [ $QL_TAG == "2.10.11" ] || [ $QL_TAG == "2.10.12" ] || [ $QL_TAG == "2.10.13" ] || [ $QL_TAG == "2.11" ] || [ $QL_TAG == "2.11.0" ] || [ $QL_TAG == "2.11.1" ] || [ $QL_TAG == "2.11.2" ] || [ $QL_TAG == "2.11.3" ]; then
+									CONFIG_PATH=$QL_PATH/config
+									DB_PATH=$QL_PATH/db
+									REPO_PATH=$QL_PATH/repo
+									SCRIPT_PATH=$QL_PATH/scripts
+									LOG_PATH=$QL_PATH/log
+									DEPS_PATH=$QL_PATH/deps
+									input_container_ql2_build2
+									sleep 10
+									input_container_ql2_info
+									docker ps -a
+								else
+									CONFIG_PATH=$QL_PATH
+									input_container_ql2_build1
+									sleep 10
+									input_container_ql2_info
+									docker ps -a
+								fi
+							}
+
+							function input_container_ql2_check() {
+								#while true
+								#do
+									if (whiptail --title "一键脚本 作者：kissyouhunter" --yesno "青龙容器名：$QL_CONTAINER_NAME \
+									青龙配置文件路径：$QL_PATH \
+									青龙网络类型：$NETWORK \
+									青龙面板端口：$QL_PORT \
+									青龙版本：$QL_TAG \
+									以上信息是否正确？" \
+									15 40) then
+										input_container_ql2_docker
+									else
+										ql2_input
+										QL_PORT="5700"
+									fi
+								#done
+							}
+
+							function input_container_ql2_version() {
+								QL2_VERSION=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "目前提供的版本有如下： \
+								2.10、2.10.6、2.10.7、2.10.8、2.10.9 \
+								2.10.10、2.10.11、2.10.12、2.10.13 \
+								2.11.0、2.11.1、2.11.2.2.11.3 \
+								2.12.0、2.12.1、2.12.2 \
+								2.13.0、2.13.1、2.13.2和最新 \
+								请输入版本号[回车默认为：latest]" 15 55 3>&1 1>&2 2>&3)
+
+								if [ -z "$QL2_VERSION" ]; then
+									QL_TAG="latest"
+								else
+									QL_TAG=$QL2_VERSION
+								fi
+							}
+
+							function ql2_input() {
+								QL2_NAME=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入将要创建的容器名[回车默认为：ql]" 10 55 3>&1 1>&2 2>&3)
+								
+								if [ -z "$QL2_NAME" ]; then
+									QL_CONTAINER_NAME="ql"
+								else
+									QL_CONTAINER_NAME=$QL2_NAME
+								fi
+
+								QL2_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入青龙存储的文件夹名称（如：ql)，回车默认为 ql:" 10 50 3>&1 1>&2 2>&3)
+
+								if [ -z "$QL2_CONFIG" ]; then
+									QL_PATH=/mnt/mmcblk2p4/ql
+								else
+									QL_PATH=/mnt/mmcblk2p4/$QL2_CONFIG
+								fi
+
+								function input_container_ql2_network_config() {
+									QL2_NETWORK=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "请选择网络模式" 15 50 2 \
+									"1" "bridge（桥接模式）" \
+									"2" "host模式" \
+									3>&1 1>&2 2>&3)
+
+									exitstatus=$?
+									if [ $exitstatus = 0 ]; then
+										case "$QL2_NETWORK" in
+											1 )
+												NETWORK="bridge"
+												function input_container_ql2_bridge_port() {
+													QL2_BRIDGE_PORT=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入桥接端口[回车默认为：5700]" 10 55 3>&1 1>&2 2>&3)
+													if [ -z "$QL2_BRIDGE_PORT" ]; then
+														QL_PORT="5700"
+													else
+														QL_PORT=$QL2_BRIDGE_PORT
+													fi
+												}
+												input_container_ql2_bridge_port
+												input_container_ql2_version
+												input_container_ql2_check
+												;;
+											2 )
+												NETWORK="host"
+												QL_PORT="5700"
+												input_container_ql2_version
+												input_container_ql2_check
+												;;
+										esac
+									else
+										echo
+									fi
+								}
+								input_container_ql2_network_config
+
+							}
+							ql2_input
+							;;							
+						0 )
+							main
+							;;
+					esac
+				else
+					echo
+				fi
+			}
+			submenu4	
+			;;
 		exit | quit | q )
 			exit
 			::
