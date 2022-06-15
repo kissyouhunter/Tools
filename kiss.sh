@@ -2303,7 +2303,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   exit 0
   ;;
  3)  
-  TIME y " >>>>>>>>>>>开始安装 adguardhome（非docker版）"
+  TIME y " >>>>>>>>>>>开始安装 adguardhome（非 docker 版）"
   apt update && apt install curl -y
   curl -s -S -L https://raw.githubusercontent.com/AdguardTeam/AdGuardHome/master/scripts/install.sh | sh -s -- -v
     TIME g "-----------------------------------------------------------"
@@ -2348,7 +2348,7 @@ TIME b "(0) 返回上级菜单"
  read -p "Please enter your choice[0-1]: " input9
  case $input9 in 
  1)
-  TIME y " >>>>>>>>>>>开始安装x-ui"
+  TIME y " >>>>>>>>>>>开始安装 x-ui"
   # 创建映射文件夹
   input_container_xui_config() {
   echo -n -e "请输入x-ui配置文件保存的绝对路径（示例：/home/x-ui)，回车默认为当前目录: "
@@ -2418,7 +2418,7 @@ TIME b "(0) 返回上级菜单"
   	esac
   done
 
-  TIME y " >>>>>>>>>>>配置完成，开始安装x-ui"
+  TIME y " >>>>>>>>>>>配置完成，开始安装 x-ui"
   log "1.开始创建配置文件目录"
   PATH_LIST=($CONFIG_PATH $DB_PATH $CERT_PATH)
   for i in ${PATH_LIST[@]}; do
@@ -2443,7 +2443,7 @@ TIME b "(0) 返回上级菜单"
       log "列出所有宿主机上的容器"
       docker ps -a
     TIME g "-----------------------------------------------------------"
-    TIME g "|             x-ui启动需要一点点时间，请耐心等待！        |"
+    TIME g "|            x-ui 启动需要一点点时间，请耐心等待！        |"
     sleep 10
     TIME g "|                安装完成，自动退出脚本                   |"
     TIME g "|      默认账号：admin 默认密码：admin 默认端口：54321    |"
@@ -2482,8 +2482,8 @@ TIME w "----------------------------------------"
 TIME w "|****Please Enter Your Choice:[0-2]****|"
 TIME w "|******** AAPANEL(宝塔国际版) *********|"
 TIME w "----------------------------------------"
-TIME w "(1) linxu系统、X86的openwrt、群辉等请选择 1"
-TIME w "(2) N1的EMMC上运行的openwrt请选择 2"
+TIME w "(1) linxu系统、X86的 openwrt、群辉等请选择 1"
+TIME w "(2) N1 的 EMMC 上运行的 openwrt 请选择 2"
 TIME b "(0) 返回上级菜单"
 #EOF
 TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按回车！"
@@ -2493,7 +2493,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   TIME y " >>>>>>>>>>>开始安装aapanel"
   # 创建映射文件夹
   input_container_aapanel1_config() {
-  echo -n -e "请输入aapanel配置文件保存的绝对路径（示例：/home/aapanel)，回车默认为当前目录: "
+  echo -n -e "请输入 aapanel 配置文件保存的绝对路径（示例：/home/aapanel)，回车默认为当前目录: "
   read aapanel_path
   if [ -z "$aapanel_path" ]; then
       AAPANEL_PATH=$AAPANEL_CONFIG_FOLDER
@@ -2543,7 +2543,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   	esac
   done
 
-  TIME y " >>>>>>>>>>>配置完成，开始安装aapanel"
+  TIME y " >>>>>>>>>>>配置完成，开始安装 aapanel"
   log "1.开始创建配置文件目录"
   PATH_LIST=($MYSQL_DATA_PATH)
   for i in ${PATH_LIST[@]}; do
@@ -2577,7 +2577,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
       log "列出所有宿主机上的容器"
       docker ps -a
     TIME g "-----------------------------------------------------------"
-    TIME g "|          aapanel启动需要一点点时间，请耐心等待！        |"
+    TIME g "|         aapanel 启动需要一点点时间，请耐心等待！        |"
     sleep 10
     TIME g "|                安装完成，自动退出脚本                   |"
     TIME g "|            访问方式为 宿主机ip:8888/aapanel/            |"
@@ -2587,10 +2587,10 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   exit 0
   ;;
  2)  
-  TIME y " >>>>>>>>>>>开始安装aapanel到N1的/mnt/mmcblk2p4/"
+  TIME y " >>>>>>>>>>>开始安装 aapanel 到 N1 的 /mnt/mmcblk2p4/"
   # 创建映射文件夹
   input_container_aapanel2_config() {
-  echo -n -e "请输入telethon存储的文件夹名称（如：aapanel)，回车默认为 aapanel: "
+  echo -n -e "请输入 aapanel 存储的文件夹名称（如：aapanel)，回车默认为 aapanel: "
   read aapanel_path
   if [ -z "$aapanel_path" ]; then
       AAPANEL_PATH=$N1_AAPANEL_FOLDER
@@ -2641,7 +2641,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
   	esac
   done
 
-  TIME y " >>>>>>>>>>>配置完成，开始安装aapanel"
+  TIME y " >>>>>>>>>>>配置完成，开始安装 aapanel"
   log "1.开始创建配置文件目录"
   PATH_LIST=($MYSQL_DATA_PATH)
   for i in ${PATH_LIST[@]}; do
@@ -2675,7 +2675,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
       log "列出所有宿主机上的容器"
       docker ps -a
     TIME g "-----------------------------------------------------------"
-    TIME g "|          aapanel启动需要一点点时间，请耐心等待！        |"
+    TIME g "|         aapanel 启动需要一点点时间，请耐心等待！        |"
     sleep 10
     TIME g "|                安装完成，自动退出脚本                   |"
     TIME g "|            访问方式为 宿主机ip:8888/aapanel/            |"
@@ -2713,17 +2713,17 @@ TIME w "|****Please Enter Your Choice:[0-2]****|"
 TIME w "|************** MaiARK ****************|"
 TIME w "----------------------------------------"
 TIME w "(1) linxu系统、openwrt、群辉等请选择 1"
-TIME w "(2) N1的EMMC上运行的openwrt请选择 2"
+TIME w "(2) N1 的 EMMC 上运行的 openwrt 请选择 2"
 TIME b "(0) 返回上级菜单"
 #EOF
 TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车！"
  read -p "Please enter your choice[0-2]: " input11
  case $input11 in 
  1)
-  TIME y " >>>>>>>>>>>开始安装MaiARK (AMD64 CPU)"
+  TIME y " >>>>>>>>>>>开始安装 MaiARK"
   # 创建映射文件夹
   input_container_maiark1_config() {
-  echo -n -e "请输入MaiARK配置文件保存的绝对路径（示例：/home/MaiARK)，回车默认为当前目录: "
+  echo -n -e "请输入 MaiARK 配置文件保存的绝对路径（示例：/home/MaiARK)，回车默认为当前目录: "
   read maiark_path
   if [ -z "$maiark_path" ]; then
       MAIARK_PATH=$MAIARK_CONFIG_FOLDER
@@ -2759,7 +2759,7 @@ TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车�
   fi
   
   if [ "$NETWORK" = "bridge" ]; then
-      inp "是否修改MaiMRK端口[默认 8082]：\n1) 修改\n2) 不修改[默认]"
+      inp "是否修改 MaiMRK 端口[默认 8082]：\n1) 修改\n2) 不修改[默认]"
       opt
       read change_maiark_port
       if [ "$change_maiark_port" = "1" ]; then
@@ -2799,7 +2799,7 @@ TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车�
   	esac
   done
 
-  TIME y " >>>>>>>>>>>配置完成，开始安装MaiARK"
+  TIME y " >>>>>>>>>>>配置完成，开始安装 MaiARK"
   log "1.开始创建配置文件目录"
   PATH_LIST=($CONFIG_PATH)
   for i in ${PATH_LIST[@]}; do
@@ -2824,15 +2824,15 @@ TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车�
       log "列出所有宿主机上的容器"
       docker ps -a
     TIME g "------------------------------------------------------------------------------"
-    TIME g "|                   MaiARK启动需要一点点时间，请耐心等待！                   |"
+    TIME g "|                  MaiARK 启动需要一点点时间，请耐心等待！                   |"
     sleep 10
     TIME g "|                          安装完成，自动退出脚本                            |"
     TIME g "|                          访问方式为 宿主机ip:$MAIARK_PORT                          |"
-    TIME g "|              请先配置好映射文件夹下的arkconfig.json再重启容器              |"
-    TIME r "|  桥接模式请不要修改config下的端口8082，host模式随意(前提是指定自己在干啥)  |"
-    TIME r "|                 请看清映射的文件夹路径去找config文件                       |"
+    TIME g "|             请先配置好映射文件夹下的 arkconfig.json 再重启容器             |"
+    TIME r "| 桥接模式请不要修改 config 下的端口8082，host模式随意(前提是指定自己在干啥) |"
+    TIME r "|                请看清映射的文件夹路径去找 config 文件                      |"
     TIME r "|   op用户出现“docker0: iptables: No chain/target/match by that name”错误    |"
-    TIME r "|              输入命令“/etc/init.d/dockerd restart” 重启docker              |"
+    TIME r "|              输入命令“/etc/init.d/dockerd restart” 重启 docker             |"
     TIME r "|                     再输入“docker start $MAIARK_CONTAINER_NAME” 启动容器                   |"
     TIME r "|       op用户出现容器正常启动，但web界面无法方法Turbo ACC 网络加速设置      |"
     TIME r "|进入“网络——Turbo ACC 网络加速设置” 开启或关闭“全锥型 NAT”就可正常访问web界面|"
@@ -2840,10 +2840,10 @@ TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车�
   exit 0
   ;;
  2)  
-  TIME y " >>>>>>>>>>>开始安装MaiARK到N1的/mnt/mmcblk2p4/"
+  TIME y " >>>>>>>>>>>开始安装 MaiARK 到 N1 的 /mnt/mmcblk2p4/"
   # 创建映射文件夹
   input_container_maiark3_config() {
-  echo -n -e "请输入MaiARK存储的文件夹名称（如：MaiARK)，回车默认为 MaiARK: "
+  echo -n -e "请输入 MaiARK 存储的文件夹名称（如：MaiARK)，回车默认为 MaiARK: "
   read maiark_path
   if [ -z "$maiark_path" ]; then
       MAIARK_PATH=$N1_MAIARK_FOLDER
@@ -2879,7 +2879,7 @@ TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车�
   fi
   
   if [ "$NETWORK" = "bridge" ]; then
-      inp "是否修改MaiMRK端口[默认 8082]：\n1) 修改\n2) 不修改[默认]"
+      inp "是否修改 MaiMRK 端口[默认 8082]：\n1) 修改\n2) 不修改[默认]"
       opt
       read change_maiark_port
       if [ "$change_maiark_port" = "1" ]; then
@@ -2945,15 +2945,15 @@ TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车�
       log "列出所有宿主机上的容器"
       docker ps -a
     TIME g "------------------------------------------------------------------------------"
-    TIME g "|                   MaiARK启动需要一点点时间，请耐心等待！                   |"
+    TIME g "|                  MaiARK 启动需要一点点时间，请耐心等待！                   |"
     sleep 10
     TIME g "|                          安装完成，自动退出脚本                            |"
     TIME g "|                          访问方式为 宿主机ip:$MAIARK_PORT                          |"
-    TIME g "|              请先配置好映射文件夹下的arkconfig.json再重启容器              |"
-    TIME r "|  桥接模式请不要修改config下的端口8082，host模式随意(前提是指定自己在干啥)  |"
-    TIME r "|                 请看清映射的文件夹路径去找config文件                       |"
+    TIME g "|             请先配置好映射文件夹下的 arkconfig.json 再重启容器             |"
+    TIME r "| 桥接模式请不要修改 config 下的端口8082，host模式随意(前提是指定自己在干啥) |"
+    TIME r "|                请看清映射的文件夹路径去找 config 文件                      |"
     TIME r "|   op用户出现“docker0: iptables: No chain/target/match by that name”错误    |"
-    TIME r "|              输入命令“/etc/init.d/dockerd restart” 重启docker              |"
+    TIME r "|              输入命令“/etc/init.d/dockerd restart” 重启 docker             |"
     TIME r "|                     再输入“docker start $MAIARK_CONTAINER_NAME” 启动容器                   |"
     TIME r "|       op用户出现容器正常启动，但web界面无法方法Turbo ACC 网络加速设置      |"
     TIME r "|进入“网络——Turbo ACC 网络加速设置” 开启或关闭“全锥型 NAT”就可正常访问web界面|"

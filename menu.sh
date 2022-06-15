@@ -114,7 +114,7 @@ function main() {
 							fi
 							;;
 						2 )
-							TIME y " >>>>>>>>>>>开始为X86 openwrt安装docker和docker-compose"
+							TIME y " >>>>>>>>>>>开始为 X86 openwrt 安装 docker 和 docker-compose"
 							mkdir -p /tmp/upload/ && cd /tmp/upload/
 							curl -LO https://tt.kisssik.ga/d/aliyun/files/docker-2010.12-1_x86_64.zip
 							unzip docker-2010.12-1_x86_64.zip && rm -f docker-2010.12-1_x86_64.zip
