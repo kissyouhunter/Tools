@@ -51,6 +51,10 @@ QL_DOCKER_IMG_NAME="whyour/qinglong"
 # elev2p变量
 TAG="latest"
 V2P_DOCKER_IMG_NAME="elecv2/elecv2p"
+# emby变量
+EMBY_DOCKER_IMG_NAME="xinjiawei1/emby_unlockd"
+EMBY_TAG="latest"
+
 
 #检查root环境
 #f [[ $EUID != 0 ]]; then
@@ -65,7 +69,7 @@ function main() {
 	安装过程中如想退出，请狂按 ESC" 20 55 11 \
 	"1" "安装 docker 和 docker-compose" \
 	"2" "安装 青龙 到宿主机" \
-	"3" "安装 elecv2p> 到宿主机" \
+	"3" "安装 elecv2p 到宿主机" \
 	"4" "安装 docker 图形管理工具" \
 	"5" "安装 emby 或 jellyfin (打造自己的爱奇艺)" \
 	"6" "安装下载工具" \
@@ -900,7 +904,7 @@ function main() {
 							;;
 					esac
 				else
-					echo
+					exit 0
 				fi
 			}
 			submenu3	
@@ -909,7 +913,7 @@ function main() {
 			#安装portainer
             clear
 			function submenu4() {
-				SUBMENU3=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "DOCKER 图形管理工具" 15 40 4 \
+				SUBMENU4=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "DOCKER 图形管理工具" 15 40 4 \
 				"1" "安装 portianer" \
 				"2" "安装 Fast Os Docker 中文" \
 				"3" "安装 simpledocker 中文" \
@@ -922,7 +926,7 @@ function main() {
 						1 )
 							function input_container_portainer_info() {
 								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "访问方式为：宿主机ip:9000 \
-								PORTAINER 安装完成，点击 ok 退出脚本 " 10 50
+								PORTAINER 安装完成，点击 ok 退出脚本 " 10 45
 							}
 
 							function input_container_portainer_build() {
@@ -935,6 +939,136 @@ function main() {
 							}
 							input_container_portainer_build
 							input_container_portainer_info
+							;;
+						2 )
+							function input_container_fast_info() {
+								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "访问方式为：宿主机ip:18081 \
+								Fast Os Docker 安装完成 \
+								点击 ok 退出脚本 " 10 30
+							}
+
+							function input_container_fast_build() {
+								TIME y " >>>>>>>>>>>开始安装 Fast Os Docker"
+								docker run --restart always --name fast -p 18081:8081 -d -v /var/run/docker.sock:/var/run/docker.sock wangbinxingkong/fast
+								if [ $? -ne 0 ] ; then
+									cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
+								fi
+							}
+							input_container_fast_build
+							input_container_fast_info
+							;;
+						3 )
+							function input_container_simple_info() {
+								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "访问方式为：宿主机ip:9009 \
+								simpledocker 安装完成，点击 ok 退出脚本 " 10 45
+							}
+
+							function input_container_simple_build() {
+								TIME y " >>>>>>>>>>>开始安装 Fast Os Docker"
+								mkdir -p simpledocker && cd simpledocker && curl -Lo docker-compose.yml https://raw.githubusercontent.com/kissyouhunter/Tools/main/simpledocker-docker-compose.yml
+								docker-compose up -d
+								if [ $? -ne 0 ] ; then
+									cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
+								fi
+							}
+							input_container_simple_build
+							input_container_simple_info
+							;;
+						0 )
+							main
+							;;
+					esac
+				else
+					exit 0
+				fi
+			}
+			submenu4	
+			;;
+		5 )
+			#安装emby和jellyfin
+            clear
+			function submenu5() {
+				SUBMENU5=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "安装 EMBY & JELLYFIN" 15 40 3 \
+				"1" "安装 emby (开心版暂无 arm64)" \
+				"2" "安装 jellyfin" \
+				"0" "返回上级菜单" \
+				3>&1 1>&2 2>&3)
+
+				exitstatus=$?
+				if [ $exitstatus = 0 ]; then
+					case "$SUBMENU5" in
+						1 )
+							function input_container_emby_info() {
+								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "访问方式为宿主机ip:端口 \
+								执行命令 chmod 777 /dev/dri/* 才能读取到显卡 \
+								emby 安装完成，点击 ok 退出脚本 " 10 50
+							}
+
+							function input_container_emby_build() {
+								TIME y " >>>>>>>>>>>配置完成，开始安装 emby"
+								log "1.开始创建配置文件目录"
+								PATH_LIST=($CONFIG_PATH $MOVIES_PATH $TVSHOWS_PATH)
+								for i in ${PATH_LIST[@]}; do
+									mkdir -p $i
+								done
+
+								log "2.开始创建容器并执行"
+									if [ -d "/dev/dri" ]; then
+										docker run -dit \
+             								--name $EMBY_CONTAINER_NAME \
+              								--hostname $EMBY_CONTAINER_NAME \
+              								--restart always \
+              								-v $CONFIG_PATH:/config \
+              								-v $MOVIES_PATH:/mnt/movies \
+              								-v $TVSHOWS_PATH:/mnt/tvshows \
+              								-p $EMBY_PORT:8096 -p $EMBY_PORT1:8920 \
+              								-e TZ=Asia/Shanghai \
+              								--device /dev/dri:/dev/dri \
+              								-e UMASK_SET=022 \
+              								-e UID=0 \
+              								-e GID=0 \
+              								-e GIDLIST=0 \
+              								$EMBY_DOCKER_IMG_NAME:$EMBY_TAG
+									else
+          								docker run -dit \
+              								--name $EMBY_CONTAINER_NAME \
+              								--hostname $EMBY_CONTAINER_NAME \
+              								--restart always \
+              								-v $CONFIG_PATH:/config \
+              								-v $MOVIES_PATH:/mnt/movies \
+              								-v $TVSHOWS_PATH:/mnt/tvshows \
+              								-p $EMBY_PORT:8096 -p $EMBY_PORT1:8920 \
+              								-e TZ=Asia/Shanghai \
+              								-e UMASK_SET=022 \
+              								-e UID=0 \
+  								            -e GID=0 \
+              								-e GIDLIST=0 \
+              								$EMBY_DOCKER_IMG_NAME:$EMBY_TAG
+      								fi
+								if [ $? -ne 0 ] ; then
+									cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
+								fi
+							}
+							input_container_emby_build
+							input_container_emby_info
+
+							function input_container_emby_input() {
+								EMBY_NAME=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入将要创建的容器名[回车默认为：emby]" 10 55 3>&1 1>&2 2>&3)
+
+								if [ -z "$EMBY_NAME" ]; then
+									EMBY_CONTAINER_NAME="emby"
+								else
+									EMBY_CONTAINER_NAME=$EMBY_NAME
+								fi
+
+								EMBY_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入 emby 配置文件保存的绝对路径（示例：/home/emby)，回车默认为当前目录:" 10 55 3>&1 1>&2 2>&3)
+
+								if [ -z "$EMBY_CONFIG" ]; then
+									EMBY_PATH=$(pwd)/emby
+								else
+									EMBY_PATH=$EMBY_CONFIG
+								fi
+							}
 							;;
 						2 )
 							function input_container_fast_info() {
@@ -974,10 +1108,10 @@ function main() {
 							;;
 					esac
 				else
-					echo
+					exit 0
 				fi
 			}
-			submenu4	
+			submenu5
 			;;
 		exit | quit | q )
 			exit
