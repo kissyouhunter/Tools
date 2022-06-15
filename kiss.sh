@@ -1058,25 +1058,26 @@ while [ "$flag" -eq 0 ]
 do
 #cat << EOF
 TIME w "----------------------------------------"
-TIME w "|****Please Enter Your Choice:[0-2]****|"
-TIME w "|********** PORTAINER & YACHT *********|"
+TIME w "|****Please Enter Your Choice:[0-3]****|"
+TIME w "|********* DOCKER 图形管理工具 ********|"
 TIME w "----------------------------------------"
-TIME w "(1) 安装portianer"
-TIME w "(2) 安装yacht"
-TIME w "(3) 安装simpledocker 中文"
+TIME w "(1) 安装 portianer"
+TIME w "(2) 安装 Fast Os Docker 中文"
+TIME w "(3) 安装 simpledocker 中文"
 TIME b "(0) 返回上级菜单"
 #EOF
- read -p "Please enter your Choice[0-2]: " input4
+ read -p "Please enter your Choice[0-3]: " input4
  case $input4 in 
  1)
-    TIME y " >>>>>>>>>>>开始安装portainer"
+    TIME y " >>>>>>>>>>>开始安装 portainer"
     docker volume create portainer_data
     docker run -d -p 8000:8000 -p 9000:9000 --name=portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce
     
     if [ $? -ne 0 ] ; then
         cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
     fi
-
+      log "列出所有宿主机上的容器"
+      docker ps -a
     TIME g "------------------------------------------------------"
     TIME g "|      portainer启动需要一点点时间，请耐心等待！     |"
     sleep 10
@@ -1086,30 +1087,31 @@ TIME b "(0) 返回上级菜单"
   exit 0  
   ;;
  2)
-    TIME y " >>>>>>>>>>>开始安装yacht"
-    docker volume create yacht
-    docker run -d -p 8008:8000 --name=yacht --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v yacht:/config selfhostedpro/yacht    
+    TIME y " >>>>>>>>>>>开始安装 Fast Os Docker"
+    docker run --restart always --name fast -p 18081:8081 -d -v /var/run/docker.sock:/var/run/docker.sock wangbinxingkong/fast  
     if [ $? -ne 0 ] ; then
         cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
     fi
-
+      log "列出所有宿主机上的容器"
+      docker ps -a
     TIME g "------------------------------------------------------"
-    TIME g "|         yacht启动需要一点点时间，请耐心等待！      |"
+    TIME g "|          fast启动需要一点点时间，请耐心等待！      |"
     sleep 10
     TIME g "|              安装完成，自动退出脚本                |"
-    TIME g "|       默认账号：admin@yacht.local 密码：pass       |"
-    TIME g "|     访问方式为宿主机ip:端口(例192.168.2.1:8008)    |"
+    TIME g "|            首次登陆注册账号和密码即可              |"
+    TIME g "|     访问方式为宿主机ip:端口(例192.168.2.1:18081)   |"
     TIME g "------------------------------------------------------"
   exit 0  
   ;;
  3)
-    TIME y " >>>>>>>>>>>开始安装simpledocker"
+    TIME y " >>>>>>>>>>>开始安装 simpledocker"
     cd /tmp && curl -Lo docker-compose.yml https://raw.githubusercontent.com/kissyouhunter/Tools/main/simpledocker-docker-compose.yml
     docker-compose up -d    
     if [ $? -ne 0 ] ; then
         cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
     fi
-
+      log "列出所有宿主机上的容器"
+      docker ps -a
     TIME g "------------------------------------------------------"
     TIME g "|     simpledocker启动需要一点点时间，请耐心等待！   |"
     sleep 10
