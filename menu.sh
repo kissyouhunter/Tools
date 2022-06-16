@@ -1181,7 +1181,7 @@ function main() {
 			::
 		esac
 	else
-		echo
+		exit 0
 	fi
 }
 main
