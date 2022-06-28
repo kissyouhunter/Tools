@@ -194,7 +194,7 @@ TIME l "<注>openwrt 宿主机默认安装 dockerman 图形 docker 管理工具�
  2)
     TIME y " >>>>>>>>>>>开始为 X86 openwrt 安装 docker 和 docker-compose"
     mkdir -p /tmp/upload/ && cd /tmp/upload/
-    curl -LO https://tt.kisssik.ga/d/aliyun/files/docker-2010.12-1_x86_64.zip
+    curl -LO https://cloud.kisslove.eu.org/d/aliyun/files/docker-2010.12-1_x86_64.zip
     unzip docker-2010.12-1_x86_64.zip && rm -f docker-2010.12-1_x86_64.zip
     cd /tmp/upload/docker-2010.12-1_x86_64 && opkg install *.ipk && cd .. && rm -rf docker-2010.12-1_x86_64/
     docker -v && docker-compose -v
@@ -204,7 +204,7 @@ TIME l "<注>openwrt 宿主机默认安装 dockerman 图形 docker 管理工具�
  3)
     TIME y " >>>>>>>>>>>开始为 Arm64 openwrt 安装 docker 和 docker-compose"
     mkdir -p /tmp/upload/ && cd /tmp/upload/
-    curl -LO https://tt.kisssik.ga/d/aliyun/files/docker-20.10.15-1_aarch64.zip
+    curl -LO https://cloud.kisslove.eu.org/d/aliyun/files/docker-20.10.15-1_aarch64.zip
     unzip docker-20.10.15-1_aarch64.zip && rm -f docker-20.10.15-1_aarch64.zip
     cd /tmp/upload/docker-20.10.15-1_aarch64 && opkg install *.ipk
     cd /tmp/upload && rm -rf docker-20.10.15-1_aarch64/
