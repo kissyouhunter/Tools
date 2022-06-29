@@ -6,3 +6,5 @@ https://raw.githubusercontent.com/kissyouhunter/Tools/main/qx/emby.conf, tag=Emb
 ```
 
 [DivineEngine](https://github.com/DivineEngine/Profiles/tree/master) 神机规则
+
+[TikTok-Unlock](https://github.com/Semporia/TikTok-Unlock)
