@@ -46,7 +46,7 @@ JELLYFIN_PORT="8096"
 JELLYFIN_PORT1="8920"
 # qbittorrent变量
 QB_DOCKER_IMG_NAME="johngong/qbittorrent"
-QB_TAG="qee-latest"
+QB_TAG="4.4.3.1-4.4.3.12"
 QB_PATH=""
 QB_CONFIG_FOLDER=$(pwd)/qbittorrent
 QB_DOWNLOADS_FOLDER=$(pwd)/downloads
@@ -1602,9 +1602,9 @@ TIME r "<注> aria2 和 aria2-pro 二选一"
   docker run -dit \
       -v $QB_PATH:/config \
       -v $DOWNLOADS_PATH:/Downloads \
-      -e WEBUIPORT=8989 \
+      -e QB_WEBUI_PORT=8989 \
       -p 6881:6881 -p 6881:6881/udp -p 8989:8989 \
-      -e TZ=Asia/Shanghai \
+      -e QB_EE_BIN=true \
       -e UID=0  \
       -e GID=0  \
       -e UMASK=022  \

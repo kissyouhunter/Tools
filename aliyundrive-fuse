@@ -38,7 +38,7 @@ do_start(){
 		fusermount -zuq $LOCAL >/dev/null 2>&1
 		mkdir -p $LOCAL
 		mkdir -p ${LOG%/*}
-		sudo aliyundrive-fuse -r ${TOKEN} -w /var/run/aliyundrive-fuse $(LOCAL) > "${LOG}" 2>&1 &
+		sudo aliyundrive-fuse -r ${TOKEN} -w /var/run/aliyundrive-fuse ${LOCAL} > "${LOG}" 2>&1 &
 		sleep 2s
 		check_running
 		if [[ $? -eq 0 ]]; then
