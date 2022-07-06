@@ -77,7 +77,7 @@ function rclone_moveto() {
 }
 
 
-TG_MSG1="${torrent_name} 上传到网盘 $NAME 的目录 $UP_PATH 已完成。"
+TG_MSG1="[$(date '+%Y-%m-%d %H:%M:%S')] ${torrent_name} 上传到网盘 $NAME 的目录 $UP_PATH 已完成。"
 
 VOL=$(du -sh "${content_dir}" | awk '{print $1}')
 
