@@ -70,11 +70,11 @@ function qb_del() {
 
 function rclone_moveto() {
 	if [ "${type}" == "file" ]; then
-		rclone_moveto_cmd=$(rclone -v moveto -P --transfers=${rclone_parallel} "${content_dir}" ${NAME}:${UP_PATH}/"${content_dir}")
-        TG_MSG1="[$(date '+%Y-%m-%d %H:%M:%S')] ${torrent_name} 上传到网盘 $NAME 的目录 ${UP_PATH}/"${content_dir}" 已完成。"
+		rclone_moveto_cmd=$(rclone -v moveto -P --transfers=${rclone_parallel} "${content_dir}" ${NAME}:${UP_PATH}"${content_dir}")
+        TG_MSG1="[$(date '+%Y-%m-%d %H:%M:%S')] ${torrent_name} 上传到网盘 $NAME 的目录 ${UP_PATH}${content_dir} 已完成。"
 	elif [ "${type}" == "dir" ]; then
 		rclone_moveto_cmd=$(rclone -v moveto -P --transfers=${rclone_parallel} "${content_dir}"/ ${NAME}:${UP_PATH}/"${torrent_name}")
-        TG_MSG1="[$(date '+%Y-%m-%d %H:%M:%S')] ${torrent_name} 上传到网盘 $NAME 的目录 ${UP_PATH}/"${torrent_name}" 已完成。"
+        TG_MSG1="[$(date '+%Y-%m-%d %H:%M:%S')] ${torrent_name} 上传到网盘 $NAME 的目录 ${UP_PATH}/${torrent_name} 已完成。"
 	fi
 }
 
