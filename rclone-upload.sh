@@ -70,7 +70,7 @@ function qb_del() {
 
 function rclone_moveto() {
 	if [ "${type}" == "file" ]; then
-		rclone_moveto_cmd=$(rclone -v moveto -P --transfers=${rclone_parallel} "${content_dir}" ${NAME}:${UP_PATH}/"${torrent_name}")
+		rclone_moveto_cmd=$(rclone -v moveto -P --transfers=${rclone_parallel} "${content_dir}" ${NAME}:${UP_PATH}/"${torrent_name}/")
 	elif [ "${type}" == "dir" ]; then
 		rclone_moveto_cmd=$(rclone -v moveto -P --transfers=${rclone_parallel} "${content_dir}"/ ${NAME}:${UP_PATH}/"${torrent_name}")
 	fi
