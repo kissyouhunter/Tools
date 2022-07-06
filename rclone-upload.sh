@@ -18,12 +18,12 @@ log_dir="/config/rclone"
 rclone_parallel="32"
 
 function tg_push_message1() {
-	TOKEN=${TG_TOKEN}	#TG机器人token
-	chat_ID=${TG_ID}		#用户ID或频道、群ID
-	message_text="${TG_MSG1}"		#要发送的信息
-	MODE="HTML"		#解析模式，可选HTML或Markdown
-	URL="https://api.telegram.org/bot${TOKEN}/sendMessage"		#api接口
-	curl -s -o /dev/null -X POST $URL -d chat_id=${chat_ID} -d parse_mode=${MODE} -d text="${message_text}" --max-time 10
+    TOKEN=${TG_TOKEN}	#TG机器人token
+    chat_ID=${TG_ID}		#用户ID或频道、群ID
+    message_text="${TG_MSG1}"		#要发送的信息
+    MODE="HTML"		#解析模式，可选HTML或Markdown
+    URL="https://api.telegram.org/bot${TOKEN}/sendMessage"		#api接口
+    curl -s -o /dev/null -X POST $URL -d chat_id=${chat_ID} -d parse_mode=${MODE} -d text="${message_text}" --max-time 10
 }
 
 function tg_push_message2() {
@@ -44,18 +44,17 @@ function tg_push_message3() {
 	curl -s -o /dev/null -X POST $URL -d chat_id=${chat_ID} -d parse_mode=${MODE} -d text="${message_text}" --max-time 10
 }
 
-if [ ! -d ${log_dir} ]
-then
-	mkdir -p ${log_dir}
+if [ ! -d ${log_dir} ]; then
+    mkdir -p ${log_dir}
 fi
 
 function qb_del() {
 	if [ ${leeching_mode} == "true" ]; then
 		if [ -e "${save_dir}" ]; then
-			rm -rf ${save_dir}/${torrent_name}
-			echo "[$(date '+%Y-%m-%d %H:%M:%S')] 删除成功！种子名称:${torrent_name}" >> ${log_dir}/qb.log
-			TG_MSG3="[$(date '+%Y-%m-%d %H:%M:%S')] 删除成功！种子名称:${torrent_name}"
-			tg_push_message3
+		    rm -rf ${save_dir}/${torrent_name}
+		    echo "[$(date '+%Y-%m-%d %H:%M:%S')] 删除成功！种子名称:${torrent_name}" >> ${log_dir}/qb.log
+		    TG_MSG3="[$(date '+%Y-%m-%d %H:%M:%S')] 删除成功！种子名称:${torrent_name}"
+		    tg_push_message3
 		else
 			rm -rf ${save_dir}/${torrent_name}
 			echo "[$(date '+%Y-%m-%d %H:%M:%S')] 删除成功！种子文件:${torrent_name}" >> ${log_dir}/qb.log
@@ -89,7 +88,7 @@ if [ -f "${content_dir}" ]; then
     根目录：${root_dir}
     保存路径：${save_dir}
     文件数：${files_num}
-    文件大小：$VOL
+    文件大小：${VOL}
     HASH: ${file_hash}"
     tg_push_message2
     type="file"
@@ -104,7 +103,7 @@ elif [ -d "${content_dir}" ]; then
     根目录：${root_dir}
     保存路径：${save_dir}
     文件数：${files_num}
-    文件大小：$VOL
+    文件大小：${VOL}
     HASH: ${file_hash}"
     tg_push_message2
     type="dir"
