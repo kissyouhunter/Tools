@@ -1,4 +1,6 @@
 #!/bin/bash
+# 下下面的命令 放到 qbitorrent 的设置 Torrent 完成时运行外部程序中
+# bash /config/rclone-upload.sh  "%N" "%F" "%R" "%D" "%C" "%Z" "%I"
 
 NAME="" #Rclone配置时填写的name
 UP_PATH="" #onedrive网盘上传目录
@@ -44,6 +46,7 @@ function tg_push_message3() {
 	curl -s -o /dev/null -X POST $URL -d chat_id=${chat_ID} -d parse_mode=${MODE} -d text="${message_text}" --max-time 10
 }
 
+
 if [ ! -d ${log_dir} ]; then
     mkdir -p ${log_dir}
 fi
@@ -71,10 +74,10 @@ function qb_del() {
 function rclone_moveto() {
 	if [ "${type}" == "file" ]; then
 		rclone_moveto_cmd=$(rclone -v moveto -P --transfers=${rclone_parallel} "${content_dir}" ${NAME}:${UP_PATH}"${content_dir}")
-        TG_MSG1="[$(date '+%Y-%m-%d %H:%M:%S')] ${torrent_name} 上传到网盘 $NAME 的目录 ${UP_PATH}${content_dir} 已完成。"
+        TG_MSG1="[$(date '+%Y-%m-%d %H:%M:%S')] ${torrent_name} 上传到网盘 $NAME 的 ${UP_PATH}${content_dir} 目录已完成。"
 	elif [ "${type}" == "dir" ]; then
 		rclone_moveto_cmd=$(rclone -v moveto -P --transfers=${rclone_parallel} "${content_dir}"/ ${NAME}:${UP_PATH}/"${torrent_name}")
-        TG_MSG1="[$(date '+%Y-%m-%d %H:%M:%S')] ${torrent_name} 上传到网盘 $NAME 的目录 ${UP_PATH}/${torrent_name} 已完成。"
+        TG_MSG1="[$(date '+%Y-%m-%d %H:%M:%S')] ${torrent_name} 上传到网盘 $NAME 的 ${UP_PATH}/${torrent_name} 目录已完成。"
 	fi
 }
 
