@@ -46,6 +46,25 @@ function tg_push_message3() {
 	curl -s -o /dev/null -X POST $URL -d chat_id=${chat_ID} -d parse_mode=${MODE} -d text="${message_text}" --max-time 10
 }
 
+function tg_push_message4() {
+	TOKEN=${TG_TOKEN}	#TG机器人token
+	chat_ID=${TG_ID}		#用户ID或频道、群ID
+	message_text="${TG_MSG4}"		#要发送的信息
+	MODE="HTML"		#解析模式，可选HTML或Markdown
+	URL="https://api.telegram.org/bot${TOKEN}/sendMessage"		#api接口
+	curl -s -o /dev/null -X POST $URL -d chat_id=${chat_ID} -d parse_mode=${MODE} -d text="${message_text}" --max-time 10
+}
+
+function rclone_check() {
+    if [ "$(command -v rclone)" ]; then
+        echo
+    else
+        TG_MSG3="rclone 未安装"
+        tg_push_message4
+        exit 1
+    fi
+}
+
 
 if [ ! -d ${log_dir} ]; then
     mkdir -p ${log_dir}
@@ -85,6 +104,7 @@ function rclone_moveto() {
 VOL=$(du -sh "${content_dir}" | awk '{print $1}')
 
 if [ -f "${content_dir}" ]; then
+    rclone_check
     TG_MSG2="[$(date '+%Y-%m-%d %H:%M:%S')]
     种子名称：${torrent_name}
     内容路径：${content_dir}
@@ -99,7 +119,8 @@ if [ -f "${content_dir}" ]; then
     sync
     qb_del
     tg_push_message1
-elif [ -d "${content_dir}" ]; then 
+elif [ -d "${content_dir}" ]; then
+    rclone_check
     TG_MSG2="[$(date '+%Y-%m-%d %H:%M:%S')]
     种子名称：${torrent_name}
     内容路径：${content_dir}
@@ -115,6 +136,7 @@ elif [ -d "${content_dir}" ]; then
     qb_del
     tg_push_message1
 else
+    rclone_check
     TG_MSG2="[$(date '+%Y-%m-%d %H:%M:%S')] 未知类型，取消上传"
     tg_push_message2
     exit 1
