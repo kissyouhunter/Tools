@@ -1,0 +1,58 @@
+#!/bin/bash
+
+PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
+export PATH
+
+### BEGIN INIT INFO
+# Provides:          rclone
+# Required-Start:    $all
+# Required-Stop:     $all
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start rclone at boot time
+# Description:       Enable rclone by daemon.
+### END INIT INFO
+
+WORKDIR="${HOME}/bin"
+FILE_NAME="client-linux.py"
+DL_LINK="https://raw.githubusercontent.com/cppla/ServerStatus/master/clients/client-linux.py"
+WEB_SERVER=""      #服务器ip或域名
+NODE_USER=""        #节点用户名
+NODE_PASSWORD=""    #节点密码
+
+Green_font_prefix="\033[32m" && Red_font_prefix="\033[31m" && Green_background_prefix="\033[42;37m" && Red_background_prefix="\033[41;37m" && Font_color_suffix="\033[0m"
+Info="${Green_font_prefix}[信息]${Font_color_suffix}"
+Error="${Red_font_prefix}[错误]${Font_color_suffix}"
+RETVAL=0
+
+check_file() {
+	if [ -d "${WORKDIR}" ]; then
+		if [ -f "${WORKDIR}/${FILE_NAME}" ]; then
+			echo "执行文件正常"
+		else
+			cd ${WORKDIR} && curl -Lo ${FILE_NAME} ${DL_LINK}
+			echo "执行文件下载完毕"
+		fi
+	else
+		mkdir -p ${WORKDIR}
+		cd ${WORKDIR} && curl -Lo ${FILE_NAME} ${DL_LINK}
+		echo "执行文件下载完毕"
+	fi
+}
+
+do_start() {
+	check_file
+	python3 ${WORKDIR}/${FILE_NAME} SERVER=${WEB_SERVER} USER=${NODE_USER} PASSWORD=${NODE_PASSWORD} >/dev/null 2>&1 &
+	echo "探针客户端启动"
+}
+
+case "$1" in
+	start)
+	do_$1
+	;;
+	*)
+	echo "使用方法: $0 { start }"
+	RETVAL=1
+	;;
+esac
+exit $RETVAL
