@@ -2580,7 +2580,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
     TIME g "|         aapanel 启动需要一点点时间，请耐心等待！        |"
     sleep 10
     TIME g "|                安装完成，自动退出脚本                   |"
-    TIME g "|            访问方式为 宿主机ip:8888/aapanel/            |"
+    TIME g "|            访问方式为 宿主机ip:7800/aapanel/            |"
     TIME g "|        默认账号：aapanel  默认密码：aapanel123          |"
     TIME g "|   基础教程 https://wiki.991231.xyz/zh/docker/aapanel    |"
     TIME g "-----------------------------------------------------------"
@@ -2678,7 +2678,7 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
     TIME g "|         aapanel 启动需要一点点时间，请耐心等待！        |"
     sleep 10
     TIME g "|                安装完成，自动退出脚本                   |"
-    TIME g "|            访问方式为 宿主机ip:8888/aapanel/            |"
+    TIME g "|            访问方式为 宿主机ip:7800/aapanel/            |"
     TIME g "|        默认账号：aapanel  默认密码：aapanel123          |"
     TIME g "|   基础教程 https://wiki.991231.xyz/zh/docker/aapanel    |"
     TIME g "-----------------------------------------------------------"
