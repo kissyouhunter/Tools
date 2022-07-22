@@ -458,7 +458,7 @@ print_success() {
 main() {
   cd ~
   sudo apt update
-  sudo apt install curl wget nano zsh -y
+  sudo apt install curl wget nano zsh git -y
   # Run as unattended if stdin is not a tty
   if [ ! -t 0 ]; then
     RUNZSH=no
