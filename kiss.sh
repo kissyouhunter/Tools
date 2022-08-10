@@ -161,7 +161,7 @@ TIME w "(11) MaiARK (对接青龙提交京东CK)"
 TIME w "(12) 一键申请SSL证书(acme申请)"
 TIME r "(0) 不想安装了，给老子退出！！！"
 #EOF
-read -p "Please enter your choice[0-11]: " input
+read -p "Please enter your choice[0-12]: " input
 case $input in
 #安装docker and docker-compose
 1)
@@ -2961,9 +2961,25 @@ TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车�
     TIME g "------------------------------------------------------------------------------"
   exit 0
   ;;
+ 0) 
+ clear 
+ break
+ ;;
+ *) TIME r "----------------------------------"
+    TIME r "|          Warning!!!            |"
+    TIME r "|       请输入正确的选项!        |"
+    TIME r "----------------------------------"
+ for i in $(seq -w 1 -1 1)
+   do
+     #TIME r "\b\b$i";
+     sleep 1;
+   done
+ clear
+ ;;
+ esac
+ done
+;;
 12)
-clear
-
 install_acme() {
     cd ~
     TIME g "开始安装acme脚本..."
@@ -3143,34 +3159,33 @@ ssl_cert_issue_by_cloudflare() {
     fi
 }
 
-ssl_cert_issue() {
-    local method=""
-    echo -E ""
-    TIME w "******使用说明******"
-    TIME g "该脚本提供两种方式实现证书签发,证书安装路径均为/root/cert"
-    TIME g "方式1:acme standalone mode,需要保持端口开放"
-    TIME g "方式2:acme DNS API mode,需要提供Cloudflare Global API Key"
-    TIME g "如域名属于免费域名,则推荐使用方式1进行申请"
-    TIME g "如域名非免费域名且使用Cloudflare进行解析使用方式2进行申请"
-    read -p "请选择你想使用的方式": method
-    TIME g "你所使用的方式为${method}"
-
-    if [ "${method}" == "1" ]; then
-        ssl_cert_issue_standalone
-    elif [ "${method}" == "2" ]; then
-        ssl_cert_issue_by_cloudflare
-    else
-        TIME r "输入无效,请检查你的输入,脚本将退出..."
-        exit 1
-    fi
-}
-ssl_cert_issue
-  
-  ;;
+clear
+while [ "$flag" -eq 0 ]
+do
+#cat << EOF
+TIME w "----------------------------------------"
+TIME w "|****Please Enter Your Choice:[0-2]****|"
+TIME w "|*********** SSL 证书申请 *************|"
+TIME w "----------------------------------------"
+TIME w "该脚本提供两种方式实现证书签发,证书安装路径为/root/cert"
+TIME w "如域名属于免费域名,则推荐使用方式(1)申请"
+TIME w "如域名非免费域名且使用Cloudflare进行解析使用方式(2)申请"
+TIME w "(1) acme standalone mode,需要保持端口开放"
+TIME w "(2) acme DNS API mode,需要提供Cloudflare Global API Key"
+TIME b "(0) 返回上级菜单"
+#EOF
+ read -p "Please enter your choice[0-2]: " input12
+ case $input12 in
+ 1)
+   ssl_cert_issue_standalone
+   ;;
+ 2)
+   ssl_cert_issue_by_cloudflare
+   ;;
  0) 
- clear 
- break
- ;;
+   clear 
+   break
+   ;;
  *) TIME r "----------------------------------"
     TIME r "|          Warning!!!            |"
     TIME r "|       请输入正确的选项!        |"
@@ -3183,7 +3198,7 @@ ssl_cert_issue
  clear
  ;;
  esac
- done
+done
 ;;
 *) TIME r "----------------------------------"
  TIME r "|          Warning!!!            |"
