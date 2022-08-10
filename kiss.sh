@@ -2981,6 +2981,7 @@ TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车�
 ;;
 12)
 install_acme() {
+    clear
     cd ~
     TIME g "开始安装acme脚本..."
     curl https://get.acme.sh | sh
@@ -2994,6 +2995,7 @@ install_acme() {
 }
 
 ssl_cert_issue_standalone() {
+    clear
     #install acme first
     install_acme
     if [ $? -ne 0 ]; then
@@ -3077,6 +3079,7 @@ ssl_cert_issue_standalone() {
 }
 
 ssl_cert_issue_by_cloudflare() {
+    clear
     echo -E ""
     TIME w "******使用说明******"
     TIME g "该脚本将使用Acme脚本申请证书,使用时需保证:"
@@ -3084,7 +3087,7 @@ ssl_cert_issue_by_cloudflare() {
     TIME g "2.知晓Cloudflare Global API Key"
     TIME g "3.域名已通过Cloudflare进行解析到当前服务器"
     TIME g "4.该脚本申请证书默认安装路径为/root/cert目录"
-    confirm "我已确认以上内容[y/n]" "y"
+    TIME w "我已确认以上内容[y/n]" "y"
     if [ $? -eq 0 ]; then
         install_acme
         if [ $? -ne 0 ]; then
@@ -3155,7 +3158,7 @@ ssl_cert_issue_by_cloudflare() {
             chmod 755 $certPath
         fi
     else
-        show_menu
+        12
     fi
 }
 
