@@ -158,6 +158,7 @@ TIME w "(8) AdGuardHome DNS解析+去广告"
 TIME w "(9) x-ui"
 TIME w "(10) aaPanel (宝塔国际版)"
 TIME w "(11) MaiARK (对接青龙提交京东CK)"
+TIME w "(12) 一键申请SSL证书(acme申请)"
 TIME r "(0) 不想安装了，给老子退出！！！"
 #EOF
 read -p "Please enter your choice[0-11]: " input
@@ -2959,6 +2960,212 @@ TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车�
     TIME r "|进入“网络——Turbo ACC 网络加速设置” 开启或关闭“全锥型 NAT”就可正常访问web界面|"
     TIME g "------------------------------------------------------------------------------"
   exit 0
+  ;;
+12)
+clear
+
+install_acme() {
+    cd ~
+    TIME g "开始安装acme脚本..."
+    curl https://get.acme.sh | sh
+    if [ $? -ne 0 ]; then
+        TIME r "acme安装失败"
+        return 1
+    else
+        TIME g "acme安装成功"
+    fi
+    return 0
+}
+
+ssl_cert_issue_standalone() {
+    #install acme first
+    install_acme
+    if [ $? -ne 0 ]; then
+        TIME r "无法安装acme,请检查错误日志"
+        exit 1
+    fi
+    #install socat second
+    if [[ x"${release}" == x"centos" ]]; then
+        yum install socat -y
+    else
+        apt install socat -y
+    fi
+    if [ $? -ne 0 ]; then
+        TIME r "无法安装socat,请检查错误日志"
+        exit 1
+    else
+        TIME g "socat安装成功..."
+    fi
+    #creat a directory for install cert
+    certPath=/root/cert
+    if [ ! -d "$certPath" ]; then
+        mkdir $certPath
+    else
+        rm -rf $certPath
+        mkdir $certPath
+    fi
+    #get the domain here,and we need verify it
+    local domain=""
+    read -p "请输入你的域名:" domain
+    TIME w "你输入的域名为:${domain},正在进行域名合法性校验..."
+    #here we need to judge whether there exists cert already
+    local currentCert=$(~/.acme.sh/acme.sh --list | tail -1 | awk '{print $1}')
+    if [ ${currentCert} == ${domain} ]; then
+        local certInfo=$(~/.acme.sh/acme.sh --list)
+        TIME r "域名合法性校验失败,当前环境已有对应域名证书,不可重复申请,当前证书详情:"
+        TIME g "$certInfo"
+        exit 1
+    else
+        TIME g "证书有效性校验通过..."
+    fi
+    #get needed port here
+    local WebPort=80
+    read -p "请输入你所希望使用的端口,如回车将使用默认80端口:" WebPort
+    if [[ ${WebPort} -gt 65535 || ${WebPort} -lt 1 ]]; then
+        TIME r "你所选择的端口${WebPort}为无效值,将使用默认80端口进行申请"
+    fi
+    TIME g "将会使用${WebPort}进行证书申请,请确保端口处于开放状态..."
+    #NOTE:This should be handled by user
+    #open the port and kill the occupied progress
+    ~/.acme.sh/acme.sh --set-default-ca --server letsencrypt
+    ~/.acme.sh/acme.sh --issue -d ${domain} --standalone --httpport ${WebPort}
+    if [ $? -ne 0 ]; then
+        TIME r "证书申请失败,原因请参见报错信息"
+        exit 1
+    else
+        TIME g "证书申请成功,开始安装证书..."
+    fi
+    #install cert
+    ~/.acme.sh/acme.sh --installcert -d ${domain} --ca-file /root/cert/ca.cer \
+        --cert-file /root/cert/${domain}.cer --key-file /root/cert/${domain}.key \
+        --fullchain-file /root/cert/fullchain.cer
+
+    if [ $? -ne 0 ]; then
+        TIME r "证书安装失败,脚本退出"
+        exit 1
+    else
+        TIME g "证书安装成功,开启自动更新..."
+    fi
+    ~/.acme.sh/acme.sh --upgrade --auto-upgrade
+    if [ $? -ne 0 ]; then
+        TIME r "自动更新设置失败,脚本退出"
+        ls -lah cert
+        chmod 755 $certPath
+        exit 1
+    else
+        TIME g "证书已安装且已开启自动更新,具体信息如下"
+        ls -lah cert
+        chmod 755 $certPath
+    fi
+
+}
+
+ssl_cert_issue_by_cloudflare() {
+    echo -E ""
+    TIME w "******使用说明******"
+    TIME g "该脚本将使用Acme脚本申请证书,使用时需保证:"
+    TIME g "1.知晓Cloudflare 注册邮箱"
+    TIME g "2.知晓Cloudflare Global API Key"
+    TIME g "3.域名已通过Cloudflare进行解析到当前服务器"
+    TIME g "4.该脚本申请证书默认安装路径为/root/cert目录"
+    confirm "我已确认以上内容[y/n]" "y"
+    if [ $? -eq 0 ]; then
+        install_acme
+        if [ $? -ne 0 ]; then
+            TIME r "无法安装acme,请检查错误日志"
+            exit 1
+        fi
+        CF_Domain=""
+        CF_GlobalKey=""
+        CF_AccountEmail=""
+        certPath=/root/cert
+        if [ ! -d "$certPath" ]; then
+            mkdir $certPath
+        else
+            rm -rf $certPath
+            mkdir $certPath
+        fi
+        TIME w "请设置域名:"
+        read -p "Input your domain here:" CF_Domain
+        TIME w "你的域名设置为:${CF_Domain},正在进行域名合法性校验..."
+        #here we need to judge whether there exists cert already
+        local currentCert=$(~/.acme.sh/acme.sh --list | tail -1 | awk '{print $1}')
+        if [ ${currentCert} == ${CF_Domain} ]; then
+            local certInfo=$(~/.acme.sh/acme.sh --list)
+            TIME r "域名合法性校验失败,当前环境已有对应域名证书,不可重复申请,当前证书详情:"
+            TIME g "$certInfo"
+            exit 1
+        else
+            TIME g "证书有效性校验通过..."
+        fi
+        TIME w "请设置API密钥:"
+        read -p "Input your key here:" CF_GlobalKey
+        TIME w "你的API密钥为:${CF_GlobalKey}"
+        TIME w "请设置注册邮箱:"
+        read -p "Input your email here:" CF_AccountEmail
+        TIME w "你的注册邮箱为:${CF_AccountEmail}"
+        ~/.acme.sh/acme.sh --set-default-ca --server letsencrypt
+        if [ $? -ne 0 ]; then
+            TIME r "修改默认CA为Lets'Encrypt失败,脚本退出"
+            exit 1
+        fi
+        export CF_Key="${CF_GlobalKey}"
+        export CF_Email=${CF_AccountEmail}
+        ~/.acme.sh/acme.sh --issue --dns dns_cf -d ${CF_Domain} -d *.${CF_Domain} --log
+        if [ $? -ne 0 ]; then
+            TIME r "证书签发失败,脚本退出"
+            exit 1
+        else
+            TIME g "证书签发成功,安装中..."
+        fi
+        ~/.acme.sh/acme.sh --installcert -d ${CF_Domain} -d *.${CF_Domain} --ca-file /root/cert/ca.cer \
+            --cert-file /root/cert/${CF_Domain}.cer --key-file /root/cert/${CF_Domain}.key \
+            --fullchain-file /root/cert/fullchain.cer
+        if [ $? -ne 0 ]; then
+            TIME r "证书安装失败,脚本退出"
+            exit 1
+        else
+            TIME g "证书安装成功,开启自动更新..."
+        fi
+        ~/.acme.sh/acme.sh --upgrade --auto-upgrade
+        if [ $? -ne 0 ]; then
+            TIME r "自动更新设置失败,脚本退出"
+            ls -lah cert
+            chmod 755 $certPath
+            exit 1
+        else
+            TIME g "证书已安装且已开启自动更新,具体信息如下"
+            ls -lah cert
+            chmod 755 $certPath
+        fi
+    else
+        show_menu
+    fi
+}
+
+ssl_cert_issue() {
+    local method=""
+    echo -E ""
+    TIME w "******使用说明******"
+    TIME g "该脚本提供两种方式实现证书签发,证书安装路径均为/root/cert"
+    TIME g "方式1:acme standalone mode,需要保持端口开放"
+    TIME g "方式2:acme DNS API mode,需要提供Cloudflare Global API Key"
+    TIME g "如域名属于免费域名,则推荐使用方式1进行申请"
+    TIME g "如域名非免费域名且使用Cloudflare进行解析使用方式2进行申请"
+    read -p "请选择你想使用的方式": method
+    TIME g "你所使用的方式为${method}"
+
+    if [ "${method}" == "1" ]; then
+        ssl_cert_issue_standalone
+    elif [ "${method}" == "2" ]; then
+        ssl_cert_issue_by_cloudflare
+    else
+        TIME r "输入无效,请检查你的输入,脚本将退出..."
+        exit 1
+    fi
+}
+ssl_cert_issue
+  
   ;;
  0) 
  clear 
