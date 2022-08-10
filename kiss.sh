@@ -2980,6 +2980,22 @@ TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车�
  done
 ;;
 12)
+confirm() {
+    if [[ $# -gt 1 ]]; then
+        echo && read -p "$1 [默认$2]: " temp
+        if [[ x"${temp}" == x"" ]]; then
+            temp=$2
+        fi
+    else
+        read -p "$1 [y/n]: " temp
+    fi
+    if [[ x"${temp}" == x"y" || x"${temp}" == x"Y" ]]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
 install_acme() {
     clear
     cd ~
@@ -3024,12 +3040,14 @@ ssl_cert_issue_standalone() {
     fi
     #get the domain here,and we need verify it
     local domain=""
-    read -p "请输入你的域名:" domain
+    read -r -p "请输入你的域名:" domain
     TIME w "你输入的域名为:${domain},正在进行域名合法性校验..."
     #here we need to judge whether there exists cert already
-    local currentCert=$(~/.acme.sh/acme.sh --list | tail -1 | awk '{print $1}')
-    if [ ${currentCert} == ${domain} ]; then
-        local certInfo=$(~/.acme.sh/acme.sh --list)
+    currentCert=$(~/.acme.sh/acme.sh --list | tail -1 | awk '{print $1}')
+    local currentCert
+    if [ "${currentCert}" == "${domain}" ]; then
+        certInfo=$(~/.acme.sh/acme.sh --list)
+        local certInfo
         TIME r "域名合法性校验失败,当前环境已有对应域名证书,不可重复申请,当前证书详情:"
         TIME g "$certInfo"
         exit 1
@@ -3087,7 +3105,7 @@ ssl_cert_issue_by_cloudflare() {
     TIME g "2.知晓Cloudflare Global API Key"
     TIME g "3.域名已通过Cloudflare进行解析到当前服务器"
     TIME g "4.该脚本申请证书默认安装路径为/root/cert目录"
-    TIME w "我已确认以上内容[y/n]" "y"
+    confirm "我已确认以上内容[y/n]" "y"
     if [ $? -eq 0 ]; then
         install_acme
         if [ $? -ne 0 ]; then
@@ -3105,11 +3123,12 @@ ssl_cert_issue_by_cloudflare() {
             mkdir $certPath
         fi
         TIME w "请设置域名:"
-        read -p "Input your domain here:" CF_Domain
+        read -r -p "Input your domain here:" CF_Domain
         TIME w "你的域名设置为:${CF_Domain},正在进行域名合法性校验..."
         #here we need to judge whether there exists cert already
-        local currentCert=$(~/.acme.sh/acme.sh --list | tail -1 | awk '{print $1}')
-        if [ ${currentCert} == ${CF_Domain} ]; then
+        currentCert=$(~/.acme.sh/acme.sh --list | tail -1 | awk '{print $1}')
+        local currentCert
+        if [ "${currentCert}" == "${CF_Domain}" ]; then
             local certInfo=$(~/.acme.sh/acme.sh --list)
             TIME r "域名合法性校验失败,当前环境已有对应域名证书,不可重复申请,当前证书详情:"
             TIME g "$certInfo"
@@ -3118,11 +3137,11 @@ ssl_cert_issue_by_cloudflare() {
             TIME g "证书有效性校验通过..."
         fi
         TIME w "请设置API密钥:"
-        read -p "Input your key here:" CF_GlobalKey
-        TIME w "你的API密钥为:${CF_GlobalKey}"
+        read -r -p "Input your key here:" CF_GlobalKey
+        TIME g "你的API密钥为:${CF_GlobalKey}"
         TIME w "请设置注册邮箱:"
-        read -p "Input your email here:" CF_AccountEmail
-        TIME w "你的注册邮箱为:${CF_AccountEmail}"
+        read -r -p "Input your email here:" CF_AccountEmail
+        TIME g "你的注册邮箱为:${CF_AccountEmail}"
         ~/.acme.sh/acme.sh --set-default-ca --server letsencrypt
         if [ $? -ne 0 ]; then
             TIME r "修改默认CA为Lets'Encrypt失败,脚本退出"
@@ -3158,7 +3177,7 @@ ssl_cert_issue_by_cloudflare() {
             chmod 755 $certPath
         fi
     else
-        12
+        clear
     fi
 }
 
