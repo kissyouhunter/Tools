@@ -457,8 +457,27 @@ print_success() {
 
 main() {
   cd ~
-  sudo apt update
-  sudo apt install curl wget nano zsh git -y
+  if cat /etc/issue | grep -Eqi "debian|bullseye|buster"; then
+    release="debian"
+  elif cat /etc/issue | grep -Eqi "ubuntu|jammy|focal"; then
+    release="ubuntu"
+  elif cat /etc/issue | grep -Eqi "arch"; then
+    release="arch"
+  elif cat /proc/version | grep -Eqi "debian"; then
+    release="debian"
+  elif cat /proc/version | grep -Eqi "ubuntu"; then
+    release="ubuntu"
+  else
+    echo "未检测到系统版本，请联系脚本作者！" && exit 1
+  fi
+
+  if [ "${release}" = "arch" ]; then
+    pacman -Sy
+    pacman -S wget curl git zsh nano
+  elif [ "${release}" = "debian" ] || [ "${release}" = "ubuntu" ]]; then
+    sudo apt update
+    sudo apt install curl wget nano zsh git -y
+  fi
   # Run as unattended if stdin is not a tty
   if [ ! -t 0 ]; then
     RUNZSH=no
