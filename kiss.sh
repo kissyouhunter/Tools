@@ -3067,7 +3067,7 @@ ssl_cert_issue_standalone() {
     if [[ "${release}" == "centos" ]]; then
         yum install socat -y
     elif [[ "${release}" == "arch" ]]; then
-        pacman -S socat
+        pacman -S socat cron
     else
         apt install socat -y
     fi
