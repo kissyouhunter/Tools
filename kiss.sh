@@ -2980,16 +2980,61 @@ TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车�
  done
 ;;
 12)
+# check os
+if [[ -f /etc/redhat-release ]]; then
+    release="centos"
+elif cat /etc/issue | grep -Eqi "debian"; then
+    release="debian"
+elif cat /etc/issue | grep -Eqi "ubuntu"; then
+    release="ubuntu"
+elif cat /etc/issue | grep -Eqi "centos|red hat|redhat"; then
+    release="centos"
+elif cat /etc/issue | grep -Eqi "arch"; then
+    release="arch"
+elif cat /proc/version | grep -Eqi "debian"; then
+    release="debian"
+elif cat /proc/version | grep -Eqi "ubuntu"; then
+    release="ubuntu"
+elif cat /proc/version | grep -Eqi "centos|red hat|redhat"; then
+    release="centos"
+else
+    LOGE "未检测到系统版本，请联系脚本作者！\n" && exit 1
+fi
+
+os_version=""
+
+# os version
+if [[ -f /etc/os-release ]]; then
+    os_version=$(awk -F'[= ."]' '/VERSION_ID/{print $3}' /etc/os-release)
+fi
+if [[ -z "$os_version" && -f /etc/lsb-release ]]; then
+    os_version=$(awk -F'[= ."]+' '/DISTRIB_RELEASE/{print $2}' /etc/lsb-release)
+fi
+
+if [[ x"${release}" == x"centos" ]]; then
+    if [[ ${os_version} -le 6 ]]; then
+        LOGE "请使用 CentOS 7 或更高版本的系统！\n" && exit 1
+    fi
+elif [[ x"${release}" == x"ubuntu" ]]; then
+    if [[ ${os_version} -lt 16 ]]; then
+        LOGE "请使用 Ubuntu 16 或更高版本的系统！\n" && exit 1
+    fi
+elif [[ x"${release}" == x"debian" ]]; then
+    if [[ ${os_version} -lt 8 ]]; then
+        LOGE "请使用 Debian 8 或更高版本的系统！\n" && exit 1
+    fi
+fi
+
 confirm() {
     if [[ $# -gt 1 ]]; then
-        echo && read -p "$1 [默认$2]: " temp
-        if [[ x"${temp}" == x"" ]]; then
+        echo && read -r -p "$1 [默认$2]: " temp
+        if [[ "${temp}" == "" ]]; then
             temp=$2
         fi
     else
-        read -p "$1 [y/n]: " temp
+        read -r -p "$1 [y/n]: " temp
     fi
-    if [[ x"${temp}" == x"y" || x"${temp}" == x"Y" ]]; then
+    if [[ "${temp}" == "y" || x"{temp}" == x"" ]]; then
         return 0
     else
         return 1
@@ -3019,8 +3064,10 @@ ssl_cert_issue_standalone() {
         exit 1
     fi
     #install socat second
-    if [[ x"${release}" == x"centos" ]]; then
+    if [[ "${release}" == "centos" ]]; then
         yum install socat -y
+    elif [[ "${release}" == "arch" ]]; then
+        pacman -S socat
     else
         apt install socat -y
     fi
