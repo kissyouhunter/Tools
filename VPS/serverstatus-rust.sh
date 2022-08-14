@@ -88,7 +88,7 @@ function install_tool() {
     apt -y install unzip wget
   elif [[ ${release} == "arch" ]]; then
     pacman -Sy
-    pacman -S zip wget
+    pacman -S zip wget unzip
   fi
 }
 
