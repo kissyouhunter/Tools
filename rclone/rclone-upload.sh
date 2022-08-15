@@ -59,7 +59,7 @@ function rclone_check() {
     if [ "$(command -v rclone)" ]; then
         echo
     else
-        TG_MSG3="rclone 未安装"
+        TG_MSG4="rclone 未安装"
         tg_push_message4
         exit 1
     fi
