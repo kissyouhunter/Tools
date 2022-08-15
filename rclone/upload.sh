@@ -26,6 +26,10 @@
 # SOFTWARE.
 #
 
+# TG BOT
+TG_TOKEN=""  #tg机器人的token
+TG_ID="" #tg的user ID
+
 tg_push_message1() {
     TOKEN=${TG_TOKEN}	#TG机器人token
     chat_ID=${TG_ID}		#用户ID或频道、群ID
@@ -121,21 +125,21 @@ LOAD_RCLONE_ENV() {
 
 UPLOAD_FILE() {
     echo -e "$(DATE_TIME) ${INFO} Start upload files..."
-    TG_MSG1="$(DATE_TIME) ${INFO} 开始上传..."
+    TG_MSG1="$(DATE_TIME) 开始上传..."
     tg_push_message1
     TASK_INFO
-    TG_MSG2="--- [${YELLOW_FONT_PREFIX}Task Infomation${FONT_COLOR_SUFFIX}] ---
-${LIGHT_PURPLE_FONT_PREFIX}Task GID:${FONT_COLOR_SUFFIX} ${TASK_GID}
-${LIGHT_PURPLE_FONT_PREFIX}Number of Files:${FONT_COLOR_SUFFIX} ${FILE_NUM}
-${LIGHT_PURPLE_FONT_PREFIX}First File Path:${FONT_COLOR_SUFFIX} ${FILE_PATH}
-${LIGHT_PURPLE_FONT_PREFIX}Task File Name:${FONT_COLOR_SUFFIX} ${TASK_FILE_NAME}
-${LIGHT_PURPLE_FONT_PREFIX}Task Path:${FONT_COLOR_SUFFIX} ${TASK_PATH}
-${LIGHT_PURPLE_FONT_PREFIX}Aria2 Download Directory:${FONT_COLOR_SUFFIX} ${ARIA2_DOWNLOAD_DIR}
-${LIGHT_PURPLE_FONT_PREFIX}Custom Download Directory:${FONT_COLOR_SUFFIX} ${DOWNLOAD_DIR}
-${LIGHT_PURPLE_FONT_PREFIX}Local Path:${FONT_COLOR_SUFFIX} ${LOCAL_PATH}
-${LIGHT_PURPLE_FONT_PREFIX}Remote Path:${FONT_COLOR_SUFFIX} ${REMOTE_PATH}
-${LIGHT_PURPLE_FONT_PREFIX}.aria2 File Path:${FONT_COLOR_SUFFIX} ${DOT_ARIA2_FILE}
---- [${YELLOW_FONT_PREFIX}Task Infomation${FONT_COLOR_SUFFIX}] ---"
+    TG_MSG2="--- [Task Infomation] ---
+Task GID: ${TASK_GID}
+Number of Files: ${FILE_NUM}
+First File Path: ${FILE_PATH}
+Task File Name: ${TASK_FILE_NAME}
+Task Path: ${TASK_PATH}
+Aria2 Download Directory: ${ARIA2_DOWNLOAD_DIR}
+Custom Download Directory: ${DOWNLOAD_DIR}
+Local Path: ${LOCAL_PATH}
+Remote Path: ${REMOTE_PATH}
+.aria2 File Path: ${DOT_ARIA2_FILE}
+--- [Task Infomation] ---"
     tg_push_message2
     RETRY=0
     RETRY_NUM=3
