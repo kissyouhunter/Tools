@@ -150,7 +150,8 @@ Remote Path: ${REMOTE_PATH}
             echo
         )
         rclone move -v "${LOCAL_PATH}" "${REMOTE_PATH}"
-        TG_MSG1="[$(date '+%Y-%m-%d %H:%M:%S')] ${LOCAL_PATH} 上传到网盘 $NAME 的 ${REMOTE_PATH} 目录已完成。"
+        TG_MSG3="[$(date '+%Y-%m-%d %H:%M:%S')] ${LOCAL_PATH} 上传到网盘 $NAME 的 ${REMOTE_PATH} 目录已完成。"
+        tg_push_message1
         RCLONE_EXIT_CODE=$?
         if [ ${RCLONE_EXIT_CODE} -eq 0 ]; then
             UPLOAD_LOG="$(DATE_TIME) ${INFO} Upload done: ${LOCAL_PATH} -> ${REMOTE_PATH}"
