@@ -467,6 +467,10 @@ main() {
     release="debian"
   elif cat /proc/version | grep -Eqi "ubuntu"; then
     release="ubuntu"
+  elif grep -q -E -i "centos|red hat|redhat" /proc/version; then
+    release="rpm"
+  elif grep -q -E -i "centos|red hat|redhat" /etc/issue; then
+    release="rpm"
   else
     echo "未检测到系统版本，请联系脚本作者！" && exit 1
   fi
@@ -474,9 +478,12 @@ main() {
   if [ "${release}" = "arch" ]; then
     pacman -Sy
     pacman -S wget curl git zsh nano
-  elif [ "${release}" = "debian" ] || [ "${release}" = "ubuntu" ]]; then
+  elif [ "${release}" = "debian" ] || [ "${release}" = "ubuntu" ]; then
     sudo apt update
     sudo apt install curl wget nano zsh git -y
+  elif [ ${release} = "rpm" ]; then
+    yum update
+    yum install curl wget nano zsh git -y
   fi
   # Run as unattended if stdin is not a tty
   if [ ! -t 0 ]; then
