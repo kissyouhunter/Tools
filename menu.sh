@@ -56,6 +56,12 @@ EMBY_DOCKER_IMG_NAME="xinjiawei1/emby_unlockd"
 EMBY_TAG="latest"
 # jellyfin变量
 JELLYFIN_DOCKER_IMG_NAME="jellyfin/jellyfin"
+# qbittorrent变量
+QB_DOCKER_IMG_NAME="johngong/qbittorrent"
+QB_TAG="4.4.3.1-4.4.3.12"
+# aria2变量
+ARIA2_DOCKER_IMG_NAME="superng6/aria2"
+ARIA2_TAG="webui-latest"
 
 #检查root环境
 #f [[ $EUID != 0 ]]; then
@@ -172,7 +178,7 @@ function main() {
 					case "$SUBMENU2" in
 						1 )
 							function input_container_ql1_info() {
-								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "访问方式为：宿主机ip:$QL_PORT \
+								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "访问方式为：宿主机 ip:$QL_PORT \
 								青龙 安装完成，点击 ok 退出脚本 " 10 50
 							}
 
@@ -257,13 +263,13 @@ function main() {
 							}
 
 							function input_container_ql1_check() {
-								if (whiptail --title "一键脚本 作者：kissyouhunter" --yesno "青龙容器名：$QL_CONTAINER_NAME \
-								青龙配置文件路径：$QL_PATH \
-								青龙网络类型：$NETWORK \
-								青龙面板端口：$QL_PORT \
-								青龙版本：$QL_TAG \
-								以上信息是否正确？" \
-								15 40) then
+								if (whiptail --title "一键脚本 作者：kissyouhunter" --yesno "青龙容器名：$QL_CONTAINER_NAME           \
+								青龙配置文件路径：$QL_PATH           \
+								青龙网络类型：$NETWORK           \
+								青龙面板端口：$QL_PORT           \
+								青龙版本：$QL_TAG               \
+								以上信息是否正确？"              \
+								13 40) then
 									input_container_ql1_docker
 								else
 									ql1_input
@@ -273,7 +279,7 @@ function main() {
 
 							function input_container_ql1_version() {
 								QL1_VERSION=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "目前提供的版本有如下： \
-								2.10.7--13、2.11.0--3、2.12.0--2、2.13.0--8及最新 \
+								2.10.6--13、2.11.0--3、2.12.0--2、2.13.0--8及最新 \
 								请输入版本号[回车默认为：latest]" 12 55 3>&1 1>&2 2>&3)
 
 								exitstatus=$?
@@ -317,7 +323,7 @@ function main() {
 								fi
 
 								function input_container_ql1_network_config() {
-									QL1_NETWORK=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "请选择网络模式" 15 50 2 \
+									QL1_NETWORK=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "请选择网络模式" 12 40 2 \
 									"1" "bridge（桥接模式）" \
 									"2" "host模式" \
 									3>&1 1>&2 2>&3)
@@ -357,7 +363,7 @@ function main() {
 							;;
 						2 )
 							function input_container_ql2_info() {
-								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "访问方式为：宿主机ip:$QL_PORT \
+								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "访问方式为：宿主机 ip:$QL_PORT \
 								青龙 安装完成，点击 ok 退出脚本 " 10 50
 							}
 
@@ -442,13 +448,13 @@ function main() {
 							}
 
 							function input_container_ql2_check() {
-								if (whiptail --title "一键脚本 作者：kissyouhunter" --yesno "青龙容器名：$QL_CONTAINER_NAME \
-								青龙配置文件路径：$QL_PATH \
-								青龙网络类型：$NETWORK \
-								青龙面板端口：$QL_PORT \
-								青龙版本：$QL_TAG \
-								以上信息是否正确？" \
-								15 40) then
+								if (whiptail --title "一键脚本 作者：kissyouhunter" --yesno "青龙容器名：$QL_CONTAINER_NAME             \
+								青龙配置文件路径：$QL_PATH                \
+								青龙网络类型：$NETWORK                 \
+								青龙面板端口：$QL_PORT                 \
+								青龙版本：$QL_TAG                      \
+								以上信息是否正确？"                     \
+								13 40) then
 									input_container_ql2_docker
 								else
 									ql2_input
@@ -458,7 +464,7 @@ function main() {
 
 							function input_container_ql2_version() {
 								QL2_VERSION=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "目前提供的版本有如下： \
-								2.10.7--13、2.11.0--3、2.12.0--2、2.13.0--8及最新 \
+								2.10.6--13、2.11.0--3、2.12.0--2、2.13.0--8及最新 \
 								请输入版本号[回车默认为：latest]" 12 55 3>&1 1>&2 2>&3)
 
 								exitstatus=$?
@@ -501,7 +507,7 @@ function main() {
 								fi
 
 								function input_container_ql2_network_config() {
-									QL2_NETWORK=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "请选择网络模式" 15 50 2 \
+									QL2_NETWORK=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "请选择网络模式" 12 40 2 \
 									"1" "bridge（桥接模式）" \
 									"2" "host模式" \
 									3>&1 1>&2 2>&3)
@@ -564,7 +570,7 @@ function main() {
 					case "$SUBMENU3" in
 						1 )
 							function input_container_v2p1_info() {
-								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "访问方式为：宿主机ip:$V2P_PORT \
+								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "访问方式为：宿主机 ip:$V2P_PORT \
 								ELECV2P 安装完成，点击 ok 退出脚本 " 10 50
 							}
 
@@ -596,13 +602,13 @@ function main() {
 							}
 
 							function input_container_v2p1_check() {
-								if (whiptail --title "一键脚本 作者：kissyouhunter" --yesno "elecv2p 容器名：$V2P_CONTAINER_NAME \
-								elecv2p 面板端口：$V2P_PORT \
-								elecv2p anyproxy端口：$V2P_PORT1 \
-								elecv2p 网络请求查看端口：$V2P_PORT2 \
-								elecv2p 配置文件路径：$V2P_PATH \
-								以上信息是否正确？" \
-								11 50) then
+								if (whiptail --title "一键脚本 作者：kissyouhunter" --yesno "elecv2p 容器名：$V2P_CONTAINER_NAME       \
+								elecv2p 面板端口：$V2P_PORT             \
+								elecv2p anyproxy端口：$V2P_PORT1               \
+								elecv2p 网络请求查看端口：$V2P_PORT2          \
+								elecv2p 配置文件路径：$V2P_PATH             \
+								以上信息是否正确？"                          \
+								13 45) then
 									input_container_v2p1_build
 									sleep 10
 									input_container_v2p1_info
@@ -617,7 +623,7 @@ function main() {
 
 							function v2p1_input() {
 								function input_container_v2p1_name() {
-									V2P1_NAME=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入将要创建的容器名[默认为：elecv2p]" 10 55 3>&1 1>&2 2>&3)
+									V2P1_NAME=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入将要创建的容器名 [默认为：elecv2p]" 10 55 3>&1 1>&2 2>&3)
 
 									exitstatus=$?
 									if [ $exitstatus = 0 ]; then
@@ -658,7 +664,7 @@ function main() {
 
 								function input_container_v2p1_network_config() {
 									function input_container_v2p1_webui_config() {
-										V2P1_WEBUI_PORT_CHANGE=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "输入 elecv2p 面板端口[默认 8100]" 10 55 3>&1 1>&2 2>&3)
+										V2P1_WEBUI_PORT_CHANGE=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "输入 elecv2p 面板端口 [默认 8100]" 10 55 3>&1 1>&2 2>&3)
 
 										exitstatus=$?
 										if [ $exitstatus = 0 ]; then
@@ -674,7 +680,7 @@ function main() {
 									input_container_v2p1_webui_config
 
 									function input_container_v2p1_anyproxy_config() {
-										V2P1_WEBUI_PORT_CHANGE=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "输入 elecv2p 的 anyproxy 端口[默认 8101]" 10 55 3>&1 1>&2 2>&3)
+										V2P1_WEBUI_PORT_CHANGE=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "输入 elecv2p 的 anyproxy 端口 [默认 8101]" 10 55 3>&1 1>&2 2>&3)
 
 										exitstatus=$?
 										if [ $exitstatus = 0 ]; then
@@ -690,7 +696,7 @@ function main() {
 									input_container_v2p1_anyproxy_config
 
 									function input_container_v2p1_http_config() {
-										V2P1_WEBUI_PORT_CHANGE=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "输入 elecv2p 网络请求查看端口[默认 8102]" 10 55 3>&1 1>&2 2>&3)
+										V2P1_WEBUI_PORT_CHANGE=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "输入 elecv2p 网络请求查看端口 [默认 8102]" 10 55 3>&1 1>&2 2>&3)
 
 										exitstatus=$?
 										if [ $exitstatus = 0 ]; then
@@ -712,7 +718,7 @@ function main() {
 							;;
 						2 )
 							function input_container_v2p2_info() {
-								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "访问方式为：宿主机ip:$V2P_PORT \
+								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "访问方式为：宿主机 ip:$V2P_PORT \
 								ELECV2P 安装完成，点击 ok 退出脚本 " 10 50
 							}
 
@@ -744,19 +750,19 @@ function main() {
 							}
 
 							function input_container_v2p2_check() {
-								if (whiptail --title "一键脚本 作者：kissyouhunter" --yesno "elecv2p 容器名：$V2P_CONTAINER_NAME \
-								elecv2p 面板端口：$V2P_PORT \
-								elecv2p anyproxy端口：$V2P_PORT1 \
-								elecv2p 网络请求查看端口：$V2P_PORT2 \
-								elecv2p 配置文件路径：$V2P_PATH \
-								以上信息是否正确？" \
-								15 50) then
+								if (whiptail --title "一键脚本 作者：kissyouhunter" --yesno "elecv2p 容器名：$V2P_CONTAINER_NAME                  \
+								elecv2p 面板端口：$V2P_PORT                     \
+								elecv2p anyproxy端口：$V2P_PORT1                    \
+								elecv2p 网络请求查看端口：$V2P_PORT2                      \
+								elecv2p 配置文件路径：$V2P_PATH                   \
+								以上信息是否正确？"                               \
+								13 50) then
 									input_container_v2p2_build
 									sleep 10
 									input_container_v2p2_info
 									docker ps -a
 								else
-									v2p1_input
+									v2p2_input
 									V2P_PORT="8100"
 									V2P_PORT1="8101"
 									V2P_PORT2="8102"
@@ -765,7 +771,7 @@ function main() {
 
 							function v2p2_input() {
 								function input_container_v2p2_name() {
-									V2P2_NAME=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入将要创建的容器名[默认为：elecv2p]" 10 55 3>&1 1>&2 2>&3)
+									V2P2_NAME=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入将要创建的容器名 [默认为：elecv2p]" 10 55 3>&1 1>&2 2>&3)
 
 									exitstatus=$?
 									if [ $exitstatus = 0 ]; then
@@ -806,7 +812,7 @@ function main() {
 
 								function input_container_v2p2_network_config() {
 									function input_container_v2p2_webui_config() {
-										V2P2_WEBUI_PORT_CHANGE=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "输入 elecv2p 面板端口[默认 8100]" 10 55 3>&1 1>&2 2>&3)
+										V2P2_WEBUI_PORT_CHANGE=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "输入 elecv2p 面板端口 [默认 8100]" 10 55 3>&1 1>&2 2>&3)
 
 										exitstatus=$?
 										if [ $exitstatus = 0 ]; then
@@ -822,7 +828,7 @@ function main() {
 									input_container_v2p2_webui_config
 
 									function input_container_v2p2_anyproxy_config() {
-										V2P2_WEBUI_PORT_CHANGE=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "输入 elecv2p 的 anyproxy 端口[默认 8101]" 10 55 3>&1 1>&2 2>&3)
+										V2P2_WEBUI_PORT_CHANGE=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "输入 elecv2p 的 anyproxy 端口 [默认 8101]" 10 55 3>&1 1>&2 2>&3)
 
 										exitstatus=$?
 										if [ $exitstatus = 0 ]; then
@@ -838,7 +844,7 @@ function main() {
 									input_container_v2p2_anyproxy_config
 
 									function input_container_v2p2_http_config() {
-										V2P2_WEBUI_PORT_CHANGE=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "输入 elecv2p 网络请求查看端口[默认 8102]" 10 55 3>&1 1>&2 2>&3)
+										V2P2_WEBUI_PORT_CHANGE=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "输入 elecv2p 网络请求查看端口 [默认 8102]" 10 55 3>&1 1>&2 2>&3)
 
 										exitstatus=$?
 										if [ $exitstatus = 0 ]; then
@@ -884,7 +890,7 @@ function main() {
 					case "$SUBMENU4" in
 						1 )
 							function input_container_portainer_info() {
-								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "访问方式为：宿主机ip:9000 \
+								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "访问方式为：宿主机 ip:9000 \
 								PORTAINER 安装完成，点击 ok 退出脚本 " 10 45
 							}
 
@@ -901,7 +907,7 @@ function main() {
 							;;
 						2 )
 							function input_container_fast_info() {
-								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "访问方式为：宿主机ip:18081 \
+								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "访问方式为：宿主机 ip:18081 \
 								Fast Os Docker 安装完成 \
 								点击 ok 退出脚本 " 10 30
 							}
@@ -918,7 +924,7 @@ function main() {
 							;;
 						3 )
 							function input_container_simple_info() {
-								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "访问方式为：宿主机ip:9009 \
+								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "访问方式为：宿主机 ip:9009 \
 								simpledocker 安装完成，点击 ok 退出脚本 " 10 45
 							}
 
@@ -958,7 +964,7 @@ function main() {
 					case "$SUBMENU5" in
 						1 )
 							function input_container_emby_info() {
-								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "访问方式为宿主机ip:$EMBY_PORT \
+								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "访问方式为宿主机 ip:$EMBY_PORT \
 								执行命令 chmod 777 /dev/dri/* 才能读取到显卡 \
 								emby 安装完成，点击 ok 退出脚本 " 10 50
 							}
@@ -1010,14 +1016,14 @@ function main() {
 							}
 
 							function input_container_emby_check() {
-								if (whiptail --title "一键脚本 作者：kissyouhunter" --yesno "emby 容器名：$EMBY_CONTAINER_NAME \
-								emby 配置文件路径：$CONFIG_PATH \
-								emby 电影文件路径：$MOVIES_PATH \
-								emby 电视剧文件路径：$TVSHOWS_PATH \
-								emby 面板端口：$EMBY_PORT \
-								emby https 端口：$EMBY_PORT1 \
-								以上信息是否正确？" \
-								15 50) then
+								if (whiptail --title "一键脚本 作者：kissyouhunter" --yesno "emby 容器名：$EMBY_CONTAINER_NAME                        \
+								emby 配置文件路径：$CONFIG_PATH                                          \
+								emby 电影文件路径：$MOVIES_PATH                                   \
+								emby 电视剧文件路径：$TVSHOWS_PATH                                     \
+								emby 面板端口：$EMBY_PORT                                     \
+								emby https 端口：$EMBY_PORT1                                   \
+								以上信息是否正确？"                                	       \
+								14 45) then
 									input_container_emby_build
 									sleep 10
 									input_container_emby_info
@@ -1031,7 +1037,7 @@ function main() {
 
 							function input_container_emby_input() {
 								function input_container_emby_name() {
-									EMBY_NAME=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入将要创建的容器名[回车默认为：emby]" 10 55 3>&1 1>&2 2>&3)
+									EMBY_NAME=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入将要创建的容器名 [回车默认为：emby]" 10 55 3>&1 1>&2 2>&3)
 
 									exitstatus=$?
 									if [ $exitstatus = 0 ]; then
@@ -1047,7 +1053,9 @@ function main() {
 								input_container_emby_name
 
 								function input_container_emby_config() {
-									EMBY_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入 emby 配置文件保存的绝对路径（示例：/home/emby)，回车默认为当前目录:" 10 55 3>&1 1>&2 2>&3)
+									EMBY_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入 emby 配置文件保存的 \
+									绝对路径（示例：/home/emby)， \
+									回车默认为当前目录:" 10 45 3>&1 1>&2 2>&3)
 
 									exitstatus=$?
 									if [ $exitstatus = 0 ]; then
@@ -1059,7 +1067,7 @@ function main() {
 									else
 										exit 0
 									fi
-									CONFIG_PATH=$EMBY_PATH/config
+									CONFIG_PATH=$EMBY_PATH
 								}
 								input_container_emby_config
 
@@ -1080,12 +1088,13 @@ function main() {
 								input_container_emby_movies_config
 
 								function input_container_emby_tvshows_config() {
-									TVSHOWS_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入电影文件保存的绝对路径（示例：/home/movies)，回车默认为当前目录:" 10 55 3>&1 1>&2 2>&3)
+									TVSHOWS_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入的电视剧文件保存的绝对路径 \
+									（示例：/home/tvshows)，回车默认为当前目录:" 10 55 3>&1 1>&2 2>&3)
 
 									exitstatus=$?
 									if [ $exitstatus = 0 ]; then
 										if [ -z "$TVSHOWS_CONFIG" ]; then
-											TVSHOWS_PATH=$(pwd)/movies
+											TVSHOWS_PATH=$(pwd)/tvshows
 										else
 											TVSHOWS_PATH=$TVSHOWS_CONFIG
 										fi
@@ -1096,7 +1105,7 @@ function main() {
 								input_container_emby_tvshows_config
 
 								function input_container_emby_webui_config() {
-									EMBY_WEBUI_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入 emby 面板端口[默认 8096]" 10 55 3>&1 1>&2 2>&3)
+									EMBY_WEBUI_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入 emby 面板端口 [默认 8096]" 10 55 3>&1 1>&2 2>&3)
 
 									exitstatus=$?
 									if [ $exitstatus = 0 ]; then
@@ -1112,7 +1121,7 @@ function main() {
 								input_container_emby_webui_config
 
 								function input_container_emby_https_config() {
-									EMBY_HTTPS_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入 emby 的 https 端口[默认 8920]" 10 55 3>&1 1>&2 2>&3)
+									EMBY_HTTPS_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入 emby 的 https 端口 [默认 8920]" 10 55 3>&1 1>&2 2>&3)
 
 									exitstatus=$?
 									if [ $exitstatus = 0 ]; then
@@ -1132,7 +1141,7 @@ function main() {
 							;;
 						2 )
 							function input_container_jellyfin_info() {
-								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "访问方式为宿主机ip:端口 \
+								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "访问方式为宿主机 ip:$JELLYFIN_PORT \
 								执行命令 chmod 777 /dev/dri/* 才能读取到显卡 \
 								jellyfin 安装完成，点击 ok 退出脚本 " 10 50
 							}
@@ -1183,15 +1192,15 @@ function main() {
 								fi
 							}
 
-							function input_container_emby_check() {
-								if (whiptail --title "一键脚本 作者：kissyouhunter" --yesno "jellyfin 容器名：$JELLYFIN_CONTAINER_NAME \
-								jellyfin 配置文件路径：$CONFIG_PATH \
-								jellyfin 电影文件路径：$MOVIES_PATH \
-								jellyfin 电视剧文件路径：$TVSHOWS_PATH \
-								jellyfin 面板端口：$JELLYFIN_PORT \
-								jellyfin https端口：$JELLYFIN_PORT1 \
-								以上信息是否正确？" \
-								15 50) then
+							function input_container_jellyfin_check() {
+								if (whiptail --title "一键脚本 作者：kissyouhunter" --yesno "jellyfin 容器名：$JELLYFIN_CONTAINER_NAME                           \
+								jellyfin 配置文件路径：$CONFIG_PATH                               \
+								jellyfin 电影文件路径：$MOVIES_PATH                                   \
+								jellyfin 电视剧文件路径：$TVSHOWS_PATH                             \
+								jellyfin 面板端口：$JELLYFIN_PORT                                  \
+								jellyfin https端口：$JELLYFIN_PORT1                                   \
+								以上信息是否正确？"                                                  \
+								14 50) then
 									input_container_jellyfin_build
 									sleep 10
 									input_container_jellyfin_info
@@ -1205,7 +1214,7 @@ function main() {
 
 							function input_container_jellyfin_input() {
 								function input_container_jellyfin_name() {
-									JELLYFIN_NAME=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入将要创建的容器名[回车默认为：jellyfin]" 10 55 3>&1 1>&2 2>&3)
+									JELLYFIN_NAME=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入将要创建的容器名 [回车默认为：jellyfin]" 10 55 3>&1 1>&2 2>&3)
 
 									exitstatus=$?
 									if [ $exitstatus = 0 ]; then
@@ -1221,7 +1230,9 @@ function main() {
 								input_container_jellyfin_name
 
 								function input_container_jellyfin_config() {
-									JELLYFIN_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入 jellyfin 配置文件保存的绝对路径（示例：/home/jellyfin)，回车默认为当前目录:" 10 55 3>&1 1>&2 2>&3)
+									JELLYFIN_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入 jellyfin 配置文件保存的绝对路径 \
+									（示例：/home/jellyfin)， \
+									回车默认为当前目录:" 10 50 3>&1 1>&2 2>&3)
 
 									exitstatus=$?
 									if [ $exitstatus = 0 ]; then
@@ -1233,7 +1244,7 @@ function main() {
 									else
 										exit 0
 									fi
-									CONFIG_PATH=$JELLYFIN_PATH/config
+									CONFIG_PATH=$JELLYFIN_PATH
 								}
 								input_container_jellyfin_config
 
@@ -1254,12 +1265,13 @@ function main() {
 								input_container_jellyfin_movies_config
 
 								function input_container_jellyfin_tvshows_config() {
-									TVSHOWS_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入电影文件保存的绝对路径（示例：/home/movies)，回车默认为当前目录:" 10 55 3>&1 1>&2 2>&3)
+									TVSHOWS_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入电视剧文件保存的绝对路径 \
+									（示例：/home/tvshows)，回车默认为当前目录:" 10 55 3>&1 1>&2 2>&3)
 
 									exitstatus=$?
 									if [ $exitstatus = 0 ]; then
 										if [ -z "$TVSHOWS_CONFIG" ]; then
-											TVSHOWS_PATH=$(pwd)/movies
+											TVSHOWS_PATH=$(pwd)/tvshows
 										else
 											TVSHOWS_PATH=$TVSHOWS_CONFIG
 										fi
@@ -1270,7 +1282,7 @@ function main() {
 								input_container_jellyfin_tvshows_config
 
 								function input_container_jellyfin_webui_config() {
-									JELLYFIN_WEBUI_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入 jellyfin 面板端口[默认 8096]" 10 55 3>&1 1>&2 2>&3)
+									JELLYFIN_WEBUI_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入 jellyfin 面板端口 [默认 8096]" 10 55 3>&1 1>&2 2>&3)
 
 									exitstatus=$?
 									if [ $exitstatus = 0 ]; then
@@ -1286,7 +1298,7 @@ function main() {
 								input_container_jellyfin_webui_config
 
 								function input_container_jellyfin_https_config() {
-									JELLYFIN_HTTPS_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入 jellyfin 的 https 端口[默认 8920]" 10 55 3>&1 1>&2 2>&3)
+									JELLYFIN_HTTPS_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入 jellyfin 的 https 端口 [默认 8920]" 10 55 3>&1 1>&2 2>&3)
 									
 									exitstatus=$?
 									if [ $exitstatus = 0 ]; then
@@ -1313,6 +1325,303 @@ function main() {
 				fi
 			}
 			submenu5
+			;;
+		6 )
+			#安装qbittorrent,aria2,ari2-pro
+            clear
+			function submenu6() {
+				SUBMENU5=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "安装下载工具" 15 40 4 \
+				"1" "安装 qbittorrent 增强版" \
+				"2" "安装 aria2" \
+				"3" "安装 aria2-pro" \
+				"0" "返回上级菜单" \
+				3>&1 1>&2 2>&3)
+
+				exitstatus=$?
+				if [ $exitstatus = 0 ]; then
+					case "$SUBMENU5" in
+						1 )
+							function input_container_qb_info() {
+								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "访问方式为宿主机 ip:$QB_PORT                        \
+								默认用户名 admin，默认密码 adminadmin \
+								qbittorrent 安装完成，点击 ok 退出脚本 " 10 50
+							}
+
+							function input_container_qb_build() {
+								TIME y " >>>>>>>>>>>配置完成，开始安装 qbittorrent"
+								log "1.开始创建配置文件目录"
+								PATH_LIST=($CONFIG_PATH $QB_DOWNLOAD_PATH)
+								for i in ${PATH_LIST[@]}; do
+									mkdir -p $i
+								done
+
+								log "2.开始创建容器并执行"
+								docker run -dit \
+      								-v $QB_PATH:/config \
+      								-v $QB_DOWNLOAD_PATH:/Downloads \
+     								 -e QB_WEBUI_PORT="$QB_PORT"  \
+     								 -p 6881:6881 -p 6881:6881/udp -p "$QB_PORT":8989 \
+     								 -e QB_EE_BIN=true \
+     								 -e UID=0  \
+     								 -e GID=0  \
+     								 -e UMASK=022  \
+     								 --name $QB_CONTAINER_NAME \
+     								 --hostname $QB_CONTAINER_NAME \
+     								 --restart always \
+    								  $QB_DOCKER_IMG_NAME:$QB_TAG
+								if [ $? -ne 0 ] ; then
+									cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
+								fi
+							}
+
+							function input_container_qb_check() {
+								if (whiptail --title "一键脚本 作者：kissyouhunter" --yesno "qbittorrent 容器名：$QB_CONTAINER_NAME                                   \
+								qbittorrent 配置文件路径：$QB_PATH                                        \
+								qbittorrent 下载文件路径：$QB_DOWNLOAD_PATH                                    \
+								qbittorrent 面板端口：$QB_PORT                                                    \
+								以上信息是否正确？"                                                 \
+								12 50) then
+									input_container_qb_build
+									sleep 10
+									input_container_qb_info
+									docker ps -a
+								else
+									input_container_qb_input
+									QB_PORT="8989"
+								fi
+							}
+
+							function input_container_qb_input() {
+								function input_container_qb_name() {
+									QB_NAME=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入将要创建的容器名[回车默认为：qbittorrent]" 10 55 3>&1 1>&2 2>&3)
+
+									exitstatus=$?
+									if [ $exitstatus = 0 ]; then
+										if [ -z "$QB_NAME" ]; then
+											QB_CONTAINER_NAME="qbittorrent"
+										else
+											QB_CONTAINER_NAME=$QB_NAME
+										fi
+									else
+										exit 0
+									fi
+								}
+								input_container_qb_name
+
+								function input_container_qb_config() {
+									QB_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入 qbittorrent 增强版配置文件保存的绝对路径 \
+									（示例：/home/qbittorrent)，                         \
+									回车默认为当前目录:" 10 55 3>&1 1>&2 2>&3)
+
+									exitstatus=$?
+									if [ $exitstatus = 0 ]; then
+										if [ -z "$QB_CONFIG" ]; then
+											QB_PATH=$(pwd)/qbittorrent
+										else
+											QB_PATH=$QB_CONFIG
+										fi
+									else
+										exit 0
+									fi
+								}
+								input_container_qb_config
+
+								function input_container_qb_download_config() {
+									QB_DOWNLOAD_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入下载文件保存的绝对路径 \
+									（示例：/home/downloads)，                               \
+									回车默认为当前目录:" 10 45 3>&1 1>&2 2>&3)
+
+									exitstatus=$?
+									if [ $exitstatus = 0 ]; then
+										if [ -z "$QB_DOWNLOAD_CONFIG" ]; then
+											QB_DOWNLOAD_PATH=$(pwd)/downloads
+										else
+											QB_DOWNLOAD_PATH=$QB_DOWNLOAD_CONFIG
+										fi
+									else
+										exit 0
+									fi
+								}
+								input_container_qb_download_config
+
+								function input_container_qb_web_config() {
+									QB_WEB_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入 qbittorrent 增强版的面板端口 [默认 8989]" 10 55 3>&1 1>&2 2>&3)
+
+									exitstatus=$?
+									if [ $exitstatus = 0 ]; then
+										if [ -z "$QB_WEB_CONFIG" ]; then
+											QB_PORT="8989"
+										else
+											QB_PORT=$QB_WEB_CONFIG
+										fi
+									else
+										exit 0
+									fi									
+								}
+								input_container_qb_web_config
+								input_container_qb_check
+							}
+							input_container_qb_input
+							;;
+						2 )
+							function input_container_aria2_info() {
+								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "访问方式为宿主机 ip:$ARIA2_PORT                                          \
+								Aria密钥设置在面板如下位置                                                          \
+								AriaNg 设置 > RPC(IP:6800) > Aria2 RPC 密钥                                                            \
+								设置的密钥为 $ARIA2_TOKEN                                                \
+								aria2 安装完成，点击 ok 退出脚本 " 13 50
+							}
+
+							function input_container_aria2_build() {
+								TIME y " >>>>>>>>>>>配置完成，开始安装 aria2"
+								log "1.开始创建配置文件目录"
+								PATH_LIST=($CONFIG_PATH $MOVIES_PATH)
+								for i in ${PATH_LIST[@]}; do
+									mkdir -p $i
+								done
+
+								log "2.开始创建容器并执行"
+								docker run -dit \
+      								-v $CONFIG_PATH:/config \
+      								-v $ARIA2_DOWNLOAD_PATH:/downloads \
+      								-e WEBUIPORT="$ARIA2_PORT" \
+      								-p 32516:32516 -p 32516:32516/udp -p 6800:6800 -p "$ARIA2_PORT":8080 \
+      								-e TZ=Asia/Shanghai \
+      								-e SECRET=$ARIA2_TOKEN \
+      								-e UID=0  \
+      								-e GID=0  \
+      								-e CACHE=512M \
+      								-e PORT=6800 \
+      								-e BTPORT=32516 \
+      								-e UT=true \
+      								-e RUT=true \
+      								-e FA=falloc \
+      								-e QUIET=true \
+      								-e SMD=false \
+      								--name $ARIA2_CONTAINER_NAME \
+      								--hostname $ARIA2_CONTAINER_NAME \
+      								--restart always \
+      								$ARIA2_DOCKER_IMG_NAME:$ARIA2_TAG
+								
+								if [ $? -ne 0 ] ; then
+									cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
+								fi
+							}
+
+							function input_container_aria2_check() {
+								if (whiptail --title "一键脚本 作者：kissyouhunter" --yesno "aria2 容器名：$ARIA2_CONTAINER_NAME                                  \
+								aria2 配置文件路径：$CONFIG_PATH                                           \
+								aria2 下载文件路径：$ARIA2_DOWNLOAD_PATH                                        \
+								aria2 面板端口：$ARIA2_PORT                                                   \
+								aria2 密钥：$ARIA2_TOKEN                                                   \
+								以上信息是否正确？"                                                       \
+								14 50) then
+									input_container_aria2_build
+									sleep 10
+									input_container_aria2_info
+									docker ps -a
+								else
+									input_container_aria2_input
+									ARIA2_PORT="8080"
+								fi
+							}
+
+							function input_container_aria2_input() {
+								function input_container_aria2_name() {
+									ARIA2_NAME=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入将要创建的容器名 [回车默认为：aria2]" 10 55 3>&1 1>&2 2>&3)
+
+									exitstatus=$?
+									if [ $exitstatus = 0 ]; then
+										if [ -z "$ARIA2_NAME" ]; then
+											ARIA2_CONTAINER_NAME="aria2"
+										else
+											ARIA2_CONTAINER_NAME=$ARIA2_NAME
+										fi
+									else
+										exit 0
+									fi
+								}
+								input_container_aria2_name
+
+								function input_container_aria2_config() {
+									ARIA2_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入 aria2 配置文件保存的绝对路径 \
+									（示例：/home/ARIA2)，回车默认为当前目录:" 10 55 3>&1 1>&2 2>&3)
+
+									exitstatus=$?
+									if [ $exitstatus = 0 ]; then
+										if [ -z "$ARIA2_CONFIG" ]; then
+											ARIA2_PATH=$(pwd)/aria2
+										else
+											ARIA2_PATH=$ARIA2_CONFIG
+										fi
+									else
+										exit 0
+									fi
+									CONFIG_PATH=$ARIA2_PATH
+								}
+								input_container_aria2_config
+
+								function input_container_aria2_download_config() {
+									ARIA2_DOWNLOAD_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入下载文件保存的绝对路径 \
+									（示例：/home/downloads)，回车默认为当前目录:" 10 55 3>&1 1>&2 2>&3)
+
+									exitstatus=$?
+									if [ $exitstatus = 0 ]; then
+										if [ -z "$ARIA2_DOWNLOAD_CONFIG" ]; then
+											ARIA2_DOWNLOAD_PATH=$(pwd)/downloads
+										else
+											ARIA2_DOWNLOAD_PATH=$ARIA2_DOWNLOAD_CONFIG
+										fi
+									else
+										exit 0
+									fi
+								}
+								input_container_aria2_download_config
+
+								function input_container_aria2_webui_config() {
+									ARIA2_WEBUI_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入 aria2 面板端口 [默认 8080]" 10 55 3>&1 1>&2 2>&3)
+
+									exitstatus=$?
+									if [ $exitstatus = 0 ]; then
+										if [ -z "$ARIA2_WEBUI_CONFIG" ]; then
+											ARIA2_PORT="8080"
+										else
+											ARIA2_PORT=$ARIA2_WEBUI_CONFIG
+										fi
+									else
+										exit 0
+									fi
+								}
+								input_container_aria2_webui_config
+
+								function input_container_aria2_token_config() {
+									ARIA2_TOKEN_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入 aria2 的密钥 [默认 aria2]" 10 55 3>&1 1>&2 2>&3)
+
+									exitstatus=$?
+									if [ $exitstatus = 0 ]; then
+										if [ -z "$ARIA2_TOKEN_CONFIG" ]; then
+											ARIA2_TOKEN="aria2"
+										else
+											ARIA2_TOKEN=$ARIA2_TOKEN_CONFIG
+										fi
+									else
+										exit 0
+									fi
+								}
+								input_container_aria2_token_config
+								input_container_aria2_check
+							}
+							input_container_aria2_input
+							;;
+						0 )
+							main
+							;;
+					esac
+				else
+					exit 0
+				fi
+			}
+			submenu6
 			;;
 		exit | quit | q )
 			exit
