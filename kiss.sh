@@ -1135,21 +1135,6 @@ TIME b "(0) 返回上级菜单"
    done
  clear
  ;;
- 0) 
- clear 
- break
- ;;
- *) TIME r "----------------------------------"
-    TIME r "|          Warning!!!            |"
-    TIME r "|       请输入正确的选项!        |"
-    TIME r "----------------------------------"
- for i in $(seq -w 1 -1 1)
-   do
-     #TIME r "\b\b$i";
-     sleep 1;
-   done
- clear
- ;;
  esac
  done
 ;;
