@@ -97,7 +97,7 @@ function main() {
 			#安装docker和docker-compose
             clear
 			function submenu1() {
-				SUBMENU1=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "安装 <DOCKER & DOCKER-COMPOSE>" 15 63 4 \
+				SUBMENU1=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "DOCKER & DOCKER-COMPOSE" 15 63 4 \
 				"1" "安装<docker>和<docker-compose>" \
 				"2" "X86 openwrt安装docker和装docker-comopse" \
 				"3" "Arm64 openwrt安装docker和装docker-comopse(例 N1 等)" \
@@ -170,7 +170,7 @@ function main() {
 			#安装青龙
             clear
 			function submenu2() {
-				SUBMENU2=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "安装 青龙" 15 52 3 \
+				SUBMENU2=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "青龙" 15 52 3 \
 				"1" "linxu系统、X86 的 openwrt、群辉等请选择 1" \
 				"2" "N1 的 EMMC 上运行的 openwrt 请选择 2" \
 				"0" "返回上级菜单" \
@@ -562,7 +562,7 @@ function main() {
 			#安装elecv2p
             clear
 			function submenu3() {
-				SUBMENU3=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "安装 ELECV2P" 15 52 3 \
+				SUBMENU3=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "ELECV2P" 15 52 3 \
 				"1" "linxu系统、X86 的 openwrt、群辉等请选择 1" \
 				"2" "N1 的 EMMC 上运行的 openwrt 请选择 2" \
 				"0" "返回上级菜单" \
@@ -956,7 +956,7 @@ function main() {
 			#安装emby和jellyfin
             clear
 			function submenu5() {
-				SUBMENU5=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "安装 EMBY & JELLYFIN" 15 40 3 \
+				SUBMENU5=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "EMBY & JELLYFIN" 15 40 3 \
 				"1" "安装 emby (开心版暂无 arm64)" \
 				"2" "安装 jellyfin" \
 				"0" "返回上级菜单" \
@@ -1333,7 +1333,7 @@ function main() {
 			#安装qbittorrent,aria2,ari2-pro
             clear
 			function submenu6() {
-				SUBMENU5=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "安装下载工具" 15 40 4 \
+				SUBMENU5=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "下载工具" 15 40 4 \
 				"1" "安装 qbittorrent 增强版" \
 				"2" "安装 aria2" \
 				"3" "安装 aria2-pro" \
@@ -1792,6 +1792,266 @@ function main() {
 				fi
 			}
 			submenu6
+			;;
+		7 )
+			#安装telethon
+            clear
+			function submenu7() {
+				SUBMENU5=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "telethon" 15 40 3 \
+				"1" "linxu系统、X86 的 openwrt、群辉等请选择 1" \
+				"2" "N1 的 EMMC 上运行的 openwrt 请选择 2" \
+				"0" "返回上级菜单" \
+				3>&1 1>&2 2>&3)
+
+				exitstatus=$?
+				if [ $exitstatus = 0 ]; then
+					case "$SUBMENU5" in
+						1 )
+							function input_container_telethon1_info() {
+								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "访问方式为宿主机 ip:$QB_PORT                        \
+								默认用户名 admin，默认密码 adminadmin \
+								qbittorrent 安装完成，点击 ok 退出脚本 " 10 50
+							}
+
+							function input_container_telethon1_build() {
+								TIME y " >>>>>>>>>>>配置完成，开始安装 telethon"
+								log "1.开始创建配置文件目录"
+								PATH_LIST=($QB_PATH $QB_DOWNLOAD_PATH)
+								for i in ${PATH_LIST[@]}; do
+									mkdir -p $i
+								done
+
+								log "2.开始创建容器并执行"
+								docker run -dit \
+      								-v $QB_PATH:/config \
+      								-v $QB_DOWNLOAD_PATH:/Downloads \
+     								 -e QB_WEBUI_PORT="$QB_PORT"  \
+     								 -p 6881:6881 -p 6881:6881/udp -p "$QB_PORT":8989 \
+     								 -e QB_EE_BIN=true \
+     								 -e UID=0  \
+     								 -e GID=0  \
+     								 -e UMASK=022  \
+     								 --name $QB_CONTAINER_NAME \
+     								 --hostname $QB_CONTAINER_NAME \
+     								 --restart always \
+    								  $QB_DOCKER_IMG_NAME:$QB_TAG
+								if [ $? -ne 0 ] ; then
+									cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
+								fi
+							}
+
+							function input_container_telethon1_check() {
+								if (whiptail --title "一键脚本 作者：kissyouhunter" --yesno "telethon 容器名：$QB_CONTAINER_NAME                                   \
+								qbittorrent 配置文件路径：$QB_PATH                                        \
+								qbittorrent 下载文件路径：$QB_DOWNLOAD_PATH                                    \
+								qbittorrent 面板端口：$QB_PORT                                                    \
+								以上信息是否正确？"                                                 \
+								12 50) then
+									input_container_telethon1_build
+									sleep 10
+									input_container_telethon1_info
+									docker ps -a
+								else
+									input_container_telethon1_input
+								fi
+							}
+
+							function input_container_telethon1_input() {
+								function input_container_telethon1_name() {
+									TELETHON1_NAME=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入将要创建的容器名[回车默认为：telethon]" 10 55 3>&1 1>&2 2>&3)
+
+									exitstatus=$?
+									if [ $exitstatus = 0 ]; then
+										if [ -z "$TELETHON1_NAME" ]; then
+											TELETHON1_CONTAINER_NAME="telethon"
+										else
+											TELETHON1_CONTAINER_NAME=$TELETHON1_NAME
+										fi
+									else
+										exit 0
+									fi
+								}
+								input_container_telethon1_name
+
+								function input_container_telethon1_config() {
+									TELETHON1_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入 telethon 配置文件保存的绝对路径 \
+									（示例：/home/telethon)，                                    \
+									回车默认为当前目录:" 10 55 3>&1 1>&2 2>&3)
+
+									exitstatus=$?
+									if [ $exitstatus = 0 ]; then
+										if [ -z "$TELETHON1_CONFIG" ]; then
+											TELETHON1_PATH=$(pwd)/telethon
+										else
+											TELETHON1_PATH=$TELETHON1_CONFIG
+										fi
+									else
+										exit 0
+									fi
+								}
+								input_container_telethon1_config
+								input_container_telethon1_check
+							}
+							input_container_telethon1_input
+							;;
+						2 )
+							function input_container_aria2_info() {
+								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "访问方式为宿主机 ip:$ARIA2_PORT                                          \
+								Aria密钥设置在面板如下位置                                                          \
+								AriaNg 设置 > RPC(IP:6800) > Aria2 RPC 密钥                                                            \
+								设置的密钥为 $ARIA2_TOKEN                                                \
+								aria2 安装完成，点击 ok 退出脚本 " 13 50
+							}
+
+							function input_container_aria2_build() {
+								TIME y " >>>>>>>>>>>配置完成，开始安装 aria2"
+								log "1.开始创建配置文件目录"
+								PATH_LIST=($ARIA2_PATH $ARIA2_DOWNLOAD_PATH)
+								for i in ${PATH_LIST[@]}; do
+									mkdir -p $i
+								done
+
+								log "2.开始创建容器并执行"
+								docker run -dit \
+      								-v $ARIA2_PATH:/config \
+      								-v $ARIA2_DOWNLOAD_PATH:/downloads \
+      								-e WEBUIPORT="$ARIA2_PORT" \
+      								-p 32516:32516 -p 32516:32516/udp -p 6800:6800 -p "$ARIA2_PORT":8080 \
+      								-e TZ=Asia/Shanghai \
+      								-e SECRET=$ARIA2_TOKEN \
+      								-e UID=0  \
+      								-e GID=0  \
+      								-e CACHE=512M \
+      								-e PORT=6800 \
+      								-e BTPORT=32516 \
+      								-e UT=true \
+      								-e RUT=true \
+      								-e FA=falloc \
+      								-e QUIET=true \
+      								-e SMD=false \
+      								--name $ARIA2_CONTAINER_NAME \
+      								--hostname $ARIA2_CONTAINER_NAME \
+      								--restart always \
+      								$ARIA2_DOCKER_IMG_NAME:$ARIA2_TAG
+								
+								if [ $? -ne 0 ] ; then
+									cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
+								fi
+							}
+
+							function input_container_aria2_check() {
+								if (whiptail --title "一键脚本 作者：kissyouhunter" --yesno "aria2 容器名：$ARIA2_CONTAINER_NAME                                  \
+								aria2 配置文件路径：$ARIA2_PATH                                           \
+								aria2 下载文件路径：$ARIA2_DOWNLOAD_PATH                                        \
+								aria2 面板端口：$ARIA2_PORT                                                   \
+								aria2 密钥：$ARIA2_TOKEN                                                   \
+								以上信息是否正确？"                                                       \
+								14 50) then
+									input_container_aria2_build
+									sleep 10
+									input_container_aria2_info
+									docker ps -a
+								else
+									input_container_aria2_input
+									ARIA2_PORT="8080"
+								fi
+							}
+
+							function input_container_aria2_input() {
+								function input_container_aria2_name() {
+									ARIA2_NAME=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入将要创建的容器名 [回车默认为：aria2]" 10 55 3>&1 1>&2 2>&3)
+
+									exitstatus=$?
+									if [ $exitstatus = 0 ]; then
+										if [ -z "$ARIA2_NAME" ]; then
+											ARIA2_CONTAINER_NAME="aria2"
+										else
+											ARIA2_CONTAINER_NAME=$ARIA2_NAME
+										fi
+									else
+										exit 0
+									fi
+								}
+								input_container_aria2_name
+
+								function input_container_aria2_config() {
+									ARIA2_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入 aria2 配置文件保存的绝对路径 \
+									（示例：/home/aria2)，回车默认为当前目录:" 10 55 3>&1 1>&2 2>&3)
+
+									exitstatus=$?
+									if [ $exitstatus = 0 ]; then
+										if [ -z "$ARIA2_CONFIG" ]; then
+											ARIA2_PATH=$(pwd)/aria2
+										else
+											ARIA2_PATH=$ARIA2_CONFIG
+										fi
+									else
+										exit 0
+									fi
+								}
+								input_container_aria2_config
+
+								function input_container_aria2_download_config() {
+									ARIA2_DOWNLOAD_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入下载文件保存的绝对路径 \
+									（示例：/home/downloads)，回车默认为当前目录:" 10 55 3>&1 1>&2 2>&3)
+
+									exitstatus=$?
+									if [ $exitstatus = 0 ]; then
+										if [ -z "$ARIA2_DOWNLOAD_CONFIG" ]; then
+											ARIA2_DOWNLOAD_PATH=$(pwd)/downloads
+										else
+											ARIA2_DOWNLOAD_PATH=$ARIA2_DOWNLOAD_CONFIG
+										fi
+									else
+										exit 0
+									fi
+								}
+								input_container_aria2_download_config
+
+								function input_container_aria2_webui_config() {
+									ARIA2_WEBUI_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入 aria2 面板端口 [默认 8080]" 10 55 3>&1 1>&2 2>&3)
+
+									exitstatus=$?
+									if [ $exitstatus = 0 ]; then
+										if [ -z "$ARIA2_WEBUI_CONFIG" ]; then
+											ARIA2_PORT="8080"
+										else
+											ARIA2_PORT=$ARIA2_WEBUI_CONFIG
+										fi
+									else
+										exit 0
+									fi
+								}
+								input_container_aria2_webui_config
+
+								function input_container_aria2_token_config() {
+									ARIA2_TOKEN_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入 aria2 的密钥 [默认 aria2]" 10 55 3>&1 1>&2 2>&3)
+
+									exitstatus=$?
+									if [ $exitstatus = 0 ]; then
+										if [ -z "$ARIA2_TOKEN_CONFIG" ]; then
+											ARIA2_TOKEN="aria2"
+										else
+											ARIA2_TOKEN=$ARIA2_TOKEN_CONFIG
+										fi
+									else
+										exit 0
+									fi
+								}
+								input_container_aria2_token_config
+								input_container_aria2_check
+							}
+							input_container_aria2_input
+							;;
+						0 )
+							main
+							;;
+					esac
+				else
+					exit 0
+				fi
+			}
+			submenu7
 			;;
 		exit | quit | q )
 			exit
