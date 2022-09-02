@@ -62,6 +62,9 @@ QB_TAG="4.4.3.1-4.4.3.12"
 # aria2变量
 ARIA2_DOCKER_IMG_NAME="superng6/aria2"
 ARIA2_TAG="webui-latest"
+# aria2-pro变量
+ARIA2_PRO_DOCKER_IMG_NAME="p3terx/aria2-pro"
+ARIA2_PRO_WEBUI_DOCKER_IMG_NAME="p3terx/ariang"
 
 #检查root环境
 #f [[ $EUID != 0 ]]; then
@@ -1350,7 +1353,7 @@ function main() {
 							function input_container_qb_build() {
 								TIME y " >>>>>>>>>>>配置完成，开始安装 qbittorrent"
 								log "1.开始创建配置文件目录"
-								PATH_LIST=($CONFIG_PATH $QB_DOWNLOAD_PATH)
+								PATH_LIST=($QB_PATH $QB_DOWNLOAD_PATH)
 								for i in ${PATH_LIST[@]}; do
 									mkdir -p $i
 								done
@@ -1475,14 +1478,14 @@ function main() {
 							function input_container_aria2_build() {
 								TIME y " >>>>>>>>>>>配置完成，开始安装 aria2"
 								log "1.开始创建配置文件目录"
-								PATH_LIST=($CONFIG_PATH $MOVIES_PATH)
+								PATH_LIST=($ARIA2_PATH $ARIA2_DOWNLOAD_PATH)
 								for i in ${PATH_LIST[@]}; do
 									mkdir -p $i
 								done
 
 								log "2.开始创建容器并执行"
 								docker run -dit \
-      								-v $CONFIG_PATH:/config \
+      								-v $ARIA2_PATH:/config \
       								-v $ARIA2_DOWNLOAD_PATH:/downloads \
       								-e WEBUIPORT="$ARIA2_PORT" \
       								-p 32516:32516 -p 32516:32516/udp -p 6800:6800 -p "$ARIA2_PORT":8080 \
@@ -1510,7 +1513,7 @@ function main() {
 
 							function input_container_aria2_check() {
 								if (whiptail --title "一键脚本 作者：kissyouhunter" --yesno "aria2 容器名：$ARIA2_CONTAINER_NAME                                  \
-								aria2 配置文件路径：$CONFIG_PATH                                           \
+								aria2 配置文件路径：$ARIA2_PATH                                           \
 								aria2 下载文件路径：$ARIA2_DOWNLOAD_PATH                                        \
 								aria2 面板端口：$ARIA2_PORT                                                   \
 								aria2 密钥：$ARIA2_TOKEN                                                   \
@@ -1545,7 +1548,7 @@ function main() {
 
 								function input_container_aria2_config() {
 									ARIA2_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入 aria2 配置文件保存的绝对路径 \
-									（示例：/home/ARIA2)，回车默认为当前目录:" 10 55 3>&1 1>&2 2>&3)
+									（示例：/home/aria2)，回车默认为当前目录:" 10 55 3>&1 1>&2 2>&3)
 
 									exitstatus=$?
 									if [ $exitstatus = 0 ]; then
@@ -1557,7 +1560,6 @@ function main() {
 									else
 										exit 0
 									fi
-									CONFIG_PATH=$ARIA2_PATH
 								}
 								input_container_aria2_config
 
@@ -1612,6 +1614,174 @@ function main() {
 								input_container_aria2_check
 							}
 							input_container_aria2_input
+							;;
+						3 )
+							function input_container_aria2_pro_info() {
+								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "访问方式为宿主机 ip:$ARIA2_PRO_PORT                                          \
+								Aria密钥设置在面板如下位置                                                          \
+								AriaNg 设置 > RPC(IP:6800) > Aria2 RPC 密钥                                                            \
+								设置的密钥为 $ARIA2_PRO_TOKEN                                                \
+								aria2 安装完成，点击 ok 退出脚本 " 13 50
+							}
+
+							function input_container_aria2_pro_build() {
+								TIME y " >>>>>>>>>>>配置完成，开始安装 aria2 pro"
+								log "1.开始创建配置文件目录"
+								PATH_LIST=($ARIA2_PRO_PATH $ARIA2_PRO_DOWNLOAD_PATH)
+								for i in ${PATH_LIST[@]}; do
+									mkdir -p $i
+								done
+
+								log "2.开始创建容器并执行"
+								docker run -dit \
+      								-v $ARIA2_PRO_PATH:/config \
+      								-v $ARIA2_PRO_DOWNLOAD_PATH:/downloads \
+      								-p 6800:6800 -p 6888:6888 -p 6888:6888/udp \
+      								-e TZ=Asia/Shanghai \
+      								-e SECRET=$ARIA2_PRO_TOKEN \
+      								-e RPC_PORT=6800 \
+      								-e LISTEN_PORT=6888 \
+      								-e UID=0  \
+      								-e GID=0  \
+      								-e UMASK_SET=022 \
+      								--log-opt max-size=1m \
+      								--name $ARIA2_PRO_CONTAINER_NAME \
+      								--hostname $ARIA2_PRO_CONTAINER_NAME \
+      								--restart always \
+      								$ARIA2_PRO_DOCKER_IMG_NAME:$TAG
+								
+								docker run -d \
+									--name $ARIA2_PRO_WEBUI_NAME \
+									--log-opt max-size=1m \
+									--restart unless-stopped \
+									-p $ARIA2_PRO_PORT:6880 \
+									$ARIA2_PRO_WEBUI_DOCKER_IMG_NAME:$TAG
+								
+								if [ $? -ne 0 ] ; then
+									cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
+								fi
+							}
+
+							function input_container_aria2_pro_check() {
+								if (whiptail --title "一键脚本 作者：kissyouhunter" --yesno "aria2-pro 容器名：$ARIA2_PRO_CONTAINER_NAME                                  \
+								aria2_pro 面板名：$ARIA2_PRO_WEBUI_NAME                                                          \
+								aria2-pro 配置文件路径：$ARIA2_PRO_PATH                                           \
+								aria2-pro 下载文件路径：$ARIA2_PRO_DOWNLOAD_PATH                                        \
+								aria2-pro 面板端口：$ARIA2_PRO_PORT                                                   \
+								aria2-pro 密钥：$ARIA2_PRO_TOKEN                                                   \
+								以上信息是否正确？"                                                       \
+								14 50) then
+									input_container_aria2_pro_build
+									sleep 10
+									input_container_aria2_pro_info
+									docker ps -a
+								else
+									input_container_aria2_pro_input
+									ARIA2_PRO_PORT="6880"
+								fi
+							}
+
+							function input_container_aria2_pro_input() {
+								function input_container_aria2_pro_name() {
+									ARIA2_PRO_NAME=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入将要创建的容器名 [回车默认为：aria2-pro]" 10 55 3>&1 1>&2 2>&3)
+
+									exitstatus=$?
+									if [ $exitstatus = 0 ]; then
+										if [ -z "$ARIA2_PRO_NAME" ]; then
+											ARIA2_PRO_CONTAINER_NAME="aria2-pro"
+										else
+											ARIA2_PRO_CONTAINER_NAME=$ARIA2_PRO_NAME
+										fi
+									else
+										exit 0
+									fi
+								}
+								input_container_aria2_pro_name
+
+								function input_container_ariang_name() {
+									ARIANG_NAME=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入将要创建的面板容器名 [回车默认为：ariang]" 10 55 3>&1 1>&2 2>&3)
+
+									exitstatus=$?
+									if [ $exitstatus = 0 ]; then
+										if [ -z "$ARIANG_NAME" ]; then
+											ARIA2_PRO_WEBUI_NAME="ariang"
+										else
+											ARIA2_PRO_WEBUI_NAME=$ARIANG_NAME
+										fi
+									else
+										exit 0
+									fi
+								}
+								input_container_ariang_name
+
+								function input_container_aria2_pro_config() {
+									ARIA2_PRO_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入 aria2-pro 配置文件保存的绝对路径 \
+									（示例：/home/aria2-pro)，回车默认为当前目录:" 10 55 3>&1 1>&2 2>&3)
+
+									exitstatus=$?
+									if [ $exitstatus = 0 ]; then
+										if [ -z "$ARIA2_PRO_CONFIG" ]; then
+											ARIA2_PRO_PATH=$(pwd)/aria2-pro
+										else
+											ARIA2_PRO_PATH=$ARIA2_PRO_CONFIG
+										fi
+									else
+										exit 0
+									fi
+								}
+								input_container_aria2_pro_config
+
+								function input_container_aria2_pro_download_config() {
+									ARIA2_PRO_DOWNLOAD_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入下载文件保存的绝对路径 \
+									（示例：/home/downloads)，回车默认为当前目录:" 10 55 3>&1 1>&2 2>&3)
+
+									exitstatus=$?
+									if [ $exitstatus = 0 ]; then
+										if [ -z "$ARIA2_PRO_DOWNLOAD_CONFIG" ]; then
+											ARIA2_PRO_DOWNLOAD_PATH=$(pwd)/downloads
+										else
+											ARIA2_PRO_DOWNLOAD_PATH=$ARIA2_PRO_DOWNLOAD_CONFIG
+										fi
+									else
+										exit 0
+									fi
+								}
+								input_container_aria2_pro_download_config
+
+								function input_container_aria2_pro_webui_config() {
+									ARIA2_PRO_WEBUI_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入 aria2-pro 面板端口 [默认 6880]" 10 55 3>&1 1>&2 2>&3)
+
+									exitstatus=$?
+									if [ $exitstatus = 0 ]; then
+										if [ -z "$ARIA2_PRO_WEBUI_CONFIG" ]; then
+											ARIA2_PRO_PORT="6880"
+										else
+											ARIA2_PRO_PORT=$ARIA2_PRO_WEBUI_CONFIG
+										fi
+									else
+										exit 0
+									fi
+								}
+								input_container_aria2_pro_webui_config
+
+								function input_container_aria2_pro_token_config() {
+									ARIA2_PRO_TOKEN_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入 aria2-pro 的密钥 [默认 aria2]" 10 55 3>&1 1>&2 2>&3)
+
+									exitstatus=$?
+									if [ $exitstatus = 0 ]; then
+										if [ -z "$ARIA2_PRO_TOKEN_CONFIG" ]; then
+											ARIA2_PRO_TOKEN="aria2"
+										else
+											ARIA2_PRO_TOKEN=$ARIA2_PRO_TOKEN_CONFIG
+										fi
+									else
+										exit 0
+									fi
+								}
+								input_container_aria2_pro_token_config
+								input_container_aria2_pro_check
+							}
+							input_container_aria2_pro_input
 							;;
 						0 )
 							main
