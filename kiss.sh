@@ -99,6 +99,13 @@ MAIARK_CONFIG_FOLDER=$(pwd)/MaiARK
 N1_MAIARK_FOLDER=/mnt/mmcblk2p4/MarARK
 MAIARK_CONTAINER_NAME=""
 MAIARK_PORT="8082"
+# FLAME 变量
+FLAME_DOCKER_IMG_NAME="pawelmalak/flame"
+FLAME_TAG="multiarch2.3.0"
+FLAME_PATH=""
+FLAME_CONFIG_FOLDER=$(pwd)/flame
+N1_FLAME_FOLDER=/mnt/mmcblk2p4/flame
+FLAME_CONTAINER_NAME=""
 
 log() {
     echo -e "\n$1"
@@ -157,9 +164,10 @@ TIME w "(9) x-ui"
 TIME w "(10) aaPanel (宝塔国际版)"
 TIME w "(11) MaiARK (对接青龙提交京东CK)"
 TIME w "(12) 一键申请SSL证书(acme申请)"
+TIME w "(13) Flame (导航页)"
 TIME r "(0) 不想安装了，给老子退出！！！"
 #EOF
-read -p "Please enter your choice[0-12]: " input
+read -p "Please enter your choice[0-13]: " input
 case $input in
 #安装docker and docker-compose
 1)
@@ -426,7 +434,6 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
 
   log "2.开始创建容器并执行"
   docker run -dit \
-      -t \
       -v $CONFIG_PATH:/ql/config \
       -v $DB_PATH:/ql/db \
       -v $LOG_PATH:/ql/log \
@@ -630,7 +637,6 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
 
   log "3.开始创建容器并执行"
   docker run -dit \
-      -t \
       -v $CONFIG_PATH:/ql/data \
       -e ENABLE_HANGUP=false \
       -e ENABLE_WEB_PANEL=true \
@@ -658,7 +664,6 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
 
   log "2.开始创建容器并执行"
   docker run -dit \
-      -t \
       -v $CONFIG_PATH:/ql/config \
       -v $DB_PATH:/ql/db \
       -v $LOG_PATH:/ql/log \
@@ -1966,7 +1971,6 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
 
   log "2.开始创建容器并执行"
   docker run -dit \
-      -t \
       -v $CONFIG_PATH:/telethon \
       --name $TG_CONTAINER_NAME \
       --hostname $TG_CONTAINER_NAME \
@@ -2049,7 +2053,6 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
 
   log "3.开始创建容器并执行"
   docker run -dit \
-      -t \
       -v $CONFIG_PATH:/telethon \
       --name $TG_CONTAINER_NAME \
       --hostname $TG_CONTAINER_NAME \
@@ -2171,7 +2174,6 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
 
   log "2.开始创建容器并执行"
   docker run -dit \
-      -t \
       -v $WORK_PATH:/opt/adguardhome/work \
       -v $CONF_PATH:/opt/adguardhome/conf \
       --name $ADG_CONTAINER_NAME \
@@ -2258,7 +2260,6 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
 
   log "3.开始创建容器并执行"
   docker run -dit \
-      -t \
       -v $WORK_PATH:/opt/adguardhome/work \
       -v $CONF_PATH:/opt/adguardhome/conf \
       --name $ADG_CONTAINER_NAME \
@@ -2406,7 +2407,6 @@ TIME b "(0) 返回上级菜单"
 
   log "2.开始创建容器并执行"
   docker run -dit \
-      -t \
       -v $DB_PATH:/etc/x-ui/ \
       -v $CERT_PATH:/root/ \
       --name $XUI_CONTAINER_NAME \
@@ -2539,7 +2539,6 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
 
   log "2.开始创建容器并执行"
   docker run -dit \
-      -t \
       -v $WEBSITE_DATA_PATH:/www/wwwroot \
       -v $MYSQL_DATA_PATH:/www/server/data \
       -v $VHOST_PATH:/www/server/panel/vhost \
@@ -2637,7 +2636,6 @@ TIME r "<注>选择1或2后，如果不明白如何选择或输入，请狂按�
 
   log "3.开始创建容器并执行"
   docker run -dit \
-      -t \
       -v $WEBSITE_DATA_PATH:/www/wwwroot \
       -v $MYSQL_DATA_PATH:/www/server/data \
       -v $VHOST_PATH:/www/server/panel/vhost \
@@ -2898,7 +2896,7 @@ TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车�
   	esac
   done
 
-  TIME y " >>>>>>>>>>>配置完成，开始安装MaiARK"
+  TIME y " >>>>>>>>>>>配置完成，开始安装 MaiARK"
   log "1.开始创建配置文件目录"
   PATH_LIST=($CONFIG_PATH)
   for i in ${PATH_LIST[@]}; do
@@ -2908,7 +2906,6 @@ TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车�
   log "3.开始创建容器并执行"
   docker pull $MAIARK_DOCKER_IMG_NAME:$TAG
   docker run -dit \
-      -t \
       -v $CONFIG_PATH:/MaiARK \
       --name $MAIARK_CONTAINER_NAME \
       --hostname $MAIARK_CONTAINER_NAME \
@@ -3246,6 +3243,265 @@ TIME b "(0) 返回上级菜单"
  ;;
  esac
 done
+;;
+#安装MFlame
+13)
+clear
+while [ "$flag" -eq 0 ]
+do
+#cat << EOF
+TIME w "----------------------------------------"
+TIME w "|****Please Enter Your Choice:[0-2]****|"
+TIME w "|************** FLAME *****************|"
+TIME w "----------------------------------------"
+TIME w "(1) linxu系统、openwrt、群辉等请选择 1"
+TIME w "(2) N1 的 EMMC 上运行的 openwrt 请选择 2"
+TIME b "(0) 返回上级菜单"
+#EOF
+TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车！"
+ read -p "Please enter your choice[0-2]: " input11
+ case $input11 in 
+ 1)
+  TIME y " >>>>>>>>>>>开始安装 FLAME"
+  # 创建映射文件夹
+  input_container_flame1_config() {
+  echo -n -e "请输入 FLAME 配置文件保存的绝对路径（示例：/home/flame)，回车默认为当前目录: "
+  read flame_path
+  if [ -z "$flame_path" ]; then
+      FLAME_PATH=$FLAME_CONFIG_FOLDER
+  elif [ -d "$flame_path" ]; then
+      FLAME_PATH=$flame_path
+  else
+      FLAME_PATH=$flame_path
+  fi
+  CONFIG_PATH=$FLAME_PATH
+  }
+  input_container_flame1_config
+
+  # 输入容器名
+  input_container_flame1_name() {
+    echo -n -e "请输入将要创建的容器名[默认为：flame]-> "
+    read container_name
+    if [ -z "$container_name" ]; then
+        FLAME_CONTAINER_NAME="flame"
+    else
+        FLAME_CONTAINER_NAME=$container_name
+    fi
+  }
+  input_container_flame1_name
+
+  # 网络模式
+  input_container_flame1_network_config() {
+  inp "请选择容器的网络类型：\n1) host\n2) bridge[默认]"
+  opt
+  read net
+  if [ "$net" = "1" ]; then
+      NETWORK="host"
+      FLAME_PORT="5005"
+  fi
+  
+  if [ "$NETWORK" = "bridge" ]; then
+      inp "是否修改 MaiMRK 端口[默认 5005]：\n1) 修改\n2) 不修改[默认]"
+      opt
+      read change_flame_port
+      if [ "$change_flame_port" = "1" ]; then
+          echo -n -e "输入想修改的端口->"
+          read FLAME_PORT
+          echo $FLAME_PORT
+      else
+          FLAME_PORT="5005"
+      fi
+  fi
+  }
+  input_container_flame1_network_config
+
+  # 确认
+  while true
+  do
+  	TIME y "Flame 配置文件路径：$CONFIG_PATH"
+  	TIME y "Flame 容器名：$FLAME_CONTAINER_NAME"
+    TIME y "Flame 端口：$FLAME_PORT"
+    TIME r "确认下映射路径是否正确！！！"
+  	read -r -p "以上信息是否正确？[Y/n] " input111
+  	case $input111 in
+  		[yY][eE][sS]|[yY])
+  			break
+  			;;
+  		[nN][oO]|[nN])
+  			TIME w "即将返回上一步"
+  			sleep 1
+  			input_container_flame1_config
+  			input_container_flame1_name
+            input_container_flame1_network_config
+            FLAME_PORT="5005"
+  			;;
+  		*)
+  			TIME r "输入错误，请输入[Y/n]"
+  			;;
+  	esac
+  done
+
+  TIME y " >>>>>>>>>>>配置完成，开始安装 FLAME"
+  log "1.开始创建配置文件目录"
+  PATH_LIST=($CONFIG_PATH)
+  for i in ${PATH_LIST[@]}; do
+      mkdir -p $i
+  done
+
+  log "2.开始创建容器并执行"
+  docker pull $FLAME_DOCKER_IMG_NAME:$FLAME_TAG
+  docker run -d \
+      -v $CONFIG_PATH:/MaiARK \
+      --name $FLAME_CONTAINER_NAME \
+      --hostname $FLAME_CONTAINER_NAME \
+      --restart always \
+      --network $NETWORK \
+      -p $FLAME_PORT:5005 \
+      $FLAME_DOCKER_IMG_NAME:$FLAME_TAG
+
+      if [ $? -ne 0 ] ; then
+          cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
+      fi
+
+      log "列出所有宿主机上的容器"
+      docker ps -a
+    TIME g "-----------------------------------------------------------"
+    TIME g "|          Flame 启动需要一点点时间，请耐心等待！         |"
+    sleep 10
+    TIME g "|                  安装完成，自动退出脚本                 |"
+    TIME g "|                 访问方式为宿主机ip:$FLAME_PORT                 |"
+    TIME g "-----------------------------------------------------------"
+  exit 0
+  ;;
+ 2)  
+  TIME y " >>>>>>>>>>>开始安装 FLAME 到 N1 的 /mnt/mmcblk2p4/"
+  # 创建映射文件夹
+  input_container_flame2_config() {
+  echo -n -e "请输入 FLAME 存储的文件夹名称（如：flame)，回车默认为 flame: "
+  read flame_path
+  if [ -z "$flame_path" ]; then
+      FLAME_PATH=$N1_FLAME_FOLDER
+  elif [ -d "$flame_path" ]; then
+      FLAME_PATH=/mnt/mmcblk2p4/$flame_path
+  else
+      FLAME_PATH=/mnt/mmcblk2p4/$flame_path
+  fi
+  CONFIG_PATH=$FLAME_PATH
+  }
+  input_container_flame2_config
+  
+  # 输入容器名
+  input_container_flame2_name() {
+    echo -n -e "请输入将要创建的容器名[默认为：flame]-> "
+    read container_name
+    if [ -z "$container_name" ]; then
+        FLAME_CONTAINER_NAME="flame"
+    else
+        FLAME_CONTAINER_NAME=$container_name
+    fi
+  }
+  input_container_flame2_name
+
+  # 网络模式
+  input_container_flame2_network_config() {
+  inp "请选择容器的网络类型：\n1) host\n2) bridge[默认]"
+  opt
+  read net
+  if [ "$net" = "1" ]; then
+      NETWORK="host"
+      MAIARK_PORT="5005"
+  fi
+  
+  if [ "$NETWORK" = "bridge" ]; then
+      inp "是否修改 MaiMRK 端口[默认 8082]：\n1) 修改\n2) 不修改[默认]"
+      opt
+      read change_flame_port
+      if [ "$change_flame_port" = "1" ]; then
+          echo -n -e "输入想修改的端口->"
+          read FLAME_PORT
+      else
+          FLAME_PORT="5005"
+      fi
+  fi
+  }
+  input_container_flame2_network_config
+
+
+  # 确认
+  while true
+  do
+  	TIME y "FLAME 配置文件路径：$CONFIG_PATH"
+  	TIME y "FLAME 容器名：$FLAME_CONTAINER_NAME"
+    TIME y "FLAME 端口：$FLAME_PORT"
+    TIME r "确认下映射路径是否正确！！！"
+  	read -r -p "以上信息是否正确？[Y/n] " input113
+  	case $input113 in
+  		[yY][eE][sS]|[yY])
+  			break
+  			;;
+  		[nN][oO]|[nN])
+  			TIME w "即将返回上一步"
+  			sleep 1
+  			input_container_flame2_config
+  			input_container_flame2_name
+            input_container_flame2_network_config
+            FLAME_PORT="5005"
+  			;;
+  		*)
+  			TIME r "输入错误，请输入[Y/n]"
+  			;;
+  	esac
+  done
+
+  TIME y " >>>>>>>>>>>配置完成，开始安装 FLAME"
+  log "1.开始创建配置文件目录"
+  PATH_LIST=($CONFIG_PATH)
+  for i in ${PATH_LIST[@]}; do
+      mkdir -p $i
+  done
+
+  log "3.开始创建容器并执行"
+  docker pull $FLAME_DOCKER_IMG_NAME:$FLAME_TAG
+  docker run -dit \
+      -v $CONFIG_PATH:/MaiARK \
+      --name $FLAME_CONTAINER_NAME \
+      --hostname $FLAME_CONTAINER_NAME \
+      --restart always \
+      --network $NETWORK \
+      -p $FLAME_PORT:8082 \
+      $FLAME_DOCKER_IMG_NAME:$FLAME_TAG
+
+      if [ $? -ne 0 ] ; then
+          cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
+      fi
+
+      log "列出所有宿主机上的容器"
+      docker ps -a
+    TIME g "-----------------------------------------------------------"
+    TIME g "|          Flame 启动需要一点点时间，请耐心等待！         |"
+    sleep 10
+    TIME g "|                  安装完成，自动退出脚本                 |"
+    TIME g "|                 访问方式为宿主机ip:$FLAME_PORT                 |"
+    TIME g "-----------------------------------------------------------"
+  exit 0
+  ;;
+ 0) 
+ clear 
+ break
+ ;;
+ *) TIME r "----------------------------------"
+    TIME r "|          Warning!!!            |"
+    TIME r "|       请输入正确的选项!        |"
+    TIME r "----------------------------------"
+ for i in $(seq -w 1 -1 1)
+   do
+     #TIME r "\b\b$i";
+     sleep 1;
+   done
+ clear
+ ;;
+ esac
+ done
 ;;
 *) TIME r "----------------------------------"
  TIME r "|          Warning!!!            |"
