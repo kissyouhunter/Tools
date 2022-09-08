@@ -3275,6 +3275,16 @@ TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车�
       FLAME_PATH=$flame_path
   fi
   CONFIG_PATH=$FLAME_PATH
+
+  echo -n -e "请输入 FLAME 登陆密码（默认密码：flame)： "
+  read flame_password
+  if [ -z "$flame_password" ]; then
+      FLAME_PASSWORD="flame"
+  elif [ -d "$flame_password" ]; then
+      FLAME_PASSWORD=$flame_password
+  else
+      FLAME_PASSWORD=$flame_password
+  fi
   }
   input_container_flame1_config
 
@@ -3321,6 +3331,7 @@ TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车�
   	TIME y "Flame 配置文件路径：$CONFIG_PATH"
   	TIME y "Flame 容器名：$FLAME_CONTAINER_NAME"
     TIME y "Flame 端口：$FLAME_PORT"
+    TIME y "Flame 密码：$FLAME_PASSWORD"
     TIME r "确认下映射路径是否正确！！！"
   	read -r -p "以上信息是否正确？[Y/n] " input111
   	case $input111 in
@@ -3334,6 +3345,7 @@ TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车�
   			input_container_flame1_name
             input_container_flame1_network_config
             FLAME_PORT="5005"
+            FLAME_PASSWORD="flame"
   			;;
   		*)
   			TIME r "输入错误，请输入[Y/n]"
@@ -3351,12 +3363,13 @@ TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车�
   log "2.开始创建容器并执行"
   docker pull $FLAME_DOCKER_IMG_NAME:$FLAME_TAG
   docker run -d \
-      -v $CONFIG_PATH:/MaiARK \
+      -v $CONFIG_PATH:/app/data \
       --name $FLAME_CONTAINER_NAME \
       --hostname $FLAME_CONTAINER_NAME \
       --restart always \
       --network $NETWORK \
       -p $FLAME_PORT:5005 \
+      -e PASSWORD=$FLAME_PASSWORD \
       $FLAME_DOCKER_IMG_NAME:$FLAME_TAG
 
       if [ $? -ne 0 ] ; then
@@ -3370,6 +3383,7 @@ TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车�
     sleep 10
     TIME g "|                  安装完成，自动退出脚本                 |"
     TIME g "|                 访问方式为宿主机ip:$FLAME_PORT                 |"
+    TIME g "|                      登陆密码：$FLAME_PASSWORD                    |"
     TIME g "-----------------------------------------------------------"
   exit 0
   ;;
@@ -3387,6 +3401,16 @@ TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车�
       FLAME_PATH=/mnt/mmcblk2p4/$flame_path
   fi
   CONFIG_PATH=$FLAME_PATH
+
+  echo -n -e "请输入 FLAME 登陆密码（默认密码：flame)： "
+  read flame_password
+  if [ -z "$flame_password" ]; then
+      FLAME_PASSWORD="flame"
+  elif [ -d "$flame_password" ]; then
+      FLAME_PASSWORD=$flame_password
+  else
+      FLAME_PASSWORD=$flame_password
+  fi
   }
   input_container_flame2_config
   
@@ -3433,6 +3457,7 @@ TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车�
   	TIME y "FLAME 配置文件路径：$CONFIG_PATH"
   	TIME y "FLAME 容器名：$FLAME_CONTAINER_NAME"
     TIME y "FLAME 端口：$FLAME_PORT"
+    TIME y "Flame 密码：$FLAME_PASSWORD"
     TIME r "确认下映射路径是否正确！！！"
   	read -r -p "以上信息是否正确？[Y/n] " input113
   	case $input113 in
@@ -3446,6 +3471,7 @@ TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车�
   			input_container_flame2_name
             input_container_flame2_network_config
             FLAME_PORT="5005"
+            FLAME_PASSWORD="flame"
   			;;
   		*)
   			TIME r "输入错误，请输入[Y/n]"
@@ -3463,12 +3489,13 @@ TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车�
   log "3.开始创建容器并执行"
   docker pull $FLAME_DOCKER_IMG_NAME:$FLAME_TAG
   docker run -dit \
-      -v $CONFIG_PATH:/MaiARK \
+      -v $CONFIG_PATH:/app/data \
       --name $FLAME_CONTAINER_NAME \
       --hostname $FLAME_CONTAINER_NAME \
       --restart always \
       --network $NETWORK \
-      -p $FLAME_PORT:8082 \
+      -p $FLAME_PORT:5005 \
+      -e PASSWORD=$FLAME_PASSWORD \
       $FLAME_DOCKER_IMG_NAME:$FLAME_TAG
 
       if [ $? -ne 0 ] ; then
@@ -3482,6 +3509,7 @@ TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车�
     sleep 10
     TIME g "|                  安装完成，自动退出脚本                 |"
     TIME g "|                 访问方式为宿主机ip:$FLAME_PORT                 |"
+    TIME g "|                      登陆密码：$FLAME_PASSWORD                    |"
     TIME g "-----------------------------------------------------------"
   exit 0
   ;;
