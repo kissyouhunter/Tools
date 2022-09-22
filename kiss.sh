@@ -1060,15 +1060,16 @@ TIME w "----------------------------------------"
 TIME w "|****Please Enter Your Choice:[0-3]****|"
 TIME w "|********* DOCKER 图形管理工具 ********|"
 TIME w "----------------------------------------"
-TIME w "(1) 安装 portianer"
-TIME w "(2) 安装 Fast Os Docker 中文"
-TIME w "(3) 安装 simpledocker 中文"
+TIME w "(1) 安装 portianer 官方原版"
+TIME w "(2) 安装 portianer 大佬汉化版"
+TIME w "(3) 安装 portianer 大佬汉化版（N1 openwert 专用）"
 TIME b "(0) 返回上级菜单"
+TIME r "大佬汉化版不能保证没有 bug"
 #EOF
  read -p "Please enter your Choice[0-3]: " input4
  case $input4 in 
  1)
-    TIME y " >>>>>>>>>>>开始安装 portainer"
+    TIME y " >>>>>>>>>>>开始安装 portainer 官方原版"
     docker volume create portainer_data
     docker run -d -p 8000:8000 -p 9000:9000 --name=portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce
     
@@ -1086,39 +1087,60 @@ TIME b "(0) 返回上级菜单"
   exit 0  
   ;;
  2)
-    TIME y " >>>>>>>>>>>开始安装 Fast Os Docker"
-    docker run --restart always --name fast -p 18081:8081 -d -v /var/run/docker.sock:/var/run/docker.sock wangbinxingkong/fast  
+    TIME y " >>>>>>>>>>>开始安装 portainer 大考汉化版"
+    if [ "$(command -v unzip)" ]; then
+        mkdir -p /root/portainer
+        curl -Lo /root/portainer/portainer-ce-public-cn-20220728.zip https://github.com/kissyouhunter/Tools/releases/download/portainer-ce-public-cn-20220728/portainer-ce-public-cn-20220728.zip
+        cd /root/portainer && unzip portainer-ce-public-cn-20220728.zip && rm -f portainer-ce-public-cn-20220728.zip
+    else
+        apt update && apt install -y zip unzip
+        mkdir -p /root/portainer
+        curl -Lo /root/portainer/portainer-ce-public-cn-20220728.zip https://github.com/kissyouhunter/Tools/releases/download/portainer-ce-public-cn-20220728/portainer-ce-public-cn-20220728.zip
+        cd /root/portainer && unzip portainer-ce-public-cn-20220728.zip && rm -f portainer-ce-public-cn-20220728.zip
+    fi
+    docker volume create portainer_data
+    docker run -d -p 8000:8000 -p 9000:9000 --name=portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data -v /root/portainer/public:/public portainer/portainer-ce
+    
     if [ $? -ne 0 ] ; then
         cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
     fi
       log "列出所有宿主机上的容器"
       docker ps -a
     TIME g "------------------------------------------------------"
-    TIME g "|          fast 启动需要一点点时间，请耐心等待！     |"
+    TIME g "|      portainer 启动需要一点点时间，请耐心等待！    |"
     sleep 10
     TIME g "|              安装完成，自动退出脚本                |"
-    TIME g "|            首次登陆注册账号和密码即可              |"
-    TIME g "|     访问方式为宿主机ip:端口(例192.168.2.1:18081)   |"
+    TIME g "|   访问方式为宿主机ip:端口(例192.168.2.1:9000)      |"
+    TIME r "|            大佬汉化版不能保证没有 bug              |"
     TIME g "------------------------------------------------------"
-  exit 0  
+  exit 0   
   ;;
  3)
-    TIME y " >>>>>>>>>>>开始安装 simpledocker"
-    mkdir -p simpledocker && cd simpledocker && curl -Lo docker-compose.yml https://raw.githubusercontent.com/kissyouhunter/Tools/main/simpledocker-docker-compose.yml
-    docker-compose up -d    
+    TIME y " >>>>>>>>>>>开始安装 portainer 大考汉化版（N1 openwert 专用）"
+    if [ "$(command -v unzip)" ]; then
+        mkdir -p /mnt/mmcblk2p4/portainer
+        curl -Lo /mnt/mmcblk2p4/portainer/portainer-ce-public-cn-20220728.zip https://github.com/kissyouhunter/Tools/releases/download/portainer-ce-public-cn-20220728/portainer-ce-public-cn-20220728.zip
+        cd /mnt/mmcblk2p4/portainer && unzip portainer-ce-public-cn-20220728.zip && rm -f portainer-ce-public-cn-20220728.zip
+    else
+        宿主机缺少插件 zip 和 unzip，请自行安装。
+        exit 1
+    fi
+    docker volume create portainer_data
+    docker run -d -p 8000:8000 -p 9000:9000 --name=portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data -v /mnt/mmcblk2p4/portainer/public:/public portainer/portainer-ce
+    
     if [ $? -ne 0 ] ; then
         cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
     fi
       log "列出所有宿主机上的容器"
       docker ps -a
     TIME g "------------------------------------------------------"
-    TIME g "|    simpledocker 启动需要一点点时间，请耐心等待！   |"
+    TIME g "|      portainer 启动需要一点点时间，请耐心等待！    |"
     sleep 10
     TIME g "|              安装完成，自动退出脚本                |"
-    TIME g "|           默认账号：admin 密码：123456             |"
-    TIME g "|     访问方式为宿主机ip:端口(例192.168.2.1:9009)    |"
+    TIME g "|   访问方式为宿主机ip:端口(例192.168.2.1:9000)      |"
+    TIME r "|            大佬汉化版不能保证没有 bug              |"
     TIME g "------------------------------------------------------"
-  exit 0  
+  exit 0 
   ;;
  0) 
  clear 
