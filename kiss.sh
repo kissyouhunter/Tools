@@ -2341,16 +2341,17 @@ while [ "$flag" -eq 0 ]
 do
 #cat << EOF
 TIME w "----------------------------------------"
-TIME w "|****Please Enter Your Choice:[0-3]****|"
+TIME w "|****Please Enter Your Choice:[0-2]****|"
 TIME w "|**************** X-UI ****************|"
 TIME w "----------------------------------------"
-TIME w "(1) x-ui 为 docker 版本"
+TIME w "(1) x-ui docker 版本"
+TIME w "(2) x-ui 直装版本"
 TIME b "(0) 返回上级菜单"
 #EOF
- read -p "Please enter your choice[0-1]: " input9
+ read -p "Please enter your choice[0-2]: " input9
  case $input9 in 
  1)
-  TIME y " >>>>>>>>>>>开始安装 x-ui"
+  TIME y " >>>>>>>>>>>开始安装 x-ui docker 版本"
   # 创建映射文件夹
   input_container_xui_config() {
   echo -n -e "请输入x-ui配置文件保存的绝对路径（示例：/home/x-ui)，回车默认为当前目录: "
@@ -2449,6 +2450,11 @@ TIME b "(0) 返回上级菜单"
     TIME g "|                安装完成，自动退出脚本                   |"
     TIME g "|      默认账号：admin 默认密码：admin 默认端口：54321    |"
     TIME g "-----------------------------------------------------------"
+  exit 0
+  ;;
+ 2)
+  TIME y " >>>>>>>>>>>开始安装 x-ui 直装版本"
+  bash <(curl -Ls https://raw.githubusercontent.com/vaxilu/x-ui/master/install.sh)
   exit 0
   ;;
  0) 
