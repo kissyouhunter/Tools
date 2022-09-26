@@ -87,7 +87,7 @@ MAIARK_DOCKER_IMG_NAME="kissyouhunter/maiark"
 function main() {
 	clear
 	MENU=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "Github: https://github.com/kissyouhunter \
-	安装过程中如想退出，请狂按 ESC" 20 55 11 \
+	安装过程中如想退出，请狂按 ESC" 20 55 13 \
 	"1" "安装 docker 和 docker-compose" \
 	"2" "安装 青龙 到宿主机" \
 	"3" "安装 elecv2p 到宿主机" \
@@ -99,6 +99,8 @@ function main() {
 	"9" "x-ui" \
 	"10" "aaPanel (宝塔国际版)" \
 	"11" "MaiARK (对接青龙提交京东CK)" \
+	"12" "一键申请SSL证书(acme申请)" \
+	"13" "Flame (导航页)" \
 	3>&1 1>&2 2>&3)
 
 	exitstatus=$?	
