@@ -2110,6 +2110,196 @@ function main() {
 							input_container_adg1_input
 							;;
 						2 )
+							function input_container_adg2_info() {
+								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "首次启动请访问宿主机 IP:3000                               \
+								adguardhome 安装完成，点击 ok 退出脚本 " 10 60
+							}
+
+							function input_container_adg2_build() {
+								TIME y " >>>>>>>>>>>配置完成，开始安装 adguardhome（docker 版）到 N1 的 /mnt/mmcblk2p4/"
+								log "1.开始创建配置文件目录"
+								PATH_LIST=($ADG1_WORK_PATH $ADG1_CONF_PATH)
+								for i in ${PATH_LIST[@]}; do
+									mkdir -p $i
+								done
+
+								log "2.开始创建容器并执行"
+								docker run -dit \
+      								-v $ADG1_WORK_PATH:/opt/adguardhome/work \
+									-v $ADG1_CONF_PATH:/opt/adguardhome/conf \
+      								--name $ADG1_CONTAINER_NAME \
+									--hostname $ADG1_CONTAINER_NAME \
+									--restart always \
+									--net host \
+									$ADG_DOCKER_IMG_NAME:$TAG
+
+								if [ $? -ne 0 ] ; then
+									cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
+								fi
+							}
+
+							function input_container_adg1_check() {
+								if (whiptail --title "一键脚本 作者：kissyouhunter" --yesno "adguardhome 容器名：$ADG1_CONTAINER_NAME                                   \
+								adguardhome 配置文件路径：$ADG1_PATH                                        \
+								以上信息是否正确？"                                                 \
+								12 60) then
+									input_container_adg1_build
+									sleep 10
+									input_container_adg1_info
+									docker ps -a
+								else
+									input_container_adg1_input
+								fi
+							}
+
+							function input_container_adg1_input() {
+								function input_container_adg1_name() {
+									ADG1_NAME=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入将要创建的容器名 [回车默认为：adguardhome]" 10 55 3>&1 1>&2 2>&3)
+
+									exitstatus=$?
+									if [ $exitstatus = 0 ]; then
+										if [ -z "$ADG1_NAME" ]; then
+											ADG1_CONTAINER_NAME="adguardhome"
+										else
+											ADG1_CONTAINER_NAME=$ADG1_NAME
+										fi
+									else
+										exit 0
+									fi
+								}
+								input_container_adg1_name
+
+								function input_container_adg1_config() {
+									ADG1_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入 adguardhome 配置文件保存的绝对路径 \
+									（示例：/home/adguardhome)，                                    \
+									回车默认为当前目录:" 10 55 3>&1 1>&2 2>&3)
+
+									exitstatus=$?
+									if [ $exitstatus = 0 ]; then
+										if [ -z "$ADG1_CONFIG" ]; then
+											ADG1_PATH=$(pwd)/adguardhome
+										else
+											ADG1_PATH=$ADG1_CONFIG
+										fi
+										ADG1_WORK_PATH=$ADG1_PATH/work
+										ADG1_CONF_PATH=$ADG1_PATH/conf
+									else
+										exit 0
+									fi
+								}
+								input_container_adg1_config
+								input_container_adg1_check
+							}
+							input_container_adg1_input
+							;;
+						0 )
+							main
+							;;
+					esac
+				else
+					exit 0
+				fi
+			}
+			submenu8
+			;;
+		9 )
+			安装x-ui
+            clear
+			function submenu8() {
+				SUBMENU5=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "telethon" 15 65 4 \
+				"1" "linxu系统、X86 的 openwrt、群辉等（docker 版）请选择 1" \
+				"2" "N1 的 EMMC 上运行的 openwrt（docker 版）请选择 2" \
+				"3" "inxu系统（非docker版，openwrt不可运行）" \
+				"0" "返回上级菜单" \
+				3>&1 1>&2 2>&3)
+
+				exitstatus=$?
+				if [ $exitstatus = 0 ]; then
+					case "$SUBMENU5" in
+						1 )
+							function input_container_adg1_info() {
+								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "首次启动请访问宿主机 IP:3000                               \
+								adguardhome 安装完成，点击 ok 退出脚本 " 10 60
+							}
+
+							function input_container_adg1_build() {
+								TIME y " >>>>>>>>>>>配置完成，开始安装 adguardhome（docker 版，x86 系统）"
+								log "1.开始创建配置文件目录"
+								PATH_LIST=($ADG1_WORK_PATH $ADG1_CONF_PATH)
+								for i in ${PATH_LIST[@]}; do
+									mkdir -p $i
+								done
+
+								log "2.开始创建容器并执行"
+								docker run -dit \
+      								-v $ADG1_WORK_PATH:/opt/adguardhome/work \
+									-v $ADG1_CONF_PATH:/opt/adguardhome/conf \
+      								--name $ADG1_CONTAINER_NAME \
+									--hostname $ADG1_CONTAINER_NAME \
+									--restart always \
+									--net host \
+									$ADG_DOCKER_IMG_NAME:$TAG
+
+								if [ $? -ne 0 ] ; then
+									cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
+								fi
+							}
+
+							function input_container_adg1_check() {
+								if (whiptail --title "一键脚本 作者：kissyouhunter" --yesno "adguardhome 容器名：$ADG1_CONTAINER_NAME                                   \
+								adguardhome 配置文件路径：$ADG1_PATH                                        \
+								以上信息是否正确？"                                                 \
+								12 60) then
+									input_container_adg1_build
+									sleep 10
+									input_container_adg1_info
+									docker ps -a
+								else
+									input_container_adg1_input
+								fi
+							}
+
+							function input_container_adg1_input() {
+								function input_container_adg1_name() {
+									ADG1_NAME=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入将要创建的容器名 [回车默认为：adguardhome]" 10 55 3>&1 1>&2 2>&3)
+
+									exitstatus=$?
+									if [ $exitstatus = 0 ]; then
+										if [ -z "$ADG1_NAME" ]; then
+											ADG1_CONTAINER_NAME="adguardhome"
+										else
+											ADG1_CONTAINER_NAME=$ADG1_NAME
+										fi
+									else
+										exit 0
+									fi
+								}
+								input_container_adg1_name
+
+								function input_container_adg1_config() {
+									ADG1_CONFIG=$(whiptail --title "一键脚本 作者：kissyouhunter" --inputbox "请输入 adguardhome 配置文件保存的绝对路径 \
+									（示例：/home/adguardhome)，                                    \
+									回车默认为当前目录:" 10 55 3>&1 1>&2 2>&3)
+
+									exitstatus=$?
+									if [ $exitstatus = 0 ]; then
+										if [ -z "$ADG1_CONFIG" ]; then
+											ADG1_PATH=$(pwd)/adguardhome
+										else
+											ADG1_PATH=$ADG1_CONFIG
+										fi
+										ADG1_WORK_PATH=$ADG1_PATH/work
+										ADG1_CONF_PATH=$ADG1_PATH/conf
+									else
+										exit 0
+									fi
+								}
+								input_container_adg1_config
+								input_container_adg1_check
+							}
+							input_container_adg1_input
+							;;
+						2 )
 							function input_container_telethon2_info() {
 								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "使用教程https://hub.docker.com/r/kissyouhunter/telethon                        \
 								telethon 安装完成，点击 ok 退出脚本 " 10 60
@@ -2196,7 +2386,7 @@ function main() {
 					exit 0
 				fi
 			}
-			submenu8
+			submenu9
 			;;
 		exit | quit | q )
 			exit
