@@ -893,9 +893,9 @@ function main() {
             clear
 			function submenu4() {
 				SUBMENU4=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "DOCKER 图形管理工具" 15 40 4 \
-				"1" "安装 portianer" \
-				"2" "安装 Fast Os Docker 中文" \
-				"3" "安装 simpledocker 中文" \
+				"1" "安装 portianer 官方原版" \
+				"2" "安装 portianer 大佬汉化版" \
+				"3" "安装 portianer 大佬汉化版（N1 openwert 专用）" \
 				"0" "返回上级菜单" \
 				3>&1 1>&2 2>&3)
 
@@ -909,7 +909,7 @@ function main() {
 							}
 
 							function input_container_portainer_build() {
-								TIME y " >>>>>>>>>>>开始安装 portainer"
+								TIME y " >>>>>>>>>>>开始安装 portainer 官方原版"
 								docker volume create portainer_data
 								docker run -d -p 8000:8000 -p 9000:9000 --name=portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data portainer/portainer-ce
 								if [ $? -ne 0 ] ; then
@@ -920,38 +920,62 @@ function main() {
 							input_container_portainer_info
 							;;
 						2 )
-							function input_container_fast_info() {
-								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "访问方式为：宿主机 ip:18081 \
-								Fast Os Docker 安装完成 \
-								点击 ok 退出脚本 " 10 30
+							function input_container_portainer1_info() {
+								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "访问方式为：宿主机 ip:9000 \
+								PORTAINER 安装完成，点击 ok 退出脚本 " 10 45
 							}
 
-							function input_container_fast_build() {
-								TIME y " >>>>>>>>>>>开始安装 Fast Os Docker"
-								docker run --restart always --name fast -p 18081:8081 -d -v /var/run/docker.sock:/var/run/docker.sock wangbinxingkong/fast
+							function input_container_portainer1_build() {
+								TIME y " >>>>>>>>>>>开始安装 portainer 大佬汉化版"
+								curl -Lo /root/portainer/portainer-ce-public-cn-20220728.zip https://github.com/kissyouhunter/Tools/releases/download/portainer-ce-public-cn-20220728/portainer-ce-public-cn-20220728.zip
+								cd /root/portainer && unzip portainer-ce-public-cn-20220728.zip && rm -f portainer-ce-public-cn-20220728.zip
+								docker volume create portainer_data
+								docker run -d -p 8000:8000 -p 9000:9000 --name=portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data -v /root/portainer/public:/public portainer/portainer-ce
 								if [ $? -ne 0 ] ; then
 									cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
 								fi
 							}
-							input_container_fast_build
-							input_container_fast_info
+
+							function input_container_portainer1_check() {
+								if [ "$(command -v unzip)" ]; then
+									mkdir -p /root/portainer
+								else
+									apt update && apt install -y zip unzip
+									mkdir -p /root/portainer
+								fi
+							}
+							input_container_portainer1_check
+							input_container_portainer1_build
+							input_container_portainer1_info
 							;;
 						3 )
-							function input_container_simple_info() {
-								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "访问方式为：宿主机 ip:9009 \
-								simpledocker 安装完成，点击 ok 退出脚本 " 10 45
+							function input_container_portainer2_info() {
+								whiptail --title "一键脚本 作者：kissyouhunter" --msgbox "访问方式为：宿主机 ip:9000 \
+								PORTAINER 安装完成，点击 ok 退出脚本 " 10 45
 							}
 
-							function input_container_simple_build() {
-								TIME y " >>>>>>>>>>>开始安装 Fast Os Docker"
-								mkdir -p simpledocker && cd simpledocker && curl -Lo docker-compose.yml https://raw.githubusercontent.com/kissyouhunter/Tools/main/simpledocker-docker-compose.yml
-								docker-compose up -d
+							function input_container_portainer2_build() {
+								TIME y " >>>>>>>>>>>开始安装 portainer 大佬汉化版（N1 openwert 专用）"
+								curl -Lo /mnt/mmcblk2p4/portainer/portainer-ce-public-cn-20220728.zip https://github.com/kissyouhunter/Tools/releases/download/portainer-ce-public-cn-20220728/portainer-ce-public-cn-20220728.zip
+								cd /mnt/mmcblk2p4/portainer && unzip portainer-ce-public-cn-20220728.zip && rm -f portainer-ce-public-cn-20220728.zip
+								docker volume create portainer_data
+								docker run -d -p 8000:8000 -p 9000:9000 --name=portainer --restart=always -v /var/run/docker.sock:/var/run/docker.sock -v portainer_data:/data -v /mnt/mmcblk2p4/portainer/public:/public portainer/portainer-ce
 								if [ $? -ne 0 ] ; then
 									cancelrun "** 错误：容器创建失败，请翻译以上英文报错，Google/百度尝试解决问题！"
 								fi
 							}
-							input_container_simple_build
-							input_container_simple_info
+
+							function input_container_portainer2_check() {
+								if [ "$(command -v unzip)" ]; then
+									mkdir -p /mnt/mmcblk2p4/portainer
+								else
+									TIME r "宿主机缺少插件 zip 和 unzip，请自行安装。"
+									exit 1
+								fi
+							}
+							input_container_portainer2_check
+							input_container_portainer2_build
+							input_container_portainer2_info
 							;;
 						0 )
 							main

@@ -1087,7 +1087,7 @@ TIME r "大佬汉化版不能保证没有 bug"
   exit 0  
   ;;
  2)
-    TIME y " >>>>>>>>>>>开始安装 portainer 大考汉化版"
+    TIME y " >>>>>>>>>>>开始安装 portainer 大佬汉化版"
     if [ "$(command -v unzip)" ]; then
         mkdir -p /root/portainer
         curl -Lo /root/portainer/portainer-ce-public-cn-20220728.zip https://github.com/kissyouhunter/Tools/releases/download/portainer-ce-public-cn-20220728/portainer-ce-public-cn-20220728.zip
@@ -1116,13 +1116,13 @@ TIME r "大佬汉化版不能保证没有 bug"
   exit 0   
   ;;
  3)
-    TIME y " >>>>>>>>>>>开始安装 portainer 大考汉化版（N1 openwert 专用）"
+    TIME y " >>>>>>>>>>>开始安装 portainer 大佬汉化版（N1 openwert 专用）"
     if [ "$(command -v unzip)" ]; then
         mkdir -p /mnt/mmcblk2p4/portainer
         curl -Lo /mnt/mmcblk2p4/portainer/portainer-ce-public-cn-20220728.zip https://github.com/kissyouhunter/Tools/releases/download/portainer-ce-public-cn-20220728/portainer-ce-public-cn-20220728.zip
         cd /mnt/mmcblk2p4/portainer && unzip portainer-ce-public-cn-20220728.zip && rm -f portainer-ce-public-cn-20220728.zip
     else
-        宿主机缺少插件 zip 和 unzip，请自行安装。
+        TIME r "宿主机缺少插件 zip 和 unzip，请自行安装。"
         exit 1
     fi
     docker volume create portainer_data
