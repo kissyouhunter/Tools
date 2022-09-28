@@ -2205,7 +2205,7 @@ function main() {
 		9 )
 			安装x-ui
             clear
-			function submenu8() {
+			function submenu9() {
 				SUBMENU5=$(whiptail --title "一键脚本 作者：kissyouhunter" --menu "telethon" 15 65 4 \
 				"1" "linxu系统、X86 的 openwrt、群辉等（docker 版）请选择 1" \
 				"2" "N1 的 EMMC 上运行的 openwrt（docker 版）请选择 2" \
