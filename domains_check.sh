@@ -38,7 +38,7 @@ DOMAINS=$(cat ${TXT_FILE})
 #Local_ip=`ifconfig | grep "inet" | awk 'NR==3{print $2}'`
 for i in $DOMAINS
 do
-if [ "ping $i -c 4 >> /dev/null" ]; then
+if [ "ping $i -c 10 -i 3 >> /dev/null" ]; then
    TG_MSG="域名 $i 正在努力干活！"
    tg_push_message
    echo "域名 $i 正在努力干活！"
