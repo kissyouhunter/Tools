@@ -38,11 +38,12 @@ DOMAINS=$(cat ${TXT_FILE})
 #Local_ip=`ifconfig | grep "inet" | awk 'NR==3{print $2}'`
 for i in $DOMAINS
 do
-if [ "ping $i -c 10 -i 3 >> /dev/null" ]; then
+test=$(ping -c 1 $i &> /dev/null && echo success || echo fail)
+if [ $test == "success" ]; then
    TG_MSG="域名 $i 正在努力干活！"
    tg_push_message
    echo "域名 $i 正在努力干活！"
-else
+elif [ $test == "fail" ]; then
    TG_MSG="域名 $i GG了，有能小鸡出问题了，但是极有可能域名被回收了！"
    tg_push_message
    echo "域名 $i GG了，有能小鸡出问题了，但是极有可能域名被回收了！"
