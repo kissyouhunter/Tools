@@ -4,11 +4,20 @@ TG_TOKEN=""  #tg机器人的token
 TG_ID="" #tg的user ID
 
 tg_push_message() {
-    TOKEN=${TG_TOKEN}	#TG机器人token
-    chat_ID=${TG_ID}		#用户ID或频道、群ID
-    message_text="${TG_MSG}"		#要发送的信息
-    MODE="HTML"		#解析模式，可选HTML或Markdown
-    URL="https://api.telegram.org/bot${TOKEN}/sendMessage"		#api接口
+    TOKEN=${TG_TOKEN}   #TG机器人token
+    chat_ID=${TG_ID}    #用户ID或频道、群ID
+    message_text="${TG_MSG}"     #要发送的信息
+    MODE="HTML"      #解析模式，可选HTML或Markdown
+    URL="https://api.telegram.org/bot${TOKEN}/sendMessage"     #api接口
+    curl -s -o /dev/null -X POST $URL -d chat_id=${chat_ID} -d parse_mode=${MODE} -d text="${message_text}" --max-time 10
+}
+
+tg_push_message1() {
+    TOKEN=${TG_TOKEN}   #TG机器人token
+    chat_ID=${TG_ID}    #用户ID或频道、群ID
+    message_text="${TG_MSG1}"     #要发送的信息
+    MODE="HTML"      #解析模式，可选HTML或Markdown
+    URL="https://api.telegram.org/bot${TOKEN}/sendMessage"     #api接口
     curl -s -o /dev/null -X POST $URL -d chat_id=${chat_ID} -d parse_mode=${MODE} -d text="${message_text}" --max-time 10
 }
 
@@ -39,13 +48,18 @@ DOMAINS=$(cat ${TXT_FILE})
 for i in $DOMAINS
 do
 test=$(ping -c 1 $i &> /dev/null && echo success || echo fail)
+msgs=$(ping -c 1 $i | grep from)
 if [ $test == "success" ]; then
    TG_MSG="域名 $i 正在努力干活！"
    tg_push_message
+   TG_MSG1="$msgs"
+   tg_push_message1
    echo "域名 $i 正在努力干活！"
 elif [ $test == "fail" ]; then
    TG_MSG="域名 $i GG了，有能小鸡出问题了，但是极有可能域名被回收了！"
    tg_push_message
+   TG_MSG1="$msgs"
+   tg_push_message1
    echo "域名 $i GG了，有能小鸡出问题了，但是极有可能域名被回收了！"
 fi
 done
