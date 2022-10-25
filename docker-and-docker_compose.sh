@@ -5,8 +5,8 @@
 ## 变量
 ARCH=$(uname -m)
 DockerCompose=/usr/local/bin/docker-compose
-PROXY_URL=https://get.daocloud.io/docker/compose/releases/download/v2.5.0/docker-compose-`uname -s`-`uname -m`
-DOCKER_COMPOSE_VERSION=v2.6.1
+PROXY_URL=https://get.daocloud.io/docker/compose/releases/download/v2.12.2/docker-compose-`uname -s`-`uname -m`
+DOCKER_COMPOSE_VERSION=v2.12.2
 DOCKER_COMPOSE_DOWNLOAD_URL=https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-Linux-x86_64
 DOCKER_COMPOSE_AARCG64_DOWNLOAD_URL=https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-Linux-aarch64
 
