@@ -211,10 +211,10 @@ TIME l "<注>openwrt 宿主机默认安装 dockerman 图形 docker 管理工具�
  3)
     TIME y " >>>>>>>>>>>开始为 Arm64 openwrt 安装 docker 和 docker-compose"
     mkdir -p /tmp/upload/ && cd /tmp/upload/
-    curl -LO https://cloud.kisslove.eu.org/d/aliyun/files/docker-20.10.15-1_aarch64.zip
-    unzip docker-20.10.15-1_aarch64.zip && rm -f docker-20.10.15-1_aarch64.zip
-    cd /tmp/upload/docker-20.10.15-1_aarch64 && opkg install *.ipk
-    cd /tmp/upload && rm -rf docker-20.10.15-1_aarch64/
+    curl -LO https://cloud.kisslove.eu.org/d/aliyun/files/docker-20.10.17-1_aarch64.zip
+    unzip docker-20.10.17-1_aarch64.zip && rm -f docker-20.10.17-1_aarch64.zip
+    cd /tmp/upload/docker-20.10.17-1_aarch64 && opkg install *.ipk
+    cd /tmp/upload && rm -rf docker-20.10.17-1_aarch64/
     docker -v && docker-compose -v
     TIME g "****docker 安装完成，请返回上级菜单!****"
     TIME g "****U盘上运行的 OP ，如果 docker 空间没有指定到 /mnt/sda4/docker ，请修改****"
