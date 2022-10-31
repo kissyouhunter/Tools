@@ -3339,7 +3339,7 @@ TIME r "<注>选择后，如果不明白如何选择或输入，请狂按回车�
   fi
   
   if [ "$NETWORK" = "bridge" ]; then
-      inp "是否修改 MaiMRK 端口[默认 5005]：\n1) 修改\n2) 不修改[默认]"
+      inp "是否修改 FLAME 端口[默认 5005]：\n1) 修改\n2) 不修改[默认]"
       opt
       read change_flame_port
       if [ "$change_flame_port" = "1" ]; then
