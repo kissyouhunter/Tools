@@ -2,11 +2,11 @@
 PATH=/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:~/bin
 export PATH
 #=================================================
-#	System Required: CentOS 7/8,Debian/ubuntu,oraclelinux
-#	Description: BBR+BBRplus+Lotserver
-#	Version: 100.0.1.4
-#	Author: 千影,cx9208,YLX
-#	更新内容及反馈:  https://blog.ylx.me/archives/783.html
+# System Required: CentOS 7/8,Debian/ubuntu,oraclelinux
+# Description: BBR+BBRplus+Lotserver
+# Version: 100.0.1.8
+# Author: 千影,cx9208,YLX
+# 更新内容及反馈:  https://blog.ylx.me/archives/783.html
 #=================================================
 
 # RED='\033[0;31m'
@@ -15,7 +15,7 @@ export PATH
 # SKYBLUE='\033[0;36m'
 # PLAIN='\033[0m'
 
-sh_ver="100.0.1.4"
+sh_ver="100.0.1.8"
 github="raw.githubusercontent.com/ylx2016/Linux-NetSpeed/master"
 
 imgurl=""
@@ -96,7 +96,7 @@ installbbr() {
   elif [[ "${release}" == "ubuntu" || "${release}" == "debian" ]]; then
     if [[ ${bit} == "x86_64" ]]; then
       echo -e "如果下载地址出错，可能当前正在更新，超过半天还是出错请反馈，大陆自行解决污染问题"
-      github_tag=$(curl -s 'https://api.github.com/repos/ylx2016/kernel/releases' | grep 'Ubuntu_Kernel' | grep '_latest_bbr_' | head -n 1 | awk -F '"' '{print $4}' | awk -F '[/]' '{print $8}')
+      github_tag=$(curl -s 'https://api.github.com/repos/ylx2016/kernel/releases' | grep 'Debian_Kernel' | grep '_latest_bbr_' | head -n 1 | awk -F '"' '{print $4}' | awk -F '[/]' '{print $8}')
       github_ver=$(curl -s 'https://api.github.com/repos/ylx2016/kernel/releases' | grep ${github_tag} | grep 'deb' | grep 'headers' | awk -F '"' '{print $4}' | awk -F '[/]' '{print $9}' | awk -F '[-]' '{print $3}' | awk -F '[_]' '{print $1}')
       echo -e "获取的版本号为:${github_ver}"
       kernel_version=$github_ver
@@ -118,7 +118,7 @@ installbbr() {
       dpkg -i linux-headers-d10.deb
     elif [[ ${bit} == "aarch64" ]]; then
       echo -e "如果下载地址出错，可能当前正在更新，超过半天还是出错请反馈，大陆自行解决污染问题"
-      github_tag=$(curl -s 'https://api.github.com/repos/ylx2016/kernel/releases' | grep 'Ubuntu_Kernel' | grep '_arm64_' | grep '_bbr_' | head -n 1 | awk -F '"' '{print $4}' | awk -F '[/]' '{print $8}')
+      github_tag=$(curl -s 'https://api.github.com/repos/ylx2016/kernel/releases' | grep 'Debian_Kernel' | grep '_arm64_' | grep '_bbr_' | head -n 1 | awk -F '"' '{print $4}' | awk -F '[/]' '{print $8}')
       github_ver=$(curl -s 'https://api.github.com/repos/ylx2016/kernel/releases' | grep ${github_tag} | grep 'deb' | grep 'headers' | awk -F '"' '{print $4}' | awk -F '[/]' '{print $9}' | awk -F '[-]' '{print $3}' | awk -F '[_]' '{print $1}')
       echo -e "获取的版本号为:${github_ver}"
       kernel_version=$github_ver
@@ -420,7 +420,7 @@ installxanmod() {
       # sourceforge_xanmod_cacule_file_img=$(curl -s https://sourceforge.net/projects/xanmod/files/releases/cacule/${sourceforge_xanmod_cacule_ver}/ | grep 'linux-image' | head -n 1 | awk -F '"' '{print $2}')
       # sourceforge_xanmod_cacule_file_head=$(curl -s https://sourceforge.net/projects/xanmod/files/releases/cacule/${sourceforge_xanmod_cacule_ver}/ | grep 'linux-headers' | head -n 1 | awk -F '"' '{print $2}')
       echo -e "如果下载地址出错，可能当前正在更新，超过半天还是出错请反馈，大陆自行解决污染问题"
-      github_tag=$(curl -s 'https://api.github.com/repos/ylx2016/kernel/releases' | grep 'Ubuntu_Kernel' | grep '_lts_latest_' | grep 'xanmod' | head -n 1 | awk -F '"' '{print $4}' | awk -F '[/]' '{print $8}')
+      github_tag=$(curl -s 'https://api.github.com/repos/ylx2016/kernel/releases' | grep 'Debian_Kernel' | grep '_lts_latest_' | grep 'xanmod' | head -n 1 | awk -F '"' '{print $4}' | awk -F '[/]' '{print $8}')
       github_ver=$(curl -s 'https://api.github.com/repos/ylx2016/kernel/releases' | grep ${github_tag} | grep 'deb' | grep 'headers' | awk -F '"' '{print $4}' | awk -F '[/]' '{print $9}' | awk -F '[-]' '{print $3}')
       #echo -e "获取的xanmod lts版本号为:${sourceforge_xanmod_lts_ver}"
       echo -e "获取的xanmod lts版本号为:${github_ver}"
@@ -476,6 +476,7 @@ installxanmod() {
 #2021.9.2 再次改为https://github.com/UJX6N/bbrplus-5.17
 #2022.2.26 改为https://github.com/UJX6N/bbrplus-5.17
 #2022.7.27 修改菜单为 bbrplus-5.10 bbrplus-5.15 bbrplus-5.18
+#2022.11.03 修改 bbrplus-5.18 为 bbrplus-6.0
 
 installbbrplusnew() {
   if [ "${bbrplusversion}" == "2" ]; then
@@ -487,9 +488,9 @@ installbbrplusnew() {
     github_ver_plus_num=$(curl -s https://api.github.com/repos/UJX6N/bbrplus-5.15/releases | grep /bbrplus-5.15/releases/tag/ | head -1 | awk -F "[/]" '{print $8}' | awk -F "[\"]" '{print $1}' | awk -F "[-]" '{print $1}')
     echo -e "获取的UJX6N的bbrplus-5.15版本号为:${github_ver_plus}"
   elif [ "${bbrplusversion}" == "4" ]; then
-    github_ver_plus=$(curl -s https://api.github.com/repos/UJX6N/bbrplus-5.18/releases | grep /bbrplus-5.18/releases/tag/ | head -1 | awk -F "[/]" '{print $8}' | awk -F "[\"]" '{print $1}')
-    github_ver_plus_num=$(curl -s https://api.github.com/repos/UJX6N/bbrplus-5.18/releases | grep /bbrplus-5.18/releases/tag/ | head -1 | awk -F "[/]" '{print $8}' | awk -F "[\"]" '{print $1}' | awk -F "[-]" '{print $1}')
-    echo -e "获取的UJX6N的bbrplus-5.18版本号为:${github_ver_plus}"
+    github_ver_plus=$(curl -s https://api.github.com/repos/UJX6N/bbrplus-6.x_Mainline/releases | grep /bbrplus-6.x_Mainline/releases/tag/ | head -1 | awk -F "[/]" '{print $8}' | awk -F "[\"]" '{print $1}')
+    github_ver_plus_num=$(curl -s https://api.github.com/repos/UJX6N/bbrplus-6.x_Mainline/releases | grep /bbrplus-6.x_Mainline/releases/tag/ | head -1 | awk -F "[/]" '{print $8}' | awk -F "[\"]" '{print $1}' | awk -F "[-]" '{print $1}')
+    echo -e "获取的UJX6N的bbrplus-6.0版本号为:${github_ver_plus}"
   fi
   echo -e "如果下载地址出错，可能当前正在更新，超过半天还是出错请反馈，大陆自行解决污染问题"
   echo -e "安装失败这边反馈，内核问题给UJX6N反馈"
@@ -507,7 +508,7 @@ installbbrplusnew() {
         #github_tag=$(curl -s 'https://api.github.com/repos/ylx2016/kernel/releases' | grep 'Centos_Kernel' | grep '_latest_bbrplus_' | head -n 1 | awk -F '"' '{print $4}' | awk -F '[/]' '{print $8}')
         #github_ver=$(curl -s 'https://api.github.com/repos/ylx2016/kernel/releases' | grep ${github_tag} | grep 'rpm' | grep 'headers' | awk -F '"' '{print $4}' | awk -F '[/]' '{print $9}' | awk -F '[-]' '{print $3}' | awk -F '[_]' '{print $1}')
         #echo -e "获取的版本号为:${github_ver}"
-        kernel_version=${github_ver_plus_num}_bbrplus
+        kernel_version=${github_ver_plus_num}
         detele_kernel_head
         if [ "${bbrplusversion}" == "2" ]; then
           headurl=$(curl -s 'https://api.github.com/repos/UJX6N/bbrplus-5.10/releases' | grep ${github_ver_plus} | grep 'rpm' | grep 'headers' | grep 'el7' | awk -F '"' '{print $4}')
@@ -516,8 +517,8 @@ installbbrplusnew() {
           headurl=$(curl -s 'https://api.github.com/repos/UJX6N/bbrplus-5.15/releases' | grep ${github_ver_plus} | grep 'rpm' | grep 'headers' | grep 'el7' | awk -F '"' '{print $4}')
           imgurl=$(curl -s 'https://api.github.com/repos/UJX6N/bbrplus-5.15/releases' | grep ${github_ver_plus} | grep 'rpm' | grep -v 'devel' | grep -v 'headers' | grep -v 'Source' | grep 'el7' | awk -F '"' '{print $4}')
         elif [ "${bbrplusversion}" == "4" ]; then
-          headurl=$(curl -s 'https://api.github.com/repos/UJX6N/bbrplus-5.18/releases' | grep ${github_ver_plus} | grep 'rpm' | grep 'headers' | grep 'el7' | awk -F '"' '{print $4}')
-          imgurl=$(curl -s 'https://api.github.com/repos/UJX6N/bbrplus-5.18/releases' | grep ${github_ver_plus} | grep 'rpm' | grep -v 'devel' | grep -v 'headers' | grep -v 'Source' | grep 'el7' | awk -F '"' '{print $4}')
+          headurl=$(curl -s 'https://api.github.com/repos/UJX6N/bbrplus-6.x_Mainline/releases' | grep ${github_ver_plus} | grep 'rpm' | grep 'headers' | grep 'el7' | awk -F '"' '{print $4}')
+          imgurl=$(curl -s 'https://api.github.com/repos/UJX6N/bbrplus-6.x_Mainline/releases' | grep ${github_ver_plus} | grep 'rpm' | grep -v 'devel' | grep -v 'headers' | grep -v 'Source' | grep 'el7' | awk -F '"' '{print $4}')
         fi
 
         headurl=$(check_cn $headurl)
@@ -539,7 +540,7 @@ installbbrplusnew() {
         #github_tag=$(curl -s 'https://api.github.com/repos/ylx2016/kernel/releases' | grep 'Centos_Kernel' | grep '_latest_bbrplus_' | head -n 1 | awk -F '"' '{print $4}' | awk -F '[/]' '{print $8}')
         #github_ver=$(curl -s 'https://api.github.com/repos/ylx2016/kernel/releases' | grep ${github_tag} | grep 'rpm' | grep 'headers' | awk -F '"' '{print $4}' | awk -F '[/]' '{print $9}' | awk -F '[-]' '{print $3}' | awk -F '[_]' '{print $1}')
         #echo -e "获取的版本号为:${github_ver}"
-        kernel_version=${github_ver_plus_num}_bbrplus
+        kernel_version=${github_ver_plus_num}
         detele_kernel_head
         if [ "${bbrplusversion}" == "2" ]; then
           headurl=$(curl -s 'https://api.github.com/repos/UJX6N/bbrplus-5.10/releases' | grep ${github_ver_plus} | grep 'rpm' | grep 'headers' | grep 'el8' | awk -F '"' '{print $4}')
@@ -548,8 +549,8 @@ installbbrplusnew() {
           headurl=$(curl -s 'https://api.github.com/repos/UJX6N/bbrplus-5.15/releases' | grep ${github_ver_plus} | grep 'rpm' | grep 'headers' | grep 'el8' | awk -F '"' '{print $4}')
           imgurl=$(curl -s 'https://api.github.com/repos/UJX6N/bbrplus-5.15/releases' | grep ${github_ver_plus} | grep 'rpm' | grep -v 'devel' | grep -v 'headers' | grep -v 'Source' | grep 'el8' | awk -F '"' '{print $4}')
         elif [ "${bbrplusversion}" == "4" ]; then
-          headurl=$(curl -s 'https://api.github.com/repos/UJX6N/bbrplus-5.18/releases' | grep ${github_ver_plus} | grep 'rpm' | grep 'headers' | grep 'el8' | awk -F '"' '{print $4}')
-          imgurl=$(curl -s 'https://api.github.com/repos/UJX6N/bbrplus-5.18/releases' | grep ${github_ver_plus} | grep 'rpm' | grep -v 'devel' | grep -v 'headers' | grep -v 'Source' | grep 'el8' | awk -F '"' '{print $4}')
+          headurl=$(curl -s 'https://api.github.com/repos/UJX6N/bbrplus-6.x_Mainline/releases' | grep ${github_ver_plus} | grep 'rpm' | grep 'headers' | grep 'el8' | awk -F '"' '{print $4}')
+          imgurl=$(curl -s 'https://api.github.com/repos/UJX6N/bbrplus-6.x_Mainline/releases' | grep ${github_ver_plus} | grep 'rpm' | grep -v 'devel' | grep -v 'headers' | grep -v 'Source' | grep 'el8' | awk -F '"' '{print $4}')
         fi
 
         headurl=$(check_cn $headurl)
@@ -580,8 +581,8 @@ installbbrplusnew() {
         headurl=$(curl -s 'https://api.github.com/repos/UJX6N/bbrplus-5.15/releases' | grep ${github_ver_plus} | grep 'https' | grep 'amd64.deb' | grep 'headers' | awk -F '"' '{print $4}')
         imgurl=$(curl -s 'https://api.github.com/repos/UJX6N/bbrplus-5.15/releases' | grep ${github_ver_plus} | grep 'https' | grep 'amd64.deb' | grep 'image' | awk -F '"' '{print $4}')
       elif [ ${bbrplusversion} == "4" ]; then
-        headurl=$(curl -s 'https://api.github.com/repos/UJX6N/bbrplus-5.18/releases' | grep ${github_ver_plus} | grep 'https' | grep 'amd64.deb' | grep 'headers' | awk -F '"' '{print $4}')
-        imgurl=$(curl -s 'https://api.github.com/repos/UJX6N/bbrplus-5.18/releases' | grep ${github_ver_plus} | grep 'https' | grep 'amd64.deb' | grep 'image' | awk -F '"' '{print $4}')
+        headurl=$(curl -s 'https://api.github.com/repos/UJX6N/bbrplus-6.x_Mainline/releases' | grep ${github_ver_plus} | grep 'https' | grep 'amd64.deb' | grep 'headers' | awk -F '"' '{print $4}')
+        imgurl=$(curl -s 'https://api.github.com/repos/UJX6N/bbrplus-6.x_Mainline/releases' | grep ${github_ver_plus} | grep 'https' | grep 'amd64.deb' | grep 'image' | awk -F '"' '{print $4}')
       fi
 
       headurl=$(check_cn $headurl)
@@ -607,8 +608,8 @@ installbbrplusnew() {
         headurl=$(curl -s 'https://api.github.com/repos/UJX6N/bbrplus-5.15/releases' | grep ${github_ver_plus} | grep 'https' | grep 'arm64.deb' | grep 'headers' | awk -F '"' '{print $4}')
         imgurl=$(curl -s 'https://api.github.com/repos/UJX6N/bbrplus-5.15/releases' | grep ${github_ver_plus} | grep 'https' | grep 'arm64.deb' | grep 'image' | awk -F '"' '{print $4}')
       elif [ "${bbrplusversion}" == "4" ]; then
-        headurl=$(curl -s 'https://api.github.com/repos/UJX6N/bbrplus-5.18/releases' | grep ${github_ver_plus} | grep 'https' | grep 'arm64.deb' | grep 'headers' | awk -F '"' '{print $4}')
-        imgurl=$(curl -s 'https://api.github.com/repos/UJX6N/bbrplus-5.18/releases' | grep ${github_ver_plus} | grep 'https' | grep 'arm64.deb' | grep 'image' | awk -F '"' '{print $4}')
+        headurl=$(curl -s 'https://api.github.com/repos/UJX6N/bbrplus-6.x_Mainline/releases' | grep ${github_ver_plus} | grep 'https' | grep 'arm64.deb' | grep 'headers' | awk -F '"' '{print $4}')
+        imgurl=$(curl -s 'https://api.github.com/repos/UJX6N/bbrplus-6.x_Mainline/releases' | grep ${github_ver_plus} | grep 'https' | grep 'arm64.deb' | grep 'image' | awk -F '"' '{print $4}')
       fi
 
       headurl=$(check_cn $headurl)
@@ -1029,7 +1030,7 @@ net.ipv4.tcp_tw_reuse = 0
 net.ipv4.tcp_fin_timeout = 15
 net.ipv4.ip_local_port_range = 1024 65535
 net.ipv4.tcp_max_tw_buckets = 5000
-net.ipv4.tcp_fastopen = 4
+#net.ipv4.tcp_fastopen = 3
 net.ipv4.tcp_rmem = 4096 87380 67108864
 net.ipv4.tcp_wmem = 4096 65536 67108864
 net.ipv4.udp_rmem_min = 8192
@@ -1138,7 +1139,7 @@ Update_Shell() {
       wget -N "https://${github}/tcp.sh" && chmod +x tcp.sh && ./tcp.sh
       echo -e "脚本已更新为最新版本[ ${sh_new_ver} ] !"
     else
-      echo && echo "	已取消..." && echo
+      echo && echo "  已取消..." && echo
     fi
   else
     echo -e "当前已是最新版本[ ${sh_new_ver} ] !"
@@ -1206,18 +1207,18 @@ start_menu() {
   clear
   echo && echo -e " TCP加速 一键安装管理脚本 ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix} from blog.ylx.me 母鸡慎用
  ${Green_font_prefix}1.${Font_color_suffix} 安装 BBR原版内核            ${Green_font_prefix}2.${Font_color_suffix} 安装 BBRplus ${Green_font_prefix}5.10${Font_color_suffix} 内核
- ${Green_font_prefix}3.${Font_color_suffix} 安装 BBRplus ${Green_font_prefix}5.15${Font_color_suffix} 内核      ${Green_font_prefix}4.${Font_color_suffix} 安装 BBRplus ${Green_font_prefix}5.18${Font_color_suffix} 内核
- ${Green_font_prefix}9.${Font_color_suffix} 安装 Lotserver(锐速)内核	${Green_font_prefix}10.${Font_color_suffix} 安装 xanmod版内核
- ${Green_font_prefix}11.${Font_color_suffix} 使用BBR+FQ加速		${Green_font_prefix}12.${Font_color_suffix} 使用BBR+FQ_PIE加速 
+ ${Green_font_prefix}3.${Font_color_suffix} 安装 BBRplus ${Green_font_prefix}5.15${Font_color_suffix} 内核      ${Green_font_prefix}4.${Font_color_suffix} 安装 BBRplus ${Green_font_prefix}6.0${Font_color_suffix} 内核
+ ${Green_font_prefix}9.${Font_color_suffix} 安装 Lotserver(锐速)内核  ${Green_font_prefix}10.${Font_color_suffix} 安装 xanmod版内核
+ ${Green_font_prefix}11.${Font_color_suffix} 使用BBR+FQ加速   ${Green_font_prefix}12.${Font_color_suffix} 使用BBR+FQ_PIE加速 
  ${Green_font_prefix}13.${Font_color_suffix} 使用BBR+CAKE加速
- ${Green_font_prefix}14.${Font_color_suffix} 使用BBR2+FQ加速	 	${Green_font_prefix}15.${Font_color_suffix} 使用BBR2+FQ_PIE加速 
+ ${Green_font_prefix}14.${Font_color_suffix} 使用BBR2+FQ加速    ${Green_font_prefix}15.${Font_color_suffix} 使用BBR2+FQ_PIE加速 
  ${Green_font_prefix}16.${Font_color_suffix} 使用BBR2+CAKE加速
- ${Green_font_prefix}17.${Font_color_suffix} 开启ECN	 		${Green_font_prefix}18.${Font_color_suffix} 关闭ECN
+ ${Green_font_prefix}17.${Font_color_suffix} 开启ECN      ${Green_font_prefix}18.${Font_color_suffix} 关闭ECN
  ${Green_font_prefix}19.${Font_color_suffix} 使用BBRplus+FQ版加速 
  ${Green_font_prefix}20.${Font_color_suffix} 使用Lotserver(锐速)加速 
- ${Green_font_prefix}21.${Font_color_suffix} 系统配置优化	 	${Green_font_prefix}22.${Font_color_suffix} 应用johnrosen1的优化方案
- ${Green_font_prefix}23.${Font_color_suffix} 禁用IPv6	 		${Green_font_prefix}24.${Font_color_suffix} 开启IPv6  
- ${Green_font_prefix}25.${Font_color_suffix} 卸载全部加速	 	${Green_font_prefix}0.${Font_color_suffix} 退出脚本 
+ ${Green_font_prefix}21.${Font_color_suffix} 系统配置优化   ${Green_font_prefix}22.${Font_color_suffix} 应用johnrosen1的优化方案
+ ${Green_font_prefix}23.${Font_color_suffix} 禁用IPv6     ${Green_font_prefix}24.${Font_color_suffix} 开启IPv6  
+ ${Green_font_prefix}25.${Font_color_suffix} 卸载全部加速   ${Green_font_prefix}0.${Font_color_suffix} 退出脚本 
 ————————————————————————————————————————————————————————————————" &&
     check_status
   get_system_info
@@ -1312,7 +1313,7 @@ start_menu() {
     ;;
   26)
     optimizing_ddcc
-    ;;	
+    ;;
   99)
     exit 1
     ;;
@@ -1350,7 +1351,7 @@ detele_kernel() {
         deb_del=$(dpkg -l | grep linux-image | awk '{print $2}' | grep -v "${kernel_version}" | head -${integer})
         echo -e "开始卸载 ${deb_del} 内核..."
         apt-get purge -y ${deb_del}
-		apt-get autoremove -y
+    apt-get autoremove -y
         echo -e "卸载 ${deb_del} 内核卸载完成，继续..."
       done
       echo -e "内核卸载完毕，继续..."
@@ -1383,7 +1384,7 @@ detele_kernel_head() {
         deb_del=$(dpkg -l | grep linux-headers | awk '{print $2}' | grep -v "${kernel_version}" | head -${integer})
         echo -e "开始卸载 ${deb_del} headers内核..."
         apt-get purge -y ${deb_del}
-		apt-get autoremove -y
+    apt-get autoremove -y
         echo -e "卸载 ${deb_del} 内核卸载完成，继续..."
       done
       echo -e "内核卸载完毕，继续..."
@@ -1873,7 +1874,7 @@ check_status() {
     # kernel_status="Lotserver"
   elif [[ ${kernel_version_full} == *4.9.0-4* || ${kernel_version_full} == *4.15.0-30* || ${kernel_version_full} == *4.8.0-36* || ${kernel_version_full} == *3.16.0-77* || ${kernel_version_full} == *3.16.0-4* || ${kernel_version_full} == *3.2.0-4* || ${kernel_version_full} == *4.11.2-1* || ${kernel_version_full} == *2.6.32-504* || ${kernel_version_full} == *4.4.0-47* || ${kernel_version_full} == *3.13.0-29 || ${kernel_version_full} == *4.4.0-47* ]]; then
     kernel_status="Lotserver"
-  elif [[ $(echo ${kernel_version} | awk -F'.' '{print $1}') == "4" ]] && [[ $(echo ${kernel_version} | awk -F'.' '{print $2}') -ge 9 ]] || [[ $(echo ${kernel_version} | awk -F'.' '{print $1}') == "5" ]]; then
+  elif [[ $(echo ${kernel_version} | awk -F'.' '{print $1}') == "4" ]] && [[ $(echo ${kernel_version} | awk -F'.' '{print $2}') -ge 9 ]] || [[ $(echo ${kernel_version} | awk -F'.' '{print $1}') == "5" ]] || [[ $(echo ${kernel_version} | awk -F'.' '{print $1}') == "6" ]]; then
     kernel_status="BBR"
   else
     kernel_status="noinstall"
