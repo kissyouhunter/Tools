@@ -205,7 +205,7 @@ $IP:$port:$user:$passwd
 is_root
 check_system
 
-install() {
+install_s5() {
 	sic_optimization
 	port_set
 	port_exist_check
@@ -217,7 +217,7 @@ install() {
 	judge "安装 ss5 "
 }
 
-del_ss5() {
+del_s5() {
 
 	systemctl stop sockd.service
 	rm -rf /usr/local/bin/socks
@@ -227,7 +227,7 @@ del_ss5() {
 	judge "删除 ss5 "
 }
 
-update_ss5() {
+update_s5() {
 	port_set
         port_exist_check
         user_set
