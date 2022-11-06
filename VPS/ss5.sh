@@ -193,13 +193,13 @@ connect() {
 	echo "账户：$user"
 	echo "密码：$passwd"
     echo "$IP:$port:$user:$passwd"
-	#echo "
-#IP: $IP
-#端口：$port
-#账户：$user
-#密码：$passwd
-#$IP:$port:$user:$passwd
-#" >/root/ss5.txt
+	echo "
+IP: $IP
+端口：$port
+账户：$user
+密码：$passwd
+$IP:$port:$user:$passwd
+" >/root/ss5.txt
 }
 
 is_root
