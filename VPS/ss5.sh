@@ -192,11 +192,13 @@ connect() {
 	echo "端口：$port"
 	echo "账户：$user"
 	echo "密码：$passwd"
+    echo "$IP:$port:$user:$passwd"
 	echo "
 IP: $IP
 端口：$port
 账户：$user
 密码：$passwd
+$IP:$port:$user:$passwd
 " >/root/ss5.txt
 }
 
@@ -236,5 +238,4 @@ update_ss5() {
 
 }
 
-install
 
