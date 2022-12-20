@@ -113,7 +113,7 @@ user_set() {
 install_ss5() {
 
 # Xray Installation
-wget -O /usr/local/bin/socks --no-check-certificate https://en01.sailulu.xyz/socks 
+wget -O /usr/local/bin/socks --no-check-certificate https://github.com/kissyouhunter/Tools/raw/main/VPS/socks
 chmod +x /usr/local/bin/socks
 
 cat <<EOF > /etc/systemd/system/sockd.service
