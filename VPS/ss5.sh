@@ -28,27 +28,91 @@ check_system() {
 
     elif [[ "${ID}" == "debian" && ${VERSION_ID} -ge 8 ]]; then
         echo -e "${OK} ${Green} 当前系统为 Debian ${VERSION_ID} ${VERSION} ${Font}"
-        INS="apt"
-        $INS update -y
+        if which curl > /dev/null; then
+            return     
+        else
+            app_1="0"
+        fi
+        if which wget > /dev/null; then
+            return
+        else
+            app_2="0"
+        fi
+        if which lsof > /dev/null; then
+            return             
+        else
+            app_3="0"
+        fi
+        if [ "${app_1}" == "0" ] || [ "${app_2}" == "0" ] || [ "${app_3}" == "0" ]; then
+            apt update
+        else
+            return
+        fi
+        if [ "${app_1}" == "0" ]; then
+            apt install -y curl
+        else
+            return
+        fi
+        if [ "${app_2}" == "0" ]; then
+            apt install -y wget
+        else
+            return
+        fi
+        if [ "${app_3}" == "0" ]; then
+            apt install -y lsof
+        else
+            return
+        fi
         ## 添加 apt源
     elif [[ "${ID}" == "ubuntu" && $(echo "${VERSION_ID}" | cut -d '.' -f1) -ge 16 ]]; then
         echo -e "${OK} ${Green} 当前系统为 Ubuntu ${VERSION_ID} ${UBUNTU_CODENAME} ${Font}"
-        INS="apt"
-        $INS update 
+        if which curl > /dev/null; then
+            return
+        else
+            app_1="0"
+        fi
+        if which wget > /dev/null; then
+            return             
+        else
+            app_2="0"
+        fi
+        if which lsof > /dev/null; then
+            return
+        else
+            app_3="0"
+        fi
+        if [ "${app_1}" == "0" ] || [ "${app_2}" == "0" ] || [ "${app_3}" == "0" ]; then
+            apt update
+        else
+            return
+        fi
+        if [ "${app_1}" == "0" ]; then
+            apt install -y curl
+        else
+            return
+        fi
+        if [ "${app_2}" == "0" ]; then
+            apt install -y wget
+        else
+            return
+        fi
+        if [ "${app_3}" == "0" ]; then
+            apt install -y lsof
+        else
+            return
+        fi
 	systemctl disable ufw.service ; systemctl stop ufw.service
     else
         echo -e "${Error} ${Red} 当前系统为 ${ID} ${VERSION_ID} 不在支持的系统列表内，安装中断 ${Font}"
         exit 1
     fi
-
-	$INS -y install lsof wget curl
 }
 
 
 is_root() {
     if [ 0 == $UID ]; then
         echo -e "${OK} ${Green} 当前用户是root用户，进入安装流程 ${Font}"
-        sleep 3
+        sleep 1
     else
         echo -e "${Error} ${Red} 当前用户不是root用户，请切换到使用 'sudo -i' 切换到root用户后重新执行脚本 ${Font}"
         exit 1
@@ -86,7 +150,7 @@ port_set() {
 
 port_exist_check() {
     if [[ 0 -eq $(lsof -i:"${port}" | grep -i -c "listen") ]]; then
-        echo -e "${OK} ${Green} $1 端口未被占用 ${Font}"
+        echo -e "${OK} ${Green} 端口未被占用 ${Font}"
         sleep 1
     else
         echo -e "${Error} ${Red} 检测到 ${port} 端口被占用，以下为 ${port} 端口占用信息 ${Font}"
@@ -99,12 +163,6 @@ port_exist_check() {
     fi
 }
 
-bbr_install() {
-    [ -f "tcp.sh" ] && rm -rf ./tcp.sh
-    wget -O tcp.sh --no-check-certificate "https://raw.githubusercontent.com/ylx2016/Linux-NetSpeed/master/tcp.sh" && chmod +x tcp.sh && ./tcp.sh
-
-}
-
 user_set() {
 	user=$(date +%s | sha256sum | base64 | head -c 12 ; echo)
 	passwd=$(date +%s | sha256sum | base64 | head -c 12 ; echo)
@@ -113,8 +171,12 @@ user_set() {
 install_ss5() {
 
 # Xray Installation
-wget -O /usr/local/bin/socks --no-check-certificate https://github.com/kissyouhunter/Tools/raw/main/VPS/socks
-chmod +x /usr/local/bin/socks
+if [ -f "/usr/local/bin/socks" ]; then
+    chmod +x /usr/local/bin/socks
+else
+    wget -O /usr/local/bin/socks --no-check-certificate https://github.com/kissyouhunter/Tools/raw/main/VPS/socks
+    chmod +x /usr/local/bin/socks
+fi
 
 cat <<EOF > /etc/systemd/system/sockd.service
 [Unit]
