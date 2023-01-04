@@ -29,77 +29,77 @@ check_system() {
     elif [[ "${ID}" == "debian" && ${VERSION_ID} -ge 8 ]]; then
         echo -e "${OK} ${Green} 当前系统为 Debian ${VERSION_ID} ${VERSION} ${Font}"
         if which curl > /dev/null; then
-            return     
+            echo "curl is installed"
         else
             app_1="0"
         fi
         if which wget > /dev/null; then
-            return
+            echo "wget is installed"
         else
             app_2="0"
         fi
         if which lsof > /dev/null; then
-            return             
+            echo "lsof installed"
         else
             app_3="0"
         fi
         if [ "${app_1}" == "0" ] || [ "${app_2}" == "0" ] || [ "${app_3}" == "0" ]; then
             apt update
         else
-            return
+            echo
         fi
         if [ "${app_1}" == "0" ]; then
             apt install -y curl
         else
-            return
+            echo
         fi
         if [ "${app_2}" == "0" ]; then
             apt install -y wget
         else
-            return
+            echo
         fi
         if [ "${app_3}" == "0" ]; then
             apt install -y lsof
         else
-            return
+            echo
         fi
         ## 添加 apt源
     elif [[ "${ID}" == "ubuntu" && $(echo "${VERSION_ID}" | cut -d '.' -f1) -ge 16 ]]; then
         echo -e "${OK} ${Green} 当前系统为 Ubuntu ${VERSION_ID} ${UBUNTU_CODENAME} ${Font}"
         if which curl > /dev/null; then
-            return
+            echo "curl is installed"
         else
             app_1="0"
         fi
         if which wget > /dev/null; then
-            return             
+            echo "wget is installed"
         else
             app_2="0"
         fi
         if which lsof > /dev/null; then
-            return
+            echo "lsof installed"
         else
             app_3="0"
         fi
         if [ "${app_1}" == "0" ] || [ "${app_2}" == "0" ] || [ "${app_3}" == "0" ]; then
             apt update
         else
-            return
+            echo
         fi
         if [ "${app_1}" == "0" ]; then
             apt install -y curl
         else
-            return
+            echo
         fi
         if [ "${app_2}" == "0" ]; then
             apt install -y wget
         else
-            return
+            echo
         fi
         if [ "${app_3}" == "0" ]; then
             apt install -y lsof
         else
-            return
+            echo
         fi
 	systemctl disable ufw.service ; systemctl stop ufw.service
     else
