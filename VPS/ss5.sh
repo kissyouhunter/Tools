@@ -39,29 +39,21 @@ check_system() {
             app_2="0"
         fi
         if which lsof > /dev/null; then
-            echo "lsof installed"
+            echo "lsof is installed"
         else
             app_3="0"
         fi
         if [ "${app_1}" == "0" ] || [ "${app_2}" == "0" ] || [ "${app_3}" == "0" ]; then
             apt update
-        else
-            echo
         fi
         if [ "${app_1}" == "0" ]; then
             apt install -y curl
-        else
-            echo
         fi
         if [ "${app_2}" == "0" ]; then
             apt install -y wget
-        else
-            echo
         fi
         if [ "${app_3}" == "0" ]; then
             apt install -y lsof
-        else
-            echo
         fi
         ## 添加 apt源
     elif [[ "${ID}" == "ubuntu" && $(echo "${VERSION_ID}" | cut -d '.' -f1) -ge 16 ]]; then
@@ -83,23 +75,15 @@ check_system() {
         fi
         if [ "${app_1}" == "0" ] || [ "${app_2}" == "0" ] || [ "${app_3}" == "0" ]; then
             apt update
-        else
-            echo
         fi
         if [ "${app_1}" == "0" ]; then
             apt install -y curl
-        else
-            echo
         fi
         if [ "${app_2}" == "0" ]; then
             apt install -y wget
-        else
-            echo
         fi
         if [ "${app_3}" == "0" ]; then
             apt install -y lsof
-        else
-            echo
         fi
 	systemctl disable ufw.service ; systemctl stop ufw.service
     else
