@@ -384,7 +384,7 @@ EOF
   echo "${FMT_BLUE}Time to change your default shell to zsh:${FMT_RESET}"
 
   # Prompt for user choice on changing the default login shell
-  printf '%sDo you want to change your default shell to zsh? [Y/n]%s ' \
+  #printf '%sDo you want to change your default shell to zsh? [Y/n]%s ' \
     #"$FMT_YELLOW" "$FMT_RESET"
   opt="y"
   read -r opt
