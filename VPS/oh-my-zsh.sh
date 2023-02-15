@@ -387,7 +387,7 @@ EOF
   #printf '%sDo you want to change your default shell to zsh? [Y/n]%s ' \
     #"$FMT_YELLOW" "$FMT_RESET"
   opt="y"
-  read -r opt
+  #read -r opt
   case $opt in
     y*|Y*|"") ;;
     n*|N*) echo "Shell change skipped."; return ;;
