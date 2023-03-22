@@ -2431,7 +2431,7 @@ TIME b "(0) 返回上级菜单"
   log "2.开始创建容器并执行"
   docker run -dit \
       -v $DB_PATH:/etc/x-ui/ \
-      -v $CERT_PATH:/root/ \
+      -v $CERT_PATH:/root/cert \
       --name $XUI_CONTAINER_NAME \
       --hostname $XUI_CONTAINER_NAME \
       --restart always \
