@@ -81,7 +81,6 @@ ADG_CONTAINER_NAME=""
 # x-ui变量
 XUI_DOCKER_IMG_NAME="kissyouhunter/x-ui"
 TAG="latest"
-DEV="dev"
 XUI_PATH=""
 XUI_CONFIG_FOLDER=$(pwd)/x-ui
 XUI_CONTAINER_NAME=""
@@ -2385,7 +2384,7 @@ TIME b "(0) 返回上级菜单"
 
   # image 版本
   input_container_xui_image() {
-    echo -n -e "请输入将要拉取镜像[默认为：最新版本latest，输入dev为尝鲜版]-> "
+    echo -n -e "请输入将要拉取镜像[默认为：最新版本latest]-> "
     read image_name
     if [ -z "$image_name" ]; then
         XUI_IMAGE_NAME="latest"
