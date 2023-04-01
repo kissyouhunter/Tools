@@ -1,0 +1,25 @@
+version: '3'
+services:
+  panel_mysql:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: panel
+    volumes:
+      - ./mysql:/var/lib/mysql
+    command: '--character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci'
+    networks:
+      - cdntip_network
+  panel:
+    image: cdntip/panel
+    ports:
+      - "8111:80"
+    environment:
+      MYSQL_HOST: panel_mysql
+    depends_on:
+      - panel_mysql
+    networks:
+      - cdntip_network
+networks:
+  cdntip_network:
