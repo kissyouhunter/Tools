@@ -488,8 +488,8 @@ installbbrplusnew() {
     github_ver_plus_num=$(curl -s https://api.github.com/repos/UJX6N/bbrplus-5.15/releases | grep /bbrplus-5.15/releases/tag/ | head -1 | awk -F "[/]" '{print $8}' | awk -F "[\"]" '{print $1}' | awk -F "[-]" '{print $1}')
     echo -e "获取的UJX6N的bbrplus-5.15版本号为:${github_ver_plus}"
   elif [ "${bbrplusversion}" == "4" ]; then
-    github_ver_plus=$(curl -s https://api.github.com/repos/UJX6N/bbrplus-6.x_stable/releases | grep /bbrplus-6.x_stable/releases/tag/ | head -1 | awk -F "[/]" '{print $8}' | awk -F "[\"]" '{print $1}')
-    github_ver_plus_num=$(curl -s https://api.github.com/repos/UJX6N/bbrplus-6.x_stable/releases | grep /bbrplus-6.x_stable/releases/tag/ | head -1 | awk -F "[/]" '{print $8}' | awk -F "[\"]" '{print $1}' | awk -F "[-]" '{print $1}')
+    github_ver_plus=$(curl -s https://api.github.com/repos/UJX6N/bbrplus-6.1/releases | grep /bbrplus-6.1/releases/tag/ | head -1 | awk -F "[/]" '{print $8}' | awk -F "[\"]" '{print $1}')
+    github_ver_plus_num=$(curl -s https://api.github.com/repos/UJX6N/bbrplus-6.1/releases | grep /bbrplus-6.1/releases/tag/ | head -1 | awk -F "[/]" '{print $8}' | awk -F "[\"]" '{print $1}' | awk -F "[-]" '{print $1}')
     echo -e "获取的UJX6N的bbrplus-6.0版本号为:${github_ver_plus}"
   fi
   echo -e "如果下载地址出错，可能当前正在更新，超过半天还是出错请反馈，大陆自行解决污染问题"
@@ -517,8 +517,8 @@ installbbrplusnew() {
           headurl=$(curl -s 'https://api.github.com/repos/UJX6N/bbrplus-5.15/releases' | grep ${github_ver_plus} | grep 'rpm' | grep 'headers' | grep 'el7' | awk -F '"' '{print $4}')
           imgurl=$(curl -s 'https://api.github.com/repos/UJX6N/bbrplus-5.15/releases' | grep ${github_ver_plus} | grep 'rpm' | grep -v 'devel' | grep -v 'headers' | grep -v 'Source' | grep 'el7' | awk -F '"' '{print $4}')
         elif [ "${bbrplusversion}" == "4" ]; then
-          headurl=$(curl -s 'https://api.github.com/repos/UJX6N/bbrplus-6.x_stable/releases' | grep ${github_ver_plus} | grep 'rpm' | grep 'headers' | grep 'el7' | awk -F '"' '{print $4}')
-          imgurl=$(curl -s 'https://api.github.com/repos/UJX6N/bbrplus-6.x_stable/releases' | grep ${github_ver_plus} | grep 'rpm' | grep -v 'devel' | grep -v 'headers' | grep -v 'Source' | grep 'el7' | awk -F '"' '{print $4}')
+          headurl=$(curl -s 'https://api.github.com/repos/UJX6N/bbrplus-6.1/releases' | grep ${github_ver_plus} | grep 'rpm' | grep 'headers' | grep 'el7' | awk -F '"' '{print $4}')
+          imgurl=$(curl -s 'https://api.github.com/repos/UJX6N/bbrplus-6.1/releases' | grep ${github_ver_plus} | grep 'rpm' | grep -v 'devel' | grep -v 'headers' | grep -v 'Source' | grep 'el7' | awk -F '"' '{print $4}')
         fi
 
         headurl=$(check_cn $headurl)
@@ -549,8 +549,8 @@ installbbrplusnew() {
           headurl=$(curl -s 'https://api.github.com/repos/UJX6N/bbrplus-5.15/releases' | grep ${github_ver_plus} | grep 'rpm' | grep 'headers' | grep 'el8' | awk -F '"' '{print $4}')
           imgurl=$(curl -s 'https://api.github.com/repos/UJX6N/bbrplus-5.15/releases' | grep ${github_ver_plus} | grep 'rpm' | grep -v 'devel' | grep -v 'headers' | grep -v 'Source' | grep 'el8' | awk -F '"' '{print $4}')
         elif [ "${bbrplusversion}" == "4" ]; then
-          headurl=$(curl -s 'https://api.github.com/repos/UJX6N/bbrplus-6.x_stable/releases' | grep ${github_ver_plus} | grep 'rpm' | grep 'headers' | grep 'el8' | awk -F '"' '{print $4}')
-          imgurl=$(curl -s 'https://api.github.com/repos/UJX6N/bbrplus-6.x_stable/releases' | grep ${github_ver_plus} | grep 'rpm' | grep -v 'devel' | grep -v 'headers' | grep -v 'Source' | grep 'el8' | awk -F '"' '{print $4}')
+          headurl=$(curl -s 'https://api.github.com/repos/UJX6N/bbrplus-6.1/releases' | grep ${github_ver_plus} | grep 'rpm' | grep 'headers' | grep 'el8' | awk -F '"' '{print $4}')
+          imgurl=$(curl -s 'https://api.github.com/repos/UJX6N/bbrplus-6.1/releases' | grep ${github_ver_plus} | grep 'rpm' | grep -v 'devel' | grep -v 'headers' | grep -v 'Source' | grep 'el8' | awk -F '"' '{print $4}')
         fi
 
         headurl=$(check_cn $headurl)
@@ -581,8 +581,8 @@ installbbrplusnew() {
         headurl=$(curl -s 'https://api.github.com/repos/UJX6N/bbrplus-5.15/releases' | grep ${github_ver_plus} | grep 'https' | grep 'amd64.deb' | grep 'headers' | awk -F '"' '{print $4}')
         imgurl=$(curl -s 'https://api.github.com/repos/UJX6N/bbrplus-5.15/releases' | grep ${github_ver_plus} | grep 'https' | grep 'amd64.deb' | grep 'image' | awk -F '"' '{print $4}')
       elif [ ${bbrplusversion} == "4" ]; then
-        headurl=$(curl -s 'https://api.github.com/repos/UJX6N/bbrplus-6.x_stable/releases' | grep ${github_ver_plus} | grep 'https' | grep 'amd64.deb' | grep 'headers' | awk -F '"' '{print $4}')
-        imgurl=$(curl -s 'https://api.github.com/repos/UJX6N/bbrplus-6.x_stable/releases' | grep ${github_ver_plus} | grep 'https' | grep 'amd64.deb' | grep 'image' | awk -F '"' '{print $4}')
+        headurl=$(curl -s 'https://api.github.com/repos/UJX6N/bbrplus-6.1/releases' | grep ${github_ver_plus} | grep 'https' | grep 'amd64.deb' | grep 'headers' | awk -F '"' '{print $4}')
+        imgurl=$(curl -s 'https://api.github.com/repos/UJX6N/bbrplus-6.1/releases' | grep ${github_ver_plus} | grep 'https' | grep 'amd64.deb' | grep 'image' | awk -F '"' '{print $4}')
       fi
 
       headurl=$(check_cn $headurl)
@@ -608,8 +608,8 @@ installbbrplusnew() {
         headurl=$(curl -s 'https://api.github.com/repos/UJX6N/bbrplus-5.15/releases' | grep ${github_ver_plus} | grep 'https' | grep 'arm64.deb' | grep 'headers' | awk -F '"' '{print $4}')
         imgurl=$(curl -s 'https://api.github.com/repos/UJX6N/bbrplus-5.15/releases' | grep ${github_ver_plus} | grep 'https' | grep 'arm64.deb' | grep 'image' | awk -F '"' '{print $4}')
       elif [ "${bbrplusversion}" == "4" ]; then
-        headurl=$(curl -s 'https://api.github.com/repos/UJX6N/bbrplus-6.x_stable/releases' | grep ${github_ver_plus} | grep 'https' | grep 'arm64.deb' | grep 'headers' | awk -F '"' '{print $4}')
-        imgurl=$(curl -s 'https://api.github.com/repos/UJX6N/bbrplus-6.x_stable/releases' | grep ${github_ver_plus} | grep 'https' | grep 'arm64.deb' | grep 'image' | awk -F '"' '{print $4}')
+        headurl=$(curl -s 'https://api.github.com/repos/UJX6N/bbrplus-6.1/releases' | grep ${github_ver_plus} | grep 'https' | grep 'arm64.deb' | grep 'headers' | awk -F '"' '{print $4}')
+        imgurl=$(curl -s 'https://api.github.com/repos/UJX6N/bbrplus-6.1/releases' | grep ${github_ver_plus} | grep 'https' | grep 'arm64.deb' | grep 'image' | awk -F '"' '{print $4}')
       fi
 
       headurl=$(check_cn $headurl)
@@ -1207,7 +1207,7 @@ start_menu() {
   clear
   echo && echo -e " TCP加速 一键安装管理脚本 ${Red_font_prefix}[v${sh_ver}]${Font_color_suffix} from blog.ylx.me 母鸡慎用
  ${Green_font_prefix}1.${Font_color_suffix} 安装 BBR原版内核            ${Green_font_prefix}2.${Font_color_suffix} 安装 BBRplus ${Green_font_prefix}5.10${Font_color_suffix} 内核
- ${Green_font_prefix}3.${Font_color_suffix} 安装 BBRplus ${Green_font_prefix}5.15${Font_color_suffix} 内核      ${Green_font_prefix}4.${Font_color_suffix} 安装 BBRplus ${Green_font_prefix}6.0${Font_color_suffix} 内核
+ ${Green_font_prefix}3.${Font_color_suffix} 安装 BBRplus ${Green_font_prefix}5.15${Font_color_suffix} 内核      ${Green_font_prefix}4.${Font_color_suffix} 安装 BBRplus ${Green_font_prefix}6.1${Font_color_suffix} 内核
  ${Green_font_prefix}9.${Font_color_suffix} 安装 Lotserver(锐速)内核  ${Green_font_prefix}10.${Font_color_suffix} 安装 xanmod版内核
  ${Green_font_prefix}11.${Font_color_suffix} 使用BBR+FQ加速   ${Green_font_prefix}12.${Font_color_suffix} 使用BBR+FQ_PIE加速 
  ${Green_font_prefix}13.${Font_color_suffix} 使用BBR+CAKE加速
