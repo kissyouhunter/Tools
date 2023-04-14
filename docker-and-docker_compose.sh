@@ -29,7 +29,7 @@ function Combin_Function() {
     PermissionJudgment
     EnvJudgment
     DockerMirror
-    InstallDocker
+    $InstallDocker
     #DockerCompose
     ShowVersion
 }
