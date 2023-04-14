@@ -29,8 +29,8 @@ function Combin_Function() {
     PermissionJudgment
     EnvJudgment
     DockerMirror
-    $InstallDocker
-    DockerCompose
+    InstallDocker
+    #DockerCompose
     ShowVersion
 }
 
@@ -105,6 +105,7 @@ function DockerMirror() {
     esac
     done
 
+    function disablecomposefiledownload() {
     if [ -x $DockerCompose ]; then
         CHOICE_D=$(echo -e "${BOLD}检测到已安装 Docker Compose ，是否覆盖安装 [ Y/n ]：${PLAIN}")
     else
@@ -144,6 +145,7 @@ function DockerMirror() {
                 sleep 1;
             done
     esac
+    }
 }
 
 ## 安装 Docker Engine
@@ -185,7 +187,8 @@ function ShowVersion() {
     echo -e "${WORKING} 验证安装版本...\n"
     docker -v
     VERIFICATION_DOCKER=$?
-    [[ ${DOCKER_COMPOSE} == "True" ]] && docker-compose -v
+    #[[ ${DOCKER_COMPOSE} == "True" ]] && docker-compose -v
+    [[ ${DOCKER_COMPOSE} == "True" ]] && docker compose version
     if [ ${VERIFICATION_DOCKER} -eq 0 ]; then
         echo -e "\n${SUCCESS} 安装完成"
     else
