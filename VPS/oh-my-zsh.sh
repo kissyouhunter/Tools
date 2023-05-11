@@ -505,7 +505,7 @@ main() {
     sudo apt update
     sudo apt install curl wget nano zsh git -y
   elif [ ${release} = "rpm" ]; then
-    yum install curl wget nano zsh git -y
+    yum install curl wget nano zsh git util-linux-user -y
   fi
   # Run as unattended if stdin is not a tty
   if [ ! -t 0 ]; then
