@@ -11,5 +11,5 @@ python manage.py createsuperuser --username admin --email admin@admin.com
 
 python manage.py aws_update_images
 
-docker comppose restart
+docker compose restart
 ```
