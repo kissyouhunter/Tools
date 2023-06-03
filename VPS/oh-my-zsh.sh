@@ -480,7 +480,7 @@ print_success() {
 
 main() {
   cd ~
-  if cat /etc/issue | grep -Eqi "debian|bullseye|buster"; then
+  if cat /etc/issue | grep -Eqi "debian|bullseye|buster|bookworm"; then
     release="debian"
   elif cat /etc/issue | grep -Eqi "ubuntu|jammy|focal"; then
     release="ubuntu"
