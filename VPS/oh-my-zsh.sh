@@ -482,7 +482,7 @@ main() {
   cd ~
   if cat /etc/issue | grep -Eqi "debian|bullseye|buster|bookworm"; then
     release="debian"
-  elif cat /etc/issue | grep -Eqi "ubuntu|jammy|focal"; then
+  elif cat /etc/issue | grep -Eqi "ubuntu|jammy|focal|lunar"; then
     release="ubuntu"
   elif cat /etc/issue | grep -Eqi "arch"; then
     release="arch"
