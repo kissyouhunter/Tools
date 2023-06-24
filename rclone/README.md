@@ -1,5 +1,5 @@
 ### rcloned 挂载脚本
-bash```
+```
 wget https://github.com/kissyouhunter/Tools/raw/main/rclone/rcloned
 ```
 
