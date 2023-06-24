@@ -1,4 +1,11 @@
 ### rcloned 挂载脚本
+
+挂载需要安装 fuse，根据自己的系统来选择安装命令
+```
+# Debian/Ubantu
+apt-get update && apt-get install -y fuse
+# CentOS
+yum install -y fuse
 ```
 wget https://github.com/kissyouhunter/Tools/raw/main/rclone/rcloned
 ```
