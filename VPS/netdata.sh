@@ -3,6 +3,9 @@
 # 匹配物理网卡 
 netcard=$(cat /proc/net/dev | grep -E 'eth[0-9]+|wlan[0-9]+|enp[0-9]+|ens[0-9]+|eno[0-9]+|wl[0-9 ]+' | awk -F: '{print $1}' | tr -d ' ')
 
+# 再过滤掉 veth
+netcard=$(echo "$netcard" | grep -v 'veth')
+
 # 获取流量信息并转换单位
 in=$(cat /proc/net/dev | grep $netcard | awk '{printf "%f\n", $2/1024/1024/1024}')
 out=$(cat /proc/net/dev | grep $netcard | awk '{printf "%f\n", $10/1024/1024/1024}')
