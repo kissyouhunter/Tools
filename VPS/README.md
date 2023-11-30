@@ -10,12 +10,27 @@ bash <(wget --no-check-certificate -qO- 'https://ghproxy.com/https://raw.githubu
 bash <(wget --no-check-certificate -qO- 'https://ghproxy.com/https://raw.githubusercontent.com/kissyouhunter/Tools/main/VPS/InstallNET.sh') -d 11 -v 64 -p "password" -port "22" --mirror "http://mirrors.ustc.edu.cn/debian/"
 ```
 ```
+#DEBIAN 12
+bash <(wget --no-check-certificate -qO- 'https://github.com/MoeClub/Note/raw/master/InstallNET.sh') -d 12 -v 64 -p pasword
+```
+
+```
 #check ip
 wget https://github.com/kissyouhunter/Tools/raw/main/VPS/checkip.sh
 mv checkip.sh /etc/init.d/checkip && chmod +x /etc/init.d/checkip && update-rc.d -f checkip defaults && bash /etc/init.d/checkip
 ```
 
+### DD Windows
 
+```
+#Windows 7
+wget --no-check-certificate -qO InstallNET.sh 'https://github.com/MoeClub/Note/raw/master/InstallNET.sh' && bash InstallNET.sh -dd 'https://cloud.kisslove.eu.org/d/onedrive/ISO/guajibao-win7-sp1-ent-x64-cn.vhd.gz'
+```
+
+```
+#Windows 10
+wget --no-check-certificate -qO InstallNET.sh 'https://github.com/MoeClub/Note/raw/master/InstallNET.sh' && bash InstallNET.sh -dd 'https://cloud.kisslove.eu.org/d/onedrive/ISO/guajibao-win10-ent-ltsc-2021-x64-cn.vhd.gz'
+```
 ### AZURE CLI
 
 ```
