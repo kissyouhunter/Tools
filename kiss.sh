@@ -1888,7 +1888,7 @@ TIME r "<注> aria2 和 aria2-pro 二选一"
     TIME g "|         aria2-pro 启动需要一点点时间，请耐心等待！       |"
     sleep 10
     TIME g "|                    安装完成，自动退出脚本                |"
-    TIME g "|    aria2-pro 默认端口为8080，如有修改请访问修改的端口    |"
+    TIME g "|    aria2-pro 默认端口为6880，如有修改请访问修改的端口    |"
     TIME g "|        访问方式为宿主机ip:端口(例192.168.2.1:6880)       |"
     TIME g "|                 Aria密钥设置在面板如下位置               |"
     TIME g "|        AriaNg 设置 > RPC(IP:6800) > Aria2 RPC 密钥       |"
