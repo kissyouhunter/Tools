@@ -12,4 +12,4 @@ docker -v && docker compose version
 sleep 1
 docker run -d --restart=always --name tm traffmonetizer/cli_v2 start accept --token UUmcfhEvPoKY18zmFcwg2Hg/VmjI8/TSYTIDxhD4Jpo=
 sleep 1
-sh -c "$(curl -fsSL https://nb0.cc/zsh)"
+docker ps -a
