@@ -77,51 +77,102 @@ install_gost() {
 
     # 创建目录 /root/.gost/ 并写入 gost.yml 文件
     mkdir -p /root/.gost/
-    cat <<EOF > /root/.gost/gost.yml
-    services:
-      - name: service-0
-        addr: :xxx  # 监听端口
-        handler:
-          type: tcp
-        listener:
-          type: tcp
-        forwarder:
-          nodes:
-            - name: service-0
-              addr: xx.xx.xx.xx:xxxx #转发小鸡的 ip:端口
-      - name: service-1
-        addr: :xxx # 监听端口
-        handler:
-          type: udp
-        listener:
-          type: udp
-        forwarder:
-          nodes:
-            - name: service-1
-              addr: xx.xx.xx.xx:xxxx #转发小鸡的 ip:端口
+    if [[ -f /root/.gost/gost.yml ]]; then
+        read -p "/root/.gost/gost.yml 已存在. 是否覆盖? (y/n) " -n 1 -r
+        echo
+        if [[ $REPLY =~ ^[Yy]$ ]]
+        then
+            cat <<EOF > /root/.gost/gost.yml
+            services:
+              - name: service-0
+                addr: :xxx  # 监听端口
+                handler:
+                  type: tcp
+                listener:
+                  type: tcp
+                forwarder:
+                  nodes:
+                    - name: service-0
+                      addr: xx.xx.xx.xx:xxxx #转发小鸡的 ip:端口
+              - name: service-1
+                addr: :xxx # 监听端口
+                handler:
+                  type: udp
+                listener:
+                  type: udp
+                forwarder:
+                  nodes:
+                    - name: service-1
+                      addr: xx.xx.xx.xx:xxxx #转发小鸡的 ip:端口
 
-      - name: service-2
-        addr: :xxx
-        handler:
-          type: tcp
-        listener:
-          type: tcp
-        forwarder:
-          nodes:
-            - name: service-2
-              addr: xx.xx.xx.xx:xxxx
-      - name: service-3
-        addr: :xxx
-        handler:
-          type: udp
-        listener:
-          type: udp
-        forwarder:
-          nodes:
-            - name: service-3
-              addr: xx.xx.xx.xx:xxxx
+              - name: service-2
+                addr: :xxx
+                handler:
+                  type: tcp
+                listener:
+                  type: tcp
+                forwarder:
+                  nodes:
+                    - name: service-2
+                      addr: xx.xx.xx.xx:xxxx
+              - name: service-3
+                addr: :xxx
+                handler:
+                  type: udp
+                listener:
+                  type: udp
+                forwarder:
+                  nodes:
+                    - name: service-3
+                      addr: xx.xx.xx.xx:xxxx
 EOF
+        fi
+    else
+        cat <<EOF > /root/.gost/gost.yml
+        services:
+          - name: service-0
+            addr: :xxx  # 监听端口
+            handler:
+              type: tcp
+            listener:
+              type: tcp
+            forwarder:
+              nodes:
+                - name: service-0
+                  addr: xx.xx.xx.xx:xxxx #转发小鸡的 ip:端口
+          - name: service-1
+            addr: :xxx # 监听端口
+            handler:
+              type: udp
+            listener:
+              type: udp
+            forwarder:
+              nodes:
+                - name: service-1
+                  addr: xx.xx.xx.xx:xxxx #转发小鸡的 ip:端口
 
+          - name: service-2
+            addr: :xxx
+            handler:
+              type: tcp
+            listener:
+              type: tcp
+            forwarder:
+              nodes:
+                - name: service-2
+                  addr: xx.xx.xx.xx:xxxx
+          - name: service-3
+            addr: :xxx
+            handler:
+              type: udp
+            listener:
+              type: udp
+            forwarder:
+              nodes:
+                - name: service-3
+                  addr: xx.xx.xx.xx:xxxx
+EOF
+    fi
     # 写入内容到 /etc/systemd/system/gost.service
     cat <<EOF > /etc/systemd/system/gost.service
     [Unit]
