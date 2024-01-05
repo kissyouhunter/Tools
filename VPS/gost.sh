@@ -82,111 +82,111 @@ install_gost() {
         echo
         if [[ $REPLY =~ ^[Yy]$ ]]
         then
-            cat <<EOF > /root/.gost/gost.yml
-            services:
-              - name: service-0
-                addr: :xxx  # 监听端口
-                handler:
-                  type: tcp
-                listener:
-                  type: tcp
-                forwarder:
-                  nodes:
-                    - name: service-0
-                      addr: xx.xx.xx.xx:xxxx #转发小鸡的 ip:端口
-              - name: service-1
-                addr: :xxx # 监听端口
-                handler:
-                  type: udp
-                listener:
-                  type: udp
-                forwarder:
-                  nodes:
-                    - name: service-1
-                      addr: xx.xx.xx.xx:xxxx #转发小鸡的 ip:端口
+cat <<EOF > /root/.gost/gost.yml
+services:
+  - name: service-0
+    addr: :xxx  # 监听端口
+    handler:
+      type: tcp
+    listener:
+      type: tcp
+    forwarder:
+      nodes:
+        - name: service-0
+          addr: xx.xx.xx.xx:xxxx #转发小鸡的 ip:端口
+  - name: service-1
+    addr: :xxx # 监听端口
+    handler:
+      type: udp
+    listener:
+      type: udp
+    forwarder:
+      nodes:
+        - name: service-1
+          addr: xx.xx.xx.xx:xxxx #转发小鸡的 ip:端口
 
-              - name: service-2
-                addr: :xxx
-                handler:
-                  type: tcp
-                listener:
-                  type: tcp
-                forwarder:
-                  nodes:
-                    - name: service-2
-                      addr: xx.xx.xx.xx:xxxx
-              - name: service-3
-                addr: :xxx
-                handler:
-                  type: udp
-                listener:
-                  type: udp
-                forwarder:
-                  nodes:
-                    - name: service-3
-                      addr: xx.xx.xx.xx:xxxx
+  - name: service-2
+    addr: :xxx
+    handler:
+      type: tcp
+    listener:
+      type: tcp
+    forwarder:
+      nodes:
+        - name: service-2
+          addr: xx.xx.xx.xx:xxxx
+  - name: service-3
+    addr: :xxx
+    handler:
+      type: udp
+    listener:
+      type: udp
+    forwarder:
+      nodes:
+        - name: service-3
+          addr: xx.xx.xx.xx:xxxx
 EOF
         fi
     else
-        cat <<EOF > /root/.gost/gost.yml
-        services:
-          - name: service-0
-            addr: :xxx  # 监听端口
-            handler:
-              type: tcp
-            listener:
-              type: tcp
-            forwarder:
-              nodes:
-                - name: service-0
-                  addr: xx.xx.xx.xx:xxxx #转发小鸡的 ip:端口
-          - name: service-1
-            addr: :xxx # 监听端口
-            handler:
-              type: udp
-            listener:
-              type: udp
-            forwarder:
-              nodes:
-                - name: service-1
-                  addr: xx.xx.xx.xx:xxxx #转发小鸡的 ip:端口
+cat <<EOF > /root/.gost/gost.yml
+services:
+  - name: service-0
+    addr: :xxx  # 监听端口
+    handler:
+      type: tcp
+    listener:
+      type: tcp
+    forwarder:
+      nodes:
+        - name: service-0
+          addr: xx.xx.xx.xx:xxxx #转发小鸡的 ip:端口
+  - name: service-1
+    addr: :xxx # 监听端口
+    handler:
+      type: udp
+    listener:
+      type: udp
+    forwarder:
+      nodes:
+        - name: service-1
+          addr: xx.xx.xx.xx:xxxx #转发小鸡的 ip:端口
 
-          - name: service-2
-            addr: :xxx
-            handler:
-              type: tcp
-            listener:
-              type: tcp
-            forwarder:
-              nodes:
-                - name: service-2
-                  addr: xx.xx.xx.xx:xxxx
-          - name: service-3
-            addr: :xxx
-            handler:
-              type: udp
-            listener:
-              type: udp
-            forwarder:
-              nodes:
-                - name: service-3
-                  addr: xx.xx.xx.xx:xxxx
+  - name: service-2
+    addr: :xxx
+    handler:
+      type: tcp
+    listener:
+      type: tcp
+    forwarder:
+      nodes:
+        - name: service-2
+          addr: xx.xx.xx.xx:xxxx
+  - name: service-3
+    addr: :xxx
+    handler:
+      type: udp
+    listener:
+      type: udp
+    forwarder:
+      nodes:
+        - name: service-3
+          addr: xx.xx.xx.xx:xxxx
 EOF
     fi
     # 写入内容到 /etc/systemd/system/gost.service
-    cat <<EOF > /etc/systemd/system/gost.service
-    [Unit]
-    Description=GO Simple Tunnel
-    After=network.target
-    Wants=network.target
+cat <<EOF > /etc/systemd/system/gost.service
+[Unit]
+Description=GO Simple Tunnel
+After=network.target
+Wants=network.target
 
-    [Service]
-    Type=simple
-    ExecStart=/usr/local/bin/gost -C /root/.gost/gost.yml
-    Restart=always
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/gost -C /root/.gost/gost.yml
+Restart=always
 
-    [Install]
-    WantedBy=multi-user.target
+[Install]
+WantedBy=multi-user.target
 EOF
 
     echo "gost installation completed!"
