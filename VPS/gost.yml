@@ -1,0 +1,42 @@
+services:
+  - name: service-0
+    addr: :xxx  # 监听端口
+    handler:
+      type: tcp
+    listener:
+      type: tcp
+    forwarder:
+      nodes:
+        - name: service-0
+          addr: xx.xx.xx.xx:xxxx #转发小鸡的 ip:端口
+  - name: service-1
+    addr: :xxx # 监听端口
+    handler:
+      type: udp
+    listener:
+      type: udp
+    forwarder:
+      nodes:
+        - name: service-1
+          addr: xx.xx.xx.xx:xxxx #转发小鸡的 ip:端口
+
+  - name: service-2
+    addr: :xxx
+    handler:
+      type: tcp
+    listener:
+      type: tcp
+    forwarder:
+      nodes:
+        - name: service-2
+          addr: xx.xx.xx.xx:xxxx
+  - name: service-3
+    addr: :xxx
+    handler:
+      type: udp
+    listener:
+      type: udp
+    forwarder:
+      nodes:
+        - name: service-3
+          addr: xx.xx.xx.xx:xxxx
