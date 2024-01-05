@@ -1,0 +1,12 @@
+[Unit]
+Description=GO Simple Tunnel
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/local/bin/gost -C /root/.gost/gost.yml
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
