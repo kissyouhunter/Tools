@@ -120,7 +120,7 @@ install_gost() {
           nodes:
             - name: service-3
               addr: xx.xx.xx.xx:xxxx
-    EOF
+EOF
 
     # 写入内容到 /etc/systemd/system/gost.service
     cat <<EOF > /etc/systemd/system/gost.service
@@ -136,7 +136,7 @@ install_gost() {
 
     [Install]
     WantedBy=multi-user.target
-    EOF
+EOF
 
     echo -n "gost installation completed!"
     echo -n "配置文件在/root/.gost/gost.yml"
