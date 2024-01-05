@@ -138,11 +138,11 @@ EOF
     WantedBy=multi-user.target
 EOF
 
-    echo -n "gost installation completed!"
-    echo -n "配置文件在/root/.gost/gost.yml"
-    echo -n "systemctl enable gost 命令开启开机自启动"
-    echo -n "systemctl start gost 命令开启gost服务"
-    echo -n "systemctl restart gost 命令重启gost服务"
+    echo "gost installation completed!"
+    echo "配置文件在/root/.gost/gost.yml"
+    echo "systemctl enable gost 命令开启开机自启动"
+    echo "systemctl start gost 命令开启gost服务"
+    echo "systemctl restart gost 命令重启gost服务"
 }
 
 # Retrieve available versions from GitHub API
