@@ -31,6 +31,11 @@ wget --no-check-certificate -qO InstallNET.sh 'https://github.com/MoeClub/Note/r
 #Windows 10
 wget --no-check-certificate -qO InstallNET.sh 'https://github.com/MoeClub/Note/raw/master/InstallNET.sh' && bash InstallNET.sh -dd 'https://cloud.kisslove.eu.org/d/onedrive/ISO/guajibao-win10-ent-ltsc-2021-x64-cn.vhd.gz'
 ```
+
+```
+#Windows 10 linode
+wget -O- https://cloud.kisslove.eu.org/d/onedrive/ISO/guajibao-win10-ent-ltsc-2021-x64-cn.vhd.gz | gunzip | dd of=/dev/sda
+```
 ### AZURE CLI
 
 ```
