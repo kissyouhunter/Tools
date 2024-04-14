@@ -1,3 +1,14 @@
+[custom]
+;不要随意改变关键字，否则会导致出错
+;acl4SSR规则
+
+;去广告：支持
+;自动测速：不支持
+;微软分流：支持
+;苹果分流：支持
+;增强中国IP段：支持
+;增强国外GFW：支持
+
 # 全局配置
 # 开启 IPv6 总开关，关闭阻断所有 IPv6 链接和屏蔽 DNS 请求 AAAA 记录
 ipv6: true
@@ -84,16 +95,6 @@ dns:
     - https://doh.pub/dns-query
     - https://dns.alidns.com/dns-query
 
-[custom]
-;不要随意改变关键字，否则会导致出错
-;acl4SSR规则
-
-;去广告：支持
-;自动测速：不支持
-;微软分流：支持
-;苹果分流：支持
-;增强中国IP段：支持
-;增强国外GFW：支持
 
 ;设置规则标志位
 ruleset=🚀 节点选择,https://github.com/kissyouhunter/Tools/raw/main/Subconverter/Summonerswar
