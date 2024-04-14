@@ -1,0 +1,203 @@
+# 全局配置
+# 开启 IPv6 总开关，关闭阻断所有 IPv6 链接和屏蔽 DNS 请求 AAAA 记录
+ipv6: true
+# 允许局域网的连接（可用来共享加速）
+allow-lan: true
+# 绑定 IP 地址，仅作用于 allow-lan 为 true，'*'表示所有地址
+bind-address: "*"
+# 混合端口 HTTP和SOCKS5用一个端口
+mixed-port: 7890
+# 更换延迟计算方式,去除握手等额外延迟
+unified-delay: false
+# TCP 并发连接所有 IP, 将使用最快握手的 TCP
+tcp-concurrent: true
+# 外部控制器,可以使用 RESTful API 来控制你的 clash 内核
+external-controller: 0.0.0.0:9090
+# 外部用户界面
+external-ui: ui
+
+
+# 匹配所有进程（always/strict/off）
+## always 开启，强制匹配所有进程， strict 默认，由 Clash 判断是否开启， off 不匹配进程，推荐在路由器上使用此模式
+find-process-mode: strict
+# 全局 TLS 指纹，优先低于 proxy 内的 client-fingerprint
+## 可选： "chrome","firefox","safari","ios","random","none" options.
+global-client-fingerprint: chrome
+
+# profile 应为扩展配置，但在 Clash.meta, 仅作为缓存项使用
+profile:
+  # 储存 API 对策略组的选择，以供下次启动时使用
+  store-selected: true
+  # 储存 fakeip 映射表，域名再次发生连接时，使用原有映射地址
+  store-fake-ip: true
+
+# 嗅探域名 可选配置
+sniffer:
+  enable: true
+# TLS 和 QUIC 默认如果不配置 ports 默认嗅探 443
+  sniff:
+    HTTP:
+      ports: [80, 8080-8880]
+      override-destination: true
+    TLS:
+      ports: [443, 8443]
+    QUIC:
+      ports: [443, 8443]
+# 需要跳过嗅探的域名
+  skip-classical:
+    - "Mijia Cloud"
+
+# TUN配置
+tun:
+  enable: true
+# 可选： system/gvisor/mixed
+  stack: system
+# 需要劫持的 DNS
+  dns-hijack:
+    - "any:53"
+# 配置路由表
+  auto-route: true
+# 自动识别出口网卡
+  auto-detect-interface: true
+
+# DNS配置
+dns:
+# 关闭将使用系统 DNS
+  enable: true
+# 开启 DNS 服务器监听
+  listen: :53
+  ipv6: true
+# 模式：redir-host 或 fake-ip
+  enhanced-mode: fake-ip
+# Fake-IP解析地址池
+  fake-ip-range: 28.0.0.1/8
+  fake-ip-filter:
+    - "*"
+    - "+.lan"
+    - "+.local"
+# 只能使用纯 IP 地址，可使用加密 DNS
+  default-nameserver:
+    - 223.5.5.5
+    - 119.29.29.29
+# 这部分为主要 DNS 配置，影响所有直连，确保使用对大陆解析精准的 DNS
+  nameserver:
+    - https://doh.pub/dns-query
+    - https://dns.alidns.com/dns-query
+
+[custom]
+;不要随意改变关键字，否则会导致出错
+;acl4SSR规则
+
+;去广告：支持
+;自动测速：不支持
+;微软分流：支持
+;苹果分流：支持
+;增强中国IP段：支持
+;增强国外GFW：支持
+
+;设置规则标志位
+ruleset=🚀 节点选择,https://github.com/kissyouhunter/Tools/raw/main/Subconverter/Summonerswar
+ruleset=📹 油管视频,https://raw.githubusercontent.com/kissyouhunter/ios_rule_script/master/rule/Clash/YouTube/YouTube.list
+ruleset=📞 Talkatone,https://github.com/kissyouhunter/Tools/raw/main/Subconverter/talkatone.ini
+ruleset=🚀 节点选择,https://github.com/kissyouhunter/Tools/raw/main/Subconverter/mydomain.list
+ruleset=🇯🇵 日本节点,https://raw.githubusercontent.com/kissyouhunter/Tools/main/Subconverter/PikPak.list
+ruleset=🚀 节点选择,https://github.com/kissyouhunter/ios_rule_script/raw/master/rule/Clash/Imgur/Imgur.list
+ruleset=🚀 节点选择,https://github.com/kissyouhunter/Tools/raw/main/Subconverter/Cloudflare.list
+ruleset=🎥 奈飞视频,https://github.com/kissyouhunter/ios_rule_script/raw/master/rule/Clash/Netflix/Netflix.list
+ruleset=🚀 节点选择,https://raw.githubusercontent.com/kissyouhunter/Tools/main/Subconverter/Terminus.list
+ruleset=🚀 节点选择,https://github.com/kissyouhunter/ios_rule_script/raw/master/rule/Clash/Docker/Docker.list
+;ruleset=🚀 节点选择,https://raw.githubusercontent.com/kissyouhunter/ios_rule_script/master/rule/Clash/Google/Google.list
+ruleset=💻 SSH,https://raw.githubusercontent.com/kissyouhunter/Tools/main/Subconverter/SSH.list
+ruleset=💻 RDP,https://raw.githubusercontent.com/kissyouhunter/Tools/main/Subconverter/RDP.list
+ruleset=🥷 CHATGPT,https://raw.githubusercontent.com/kissyouhunter/ios_rule_script/master/rule/Clash/OpenAI/OpenAI.list
+ruleset=🎥 EMBY,https://raw.githubusercontent.com/kissyouhunter/Tools/main/Subconverter/EMBY.list
+ruleset=🪙 PAYPAL,https://raw.githubusercontent.com/kissyouhunter/ios_rule_script/master/rule/Clash/PayPal/PayPal.list
+ruleset=🌍 爱奇艺国际,https://raw.githubusercontent.com/kissyouhunter/ios_rule_script/master/rule/Clash/iQIYIIntl/iQIYIIntl.list
+ruleset=🚀 节点选择,https://raw.githubusercontent.com/kissyouhunter/ios_rule_script/master/rule/Clash/Amazon/Amazon.list
+ruleset=🎬 AmazonPrime,https://raw.githubusercontent.com/kissyouhunter/ios_rule_script/master/rule/Clash/AmazonPrimeVideo/AmazonPrimeVideo.list
+ruleset=🎞️ Disneyplus,https://raw.githubusercontent.com/kissyouhunter/ios_rule_script/master/rule/Clash/Disney/Disney.list
+ruleset=🎵 Spotify,https://raw.githubusercontent.com/kissyouhunter/ios_rule_script/master/rule/Clash/Spotify/Spotify.list
+ruleset=🇺🇲 美国节点,https://raw.githubusercontent.com/kissyouhunter/Tools/main/Subconverter/BARD.list
+ruleset=🎯 全球直连,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/LocalAreaNetwork.list
+ruleset=🎯 全球直连,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/UnBan.list
+;ruleset=🛑 广告拦截,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/BanAD.list
+;ruleset=🍃 应用净化,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/BanProgramAD.list
+ruleset=📢 谷歌FCM,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/GoogleFCM.list
+ruleset=🎯 全球直连,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/GoogleCN.list
+ruleset=🎯 全球直连,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/SteamCN.list
+ruleset=Ⓜ️ 微软云盘,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/OneDrive.list
+ruleset=Ⓜ️ 微软服务,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Microsoft.list
+ruleset=🍎 苹果服务,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Apple.list
+ruleset=📲 电报消息,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Telegram.list
+ruleset=🎶 网易音乐,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/NetEaseMusic.list
+ruleset=🎮 游戏平台,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/Epic.list
+ruleset=🎮 游戏平台,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/Origin.list
+ruleset=🎮 游戏平台,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/Sony.list
+ruleset=🎮 游戏平台,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/Steam.list
+ruleset=🎮 游戏平台,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/Nintendo.list
+;ruleset=🎥 奈飞视频,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/Netflix.list
+ruleset=📺 哔哩哔哩,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/BilibiliHMT.list
+ruleset=📺 哔哩哔哩,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/Bilibili.list
+ruleset=🌏 国内媒体,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaMedia.list
+ruleset=🌍 国外媒体,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ProxyMedia.list
+ruleset=🚀 节点选择,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ProxyGFWlist.list
+;ruleset=🎯 全球直连,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaIp.list
+ruleset=🎯 全球直连,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaDomain.list
+ruleset=🎯 全球直连,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaCompanyIp.list
+ruleset=🎯 全球直连,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Download.list
+;ruleset=🎯 全球直连,[]GEOIP,LAN
+ruleset=🎯 全球直连,[]GEOIP,CN
+ruleset=🐟 漏网之鱼,[]FINAL
+;设置规则标志位
+
+;设置分组标志位
+custom_proxy_group=🚀 节点选择`select`[]🚀 手动切换`[]🇭🇰 香港节点`[]🇨🇳 台湾节点`[]🇸🇬 狮城节点`[]🇯🇵 日本节点`[]🇺🇲 美国节点`[]🇰🇷 韩国节点`[]DIRECT
+custom_proxy_group=🚀 手动切换`select`[]⚖️ 负载均衡-轮询`[]⚖️ 负载均衡-散列`.*
+custom_proxy_group=🥷 CHATGPT`select`.*
+custom_proxy_group=💻 SSH`select`.*
+custom_proxy_group=💻 RDP`select`.*
+custom_proxy_group=📲 电报消息`select`[]🚀 节点选择`[]🇸🇬 狮城节点`[]🇭🇰 香港节点`[]🇨🇳 台湾节点`[]🇯🇵 日本节点`[]🇺🇲 美国节点`[]🇰🇷 韩国节点`[]🚀 手动切换`[]DIRECT
+custom_proxy_group=📹 油管视频`select`[]DIRECT`[]⚖️ 负载均衡-轮询`[]⚖️ 负载均衡-散列`[]⛓️ 链式代理`[]CF节点`.*
+custom_proxy_group=🎥 奈飞节点`select`(NF|奈飞|解锁|Netflix|NETFLIX|Media)
+custom_proxy_group=🎥 奈飞视频`select`[]🎥 奈飞节点`[]⛓️ 链式代理
+custom_proxy_group=🎬 AmazonPrime`select`[]🎥 奈飞节点
+custom_proxy_group=🎞️ Disneyplus`select`[]🎥 奈飞节点
+custom_proxy_group=🎵 Spotify`select`.*
+custom_proxy_group=📺 哔哩哔哩`select`[]🎯 全球直连`[]🇨🇳 台湾节点`[]🇭🇰 香港节点
+custom_proxy_group=🌍 国外媒体`select`[]📹 油管视频`[]DIRECT
+;custom_proxy_group=🌍 国外媒体`select`[]🚀 节点选择`[]🇭🇰 香港节点`[]🇨🇳 台湾节点`[]🇸🇬 狮城节点`[]🇯🇵 日本节点`[]🇺🇲 美国节点`[]🇰🇷 韩国节点`[]🚀 手动切换`[]DIRECT
+custom_proxy_group=🌏 国内媒体`select`[]DIRECT`[]🇭🇰 香港节点`[]🇨🇳 台湾节点`[]🇸🇬 狮城节点`[]🇯🇵 日本节点`[]🚀 手动切换
+custom_proxy_group=🌍 爱奇艺国际`select`[]DIRECT`[]🚀 节点选择`[]🇭🇰 香港节点`[]🇨🇳 台湾节点`[]🇸🇬 狮城节点`[]🇯🇵 日本节点`[]🇺🇲 美国节点`[]🇰🇷 韩国节点`[]🚀 手动切换
+custom_proxy_group=📢 谷歌FCM`select`[]DIRECT`[]🚀 节点选择`[]🇺🇲 美国节点`[]🇭🇰 香港节点`[]🇨🇳 台湾节点`[]🇸🇬 狮城节点`[]🇯🇵 日本节点`[]🇰🇷 韩国节点`[]🚀 手动切换
+custom_proxy_group=Ⓜ️ 微软云盘`select`[]DIRECT`[]🚀 节点选择`[]🇺🇲 美国节点`[]🇭🇰 香港节点`[]🇨🇳 台湾节点`[]🇸🇬 狮城节点`[]🇯🇵 日本节点`[]🇰🇷 韩国节点`[]🚀 手动切换
+custom_proxy_group=Ⓜ️ 微软服务`select`[]DIRECT`[]🚀 节点选择`[]🇺🇲 美国节点`[]🇭🇰 香港节点`[]🇨🇳 台湾节点`[]🇸🇬 狮城节点`[]🇯🇵 日本节点`[]🇰🇷 韩国节点`[]🚀 手动切换
+custom_proxy_group=🍎 苹果服务`select`[]DIRECT`[]🚀 节点选择`[]🇺🇲 美国节点`[]🇭🇰 香港节点`[]🇨🇳 台湾节点`[]🇸🇬 狮城节点`[]🇯🇵 日本节点`[]🇰🇷 韩国节点`[]🚀 手动切换
+custom_proxy_group=🎮 游戏平台`select`[]DIRECT`[]🚀 节点选择`[]🇺🇲 美国节点`[]🇭🇰 香港节点`[]🇨🇳 台湾节点`[]🇸🇬 狮城节点`[]🇯🇵 日本节点`[]🇰🇷 韩国节点`[]🚀 手动切换
+custom_proxy_group=🎶 网易音乐`select`[]DIRECT`[]🚀 节点选择`(网易|音乐|解锁|Music|NetEase)
+custom_proxy_group=📞 Talkatone`select`[]DIRECT
+custom_proxy_group=🪙 PAYPAL`select`[]🎯 全球直连`.*
+custom_proxy_group=🎯 全球直连`select`[]DIRECT`[]🚀 节点选择
+;custom_proxy_group=🛑 广告拦截`select`[]REJECT`[]DIRECT
+;custom_proxy_group=🍃 应用净化`select`[]REJECT`[]DIRECT
+custom_proxy_group=🐟 漏网之鱼`select`[]⚖️ 负载均衡-轮询`[]⚖️ 负载均衡-散列`[]DIRECT`.*
+custom_proxy_group=⚖️ 负载均衡-轮询`load-balance`select`(LB)`http://www.gstatic.com/generate_204`43200,round-robin,,
+custom_proxy_group=⚖️ 负载均衡-散列`load-balance`select`(LB)`http://www.gstatic.com/generate_204`43200,consistent-hashing,,
+custom_proxy_group=🇭🇰 香港节点`select`(港|HK|Hong Kong)
+custom_proxy_group=🇯🇵 日本节点`select`(日本|川日|东京|大阪|泉日|埼玉|沪日|深日|[^-]日|JP|Japan)
+custom_proxy_group=🇺🇲 美国节点`select`(美|波特兰|达拉斯|俄勒冈|凤凰城|费利蒙|硅谷|拉斯维加斯|洛杉矶|圣何塞|圣克拉拉|西雅图|芝加哥|US|United States)
+custom_proxy_group=🇸🇬 狮城节点`select`(新加坡|坡|狮城|SG|Singapore)
+custom_proxy_group=🇨🇳 台湾节点`select`(台|新北|彰化|TW|Taiwan)
+custom_proxy_group=🇰🇷 韩国节点`select`(KR|Korea|KOR|首尔|韩|韓)
+custom_proxy_group=CF节点`url-test`(CT|ct)`http://www.gstatic.com/generate_204`1800,,50
+custom_proxy_group=⛓️ 代理链1`select`.*
+custom_proxy_group=⛓️ 代理链2`select`.*
+custom_proxy_group=🎥 EMBY`select`.*
+custom_proxy_group=⛓️ 链式代理`relay`[]⛓️ 代理链1`[]⛓️ 代理链2
+;设置分组标志位
+
+enable_rule_generator=true
+overwrite_original_rules=true
+
+;clash_rule_base=https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/GeneralClashConfig.yml
+
+;luck
