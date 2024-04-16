@@ -1,0 +1,348 @@
+#!name = mihomo 配置文件
+#!source = https://wiki.metacubex.one/example/conf/#__tabbed_1_3
+
+######### 锚点 start #######
+# 策略组相关
+pr: &pr {type: select, proxies: [直连, 🇭🇰 香港节点, 🇨🇳 台湾节点, 🇸🇬 狮城节点, 🇯🇵 日本节点, 🇺🇲 美国节点, 🇰🇷 韩国节点, 🚀 手动切换]}
+
+# 这里是订阅更新和延迟测试相关的
+p: &p {type: http, interval: 86400, health-check: {enable: false, url: https://www.gstatic.com/generate_204, interval: 300}}
+######### 锚点 end #######
+
+# 机场订阅 url 里填写自己的订阅,名称不能重复
+proxy-providers:
+  provider1:
+    <<: *p
+    url: ""
+
+  provider2:
+    <<: *p
+    url: ""
+
+  provider3:
+    <<: *p
+    url: ""
+
+# 全局配置
+# 开启 IPv6 总开关，关闭阻断所有 IPv6 链接和屏蔽 DNS 请求 AAAA 记录
+ipv6: false
+# 允许局域网的连接（可用来共享加速）
+allow-lan: true
+# 绑定 IP 地址，仅作用于 allow-lan 为 true，'*'表示所有地址
+bind-address: "*"
+# 混合端口 HTTP和SOCKS5用一个端口
+mixed-port: 7890
+# 更换延迟计算方式,去除握手等额外延迟
+unified-delay: false
+# TCP 并发连接所有 IP, 将使用最快握手的 TCP
+tcp-concurrent: true
+# 外部控制器,可以使用 RESTful API 来控制你的 clash 内核
+external-controller: 0.0.0.0:9090
+# 外部用户界面
+external-ui: ui
+# 自定义外部用户界面下载地址
+#external-ui-url: "https://github.com/MetaCubeX/metacubexd/archive/refs/heads/gh-pages.zip"
+
+# 匹配所有进程（always/strict/off）
+## always 开启，强制匹配所有进程， strict 默认，由 Clash 判断是否开启， off 不匹配进程，推荐在路由器上使用此模式
+find-process-mode: strict
+# 全局 TLS 指纹，优先低于 proxy 内的 client-fingerprint
+## 可选： "chrome","firefox","safari","ios","random","none" options.
+global-client-fingerprint: chrome
+
+# profile 应为扩展配置，但在 Clash.meta, 仅作为缓存项使用
+profile:
+  # 储存 API 对策略组的选择，以供下次启动时使用
+  store-selected: true
+  # 储存 fakeip 映射表，域名再次发生连接时，使用原有映射地址
+  store-fake-ip: true
+
+# 嗅探域名 可选配置
+sniffer:
+  enable: true
+# TLS 和 QUIC 默认如果不配置 ports 默认嗅探 443
+  sniff:
+    HTTP:
+      ports: [80, 8080-8880]
+      override-destination: true
+    TLS:
+      ports: [443, 8443]
+    QUIC:
+      ports: [443, 8443]
+# 需要跳过嗅探的域名
+  skip-classical:
+    - "Mijia Cloud"
+
+# TUN配置
+tun:
+  enable: true
+# 可选： system/gvisor/mixed
+  stack: system
+# 需要劫持的 DNS
+  dns-hijack:
+    - "any:53"
+# 配置路由表
+  auto-route: true
+# 自动识别出口网卡
+  auto-detect-interface: true
+
+# DNS配置
+dns:
+# 关闭将使用系统 DNS
+  enable: true
+# 开启 DNS 服务器监听
+  listen: :53
+  ipv6: true
+# 模式：redir-host 或 fake-ip
+  enhanced-mode: fake-ip
+# Fake-IP解析地址池
+  fake-ip-range: 28.0.0.1/8
+  fake-ip-filter:
+    - "*"
+    - "+.lan"
+    - "+.local"
+# 只能使用纯 IP 地址，可使用加密 DNS
+  default-nameserver:
+    - 223.5.5.5
+    - 119.29.29.29
+# 这部分为主要 DNS 配置，影响所有直连，确保使用对大陆解析精准的 DNS
+  nameserver:
+    - https://doh.pub/dns-query
+    - https://dns.alidns.com/dns-query
+
+proxies:
+- name: "直连"
+  type: direct
+  udp: true
+
+# 策略组
+proxy-groups:
+  # 策略分流分组
+  - {name: 🚀 节点选择, <<: *pr}
+  - {name: 🚀 手动切换, type: select, include-all-providers: true, filter: "^((?!.*流量|.*套餐|.*剩余|.*官网|.*订阅).)*$"}
+  - {name: 🥷 CHATGPT, type: select, include-all-providers: true, filter: "^((?!.*流量|.*套餐|.*剩余|.*官网|.*订阅).)*$"}
+  - {name: 💻 SSH, type: select, include-all-providers: true, filter: "^((?!.*流量|.*套餐|.*剩余|.*官网|.*订阅).)*$"}
+  - {name: 💻 RDP, type: select, include-all-providers: true, filter: "^((?!.*流量|.*套餐|.*剩余|.*官网|.*订阅).)*$"}
+  - {name: 📲 电报消息, <<: *pr}
+  - {name: 📹 油管视频, type: select, include-all-providers: true, filter: "^((?!.*流量|.*套餐|.*剩余|.*官网|.*订阅).)*$"}
+  - {name: 🎥 奈飞节点, type: select, include-all-providers: true, filter: "^((?!.*流量|.*套餐|.*剩余|.*官网|.*订阅).)*$"}
+  - {name: 🎥 奈飞视频, type: select, proxies: [🎥 奈飞节点]}
+  - {name: 🎬 AmazonPrime, type: select, proxies: [🎥 奈飞节点]}
+  - {name: 🎞️ Disneyplus, type: select, proxies: [🎥 奈飞节点]}
+  - {name: 🎵 Spotify, type: select, include-all-providers: true, filter: "^((?!.*流量|.*套餐|.*剩余|.*官网|.*订阅).)*$"}
+  - {name: 📺 哔哩哔哩, type: select, proxies: [直连, 🇭🇰 香港节点, 🇨🇳 台湾节点]}
+  - {name: 🌍 国外媒体, type: select, proxies: [📹 油管视频, 直连]}
+  - {name: 🌏 国内媒体, <<: *pr}
+  - {name: 🌍 爱奇艺国际, <<: *pr}
+  - {name: 📢 谷歌FCM, <<: *pr}
+  - {name: Ⓜ️ 微软云盘, <<: *pr}
+  - {name: Ⓜ️ 微软服务, <<: *pr}
+  - {name: 🍎 苹果服务, <<: *pr}
+  - {name: 🎮 游戏平台, <<: *pr}
+  - {name: 🎶 网易音乐, <<: *pr}
+  - {name: 📞 Talkatone, type: select, proxies: [直连]}
+  - {name: 🪙 PAYPAL, type: select, proxies: [直连, 🚀 手动切换]}
+  - {name: 🎥 EMBY, type: select, proxies: [🚀 手动切换]}
+  - {name: 🐟 漏网之鱼, type: select, proxies: [🚀 手动切换]}
+  # 地区分组筛选
+  - {name: 🇭🇰 香港节点, type: select, include-all-providers: true, filter: "(?=.*(港|HK|(?i)Hong))^((?!(台|日|韩|新|深|美)).)*$"}
+  - {name: 🇨🇳 台湾节点, type: select, include-all-providers: true, filter: "(?=.*(台|TW|(?i)Taiwan))^((?!(港|日|韩|新|美)).)*$" }
+  - {name: 🇺🇲 美国节点, type: select, include-all-providers: true, filter: "(?=.*(美|US|(?i)States|America))^((?!(港|台|日|韩|新)).)*$"}
+  - {name: 🇸🇬 狮城节点, type: select, include-all-providers: true, filter: "(?=.*(新|狮|獅|SG|(?i)Singapore))^((?!(港|台|日|韩|美|西)).)*$"}
+  - {name: 🇯🇵 日本节点, type: select, include-all-providers: true, filter: "(?=.*(日|JP|(?i)Japan))^((?!(港|台|韩|新|美)).)*$" }
+  - {name: 🇰🇷 韩国节点, type: select, include-all-providers: true, filter: "(?=.*(韩|KR|(?i)Korea))^((?!(台|日|港|新|美)).)*$"}
+  - {name: ⚖️ 负载均衡-轮询, type: load-balance, include-all-providers: true, filter: "LB", strategy: round-robin}
+  - {name: ⚖️ 负载均衡-散列, type: load-balance, include-all-providers: true, filter: "LB", strategy: consistent-hashing}
+  - {name: ⛓️ 代理链1, type: select, include-all-providers: true}
+  - {name: ⛓️ 代理链2, type: select, include-all-providers: true}
+  - {name: ⛓️ 代理链, type: relay, proxies: [⛓️ 代理链1, ⛓️ 代理链2]}
+
+# 分流策略
+rules:
+  - GEOIP,CN,直连,no-resolve
+  - RULE-SET,Custom,🚀 节点选择
+  - RULE-SET,YouTube,📹 油管视频
+  - RULE-SET,TalkaTone,📞 Talkatone
+  - RULE-SET,Mydomain,🚀 节点选择
+  - RULE-SET,PikPak,🚀 节点选择
+  - RULE-SET,Cloudflare,🚀 节点选择
+  - RULE-SET,Netflix,🎥 奈飞视频
+  - RULE-SET,Termius,🚀 节点选择
+  - RULE-SET,Docker,🚀 节点选择
+  - RULE-SET,SSH,💻 SSH
+  - RULE-SET,RDP,💻 RDP
+  - RULE-SET,ChatGPT,🥷 CHATGPT
+  - RULE-SET,Emby,🎥 EMBY
+  - RULE-SET,PayPal,🪙 PAYPAL
+  - RULE-SET,Iqiyi,🌍 爱奇艺国际
+  - RULE-SET,Amazon,🚀 节点选择
+  - RULE-SET,AmazonPrime,🎬 AmazonPrime
+  - RULE-SET,Disneyplus,🎞️ Disneyplus
+  - RULE-SET,Spotify,🎵 Spotify
+  - RULE-SET,BardAI,🇺🇲 美国节点
+  - RULE-SET,UnBan,直连
+  - RULE-SET,GoogleFCM,📢 谷歌FCM
+  - RULE-SET,GoogleCN,直连
+  - RULE-SET,SteamCN,直连
+  - RULE-SET,OneDrive,Ⓜ️ 微软云盘
+  - RULE-SET,Microsoft,Ⓜ️ 微软服务
+  - RULE-SET,Apple,🍎 苹果服务
+  - RULE-SET,Telegram,📲 电报消息
+  - RULE-SET,NetEaseMusic,🎶 网易音乐
+  - RULE-SET,Epic,🎮 游戏平台
+  - RULE-SET,Origin,🎮 游戏平台
+  - RULE-SET,Sony,🎮 游戏平台
+  - RULE-SET,Steam,🎮 游戏平台
+  - RULE-SET,Nintendo,🎮 游戏平台
+  - RULE-SET,BilibiliHMT,📺 哔哩哔哩
+  - RULE-SET,Bilibili,📺 哔哩哔哩
+  - RULE-SET,ChinaMedia,🌏 国内媒体
+  - RULE-SET,ProxyMedia,🌍 国外媒体
+  - RULE-SET,ProxyGFWlist,🚀 节点选择
+  - RULE-SET,ChinaDomain,直连
+  - RULE-SET,ChinaCompanyIp,直连
+  - RULE-SET,Download,直连
+  - RULE-SET,Lan,直连
+  - MATCH,🐟 漏网之鱼
+
+# 
+rule-anchor:
+  # classical 规则相关
+  classical: &classical {type: http, interval: 86400, behavior: classical, format: text}
+
+# 规则集
+rule-providers:
+  Custom:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/kissyouhunter/Tools/main/Subconverter/custom.list"
+  YouTube:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/kissyouhunter/ios_rule_script/master/rule/Clash/YouTube/YouTube.list"
+  TalkaTone:
+    <<: *classical
+    url: "https://github.com/kissyouhunter/Tools/raw/main/Subconverter/talkatone.ini"
+  Mydomain:
+    <<: *classical
+    url: "https://github.com/kissyouhunter/Tools/raw/main/Subconverter/mydomain.list"
+  PikPak:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/kissyouhunter/Tools/main/Subconverter/PikPak.list"
+  Cloudflare:
+    <<: *classical
+    url: "https://github.com/kissyouhunter/Tools/raw/main/Subconverter/Cloudflare.list"
+  Netflix:
+    <<: *classical
+    url: "https://github.com/kissyouhunter/ios_rule_script/raw/master/rule/Clash/Netflix/Netflix.list"
+  Termius:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/kissyouhunter/Tools/main/Subconverter/Termius.list"
+  Docker:
+    <<: *classical
+    url: "https://github.com/kissyouhunter/ios_rule_script/raw/master/rule/Clash/Docker/Docker.list"
+  SSH:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/kissyouhunter/Tools/main/Subconverter/SSH.list"
+  RDP:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/kissyouhunter/Tools/main/Subconverter/RDP.list"
+  ChatGPT:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/kissyouhunter/ios_rule_script/master/rule/Clash/OpenAI/OpenAI.list"
+  Emby:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/kissyouhunter/Tools/main/Subconverter/EMBY.list"
+  PayPal:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/kissyouhunter/ios_rule_script/master/rule/Clash/PayPal/PayPal.list"
+  Iqiyi:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/kissyouhunter/ios_rule_script/master/rule/Clash/iQIYIIntl/iQIYIIntl.list"
+  Amazon:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/kissyouhunter/ios_rule_script/master/rule/Clash/Amazon/Amazon.list"
+  AmazonPrime:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/kissyouhunter/ios_rule_script/master/rule/Clash/AmazonPrimeVideo/AmazonPrimeVideo.list"
+  Disneyplus:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/kissyouhunter/ios_rule_script/master/rule/Clash/Disney/Disney.list"
+  Spotify:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/kissyouhunter/ios_rule_script/master/rule/Clash/Spotify/Spotify.list"
+  BardAI:
+    <<: *classical
+    url: "https://github.com/kissyouhunter/ios_rule_script/raw/master/rule/Clash/BardAI/BardAI.list"
+  UnBan:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/UnBan.list"
+  GoogleFCM:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/GoogleFCM.list"
+  GoogleCN:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/GoogleCN.list"
+  SteamCN:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/SteamCN.list"
+  OneDrive:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/OneDrive.list"
+  Microsoft:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Microsoft.list"
+  Apple:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Apple.list"
+  Telegram:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Telegram.list"
+  NetEaseMusic:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/NetEaseMusic.list"
+  Epic:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/Epic.list"
+  Origin:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/Origin.list"
+  Sony:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/Sony.list"
+  Steam:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/Steam.list"
+  Nintendo:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/Nintendo.list"
+  BilibiliHMT:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/BilibiliHMT.list"
+  Bilibili:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/Bilibili.list"
+  ChinaMedia:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaMedia.list"
+  ProxyMedia:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ProxyMedia.list"
+  ProxyGFWlist:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ProxyGFWlist.list"
+  ChinaDomain:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaDomain.list"
+  ChinaCompanyIp:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaCompanyIp.list"
+  Download:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Download.list"
+  Lan:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/LocalAreaNetwork.list"
+
+# 屏蔽443
+script:
+  shortcuts:
+    quic: network == 'udp' and dst_port == 443
