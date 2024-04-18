@@ -19,9 +19,9 @@ proxy-providers:
     <<: *p
     url: ""
 
-  provider3:
-    <<: *p
-    url: ""
+#  provider3:
+#    <<: *p
+#    url: ""
 
 # 全局配置
 # 开启 IPv6 总开关，关闭阻断所有 IPv6 链接和屏蔽 DNS 请求 AAAA 记录
@@ -121,11 +121,11 @@ proxy-groups:
   - {name: 🚀 节点选择, <<: *pr}
   - {name: 🚀 手动切换, type: select, include-all-providers: true, filter: "^((?!.*流量|.*套餐|.*剩余|.*官网|.*订阅).)*$"}
   - {name: 🥷 CHATGPT, type: select, include-all-providers: true, filter: "^((?!.*流量|.*套餐|.*剩余|.*官网|.*订阅).)*$"}
-  - {name: 💻 SSH, type: select, include-all-providers: true, filter: "^((?!.*流量|.*套餐|.*剩余|.*官网|.*订阅).)*$"}
-  - {name: 💻 RDP, type: select, include-all-providers: true, filter: "^((?!.*流量|.*套餐|.*剩余|.*官网|.*订阅).)*$"}
+  - {name: 💻 SSH, type: select, include-all-providers: true, filter: "AWS|AZURE"}
+  - {name: 💻 RDP, type: select, include-all-providers: true, filter: "AWS|AZURE"}
   - {name: 📲 电报消息, <<: *pr}
   - {name: 📹 油管视频, type: select, include-all-providers: true, filter: "^((?!.*流量|.*套餐|.*剩余|.*官网|.*订阅).)*$"}
-  - {name: 🎥 奈飞节点, type: select, include-all-providers: true, filter: "^((?!.*流量|.*套餐|.*剩余|.*官网|.*订阅).)*$"}
+  - {name: 🎥 奈飞节点, type: select, include-all-providers: true, filter: "WAP"}
   - {name: 🎥 奈飞视频, type: select, proxies: [🎥 奈飞节点]}
   - {name: 🎬 AmazonPrime, type: select, proxies: [🎥 奈飞节点]}
   - {name: 🎞️ Disneyplus, type: select, proxies: [🎥 奈飞节点]}
@@ -140,7 +140,7 @@ proxy-groups:
   - {name: 🍎 苹果服务, <<: *pr}
   - {name: 🎮 游戏平台, <<: *pr}
   - {name: 🎶 网易音乐, <<: *pr}
-  - {name: 📞 Talkatone, type: select, proxies: [直连]}
+  - {name: 📞 Talkatone, <<: *pr}
   - {name: 🪙 PAYPAL, type: select, proxies: [直连, 🚀 手动切换]}
   - {name: 🎥 EMBY, type: select, proxies: [🚀 手动切换]}
   - {name: 🐟 漏网之鱼, type: select, proxies: [🚀 手动切换]}
@@ -159,8 +159,15 @@ proxy-groups:
 
 # 分流策略
 rules:
-  - GEOIP,CN,直连,no-resolve
+  - IP-CIDR,192.168.0.0/16,直连,no-resolve
+  - IP-CIDR,172.16.0.0/12,直连,no-resolve
+  - IP-CIDR,10.0.0.0/8,直连,no-resolve
+  - IP-CIDR,127.0.0.0/8,直连,no-resolve
+  - RULE-SET,Snapchat,🇯🇵 日本节点
+  - RULE-SET,TikTok,🇯🇵 日本节点
+  - RULE-SET,Instagram,🇯🇵 日本节点
   - RULE-SET,Custom,🚀 节点选择
+  - GEOIP,CN,直连,no-resolve
   - RULE-SET,YouTube,📹 油管视频
   - RULE-SET,TalkaTone,📞 Talkatone
   - RULE-SET,Mydomain,🚀 节点选择
@@ -212,6 +219,15 @@ rule-anchor:
 
 # 规则集
 rule-providers:
+  Snapchat:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/kissyouhunter/ios_rule_script/master/rule/Clash/Snap/Snap.list"
+  TikTok:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/kissyouhunter/ios_rule_script/master/rule/Clash/TikTok/TikTok.list"
+  Instagram:
+    <<: *classical
+    url: "https://raw.githubusercontent.com/kissyouhunter/ios_rule_script/master/rule/Clash/Instagram/Instagram.list"
   Custom:
     <<: *classical
     url: "https://raw.githubusercontent.com/kissyouhunter/Tools/main/Subconverter/custom.list"
