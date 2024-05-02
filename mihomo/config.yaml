@@ -182,6 +182,7 @@ rules:
   - RULE-SET,Emby,🎥 EMBY
   - RULE-SET,PayPal,🪙 PAYPAL
   - RULE-SET,Iqiyi,🌍 爱奇艺国际
+  - RULE-SET,ProxyGFWlist,🚀 节点选择
   - RULE-SET,Amazon,🚀 节点选择
   - RULE-SET,AmazonPrime,🎬 AmazonPrime
   - RULE-SET,Disneyplus,🎞️ Disneyplus
@@ -205,7 +206,6 @@ rules:
   - RULE-SET,Bilibili,📺 哔哩哔哩
   - RULE-SET,ChinaMedia,🌏 国内媒体
   - RULE-SET,ProxyMedia,🌍 国外媒体
-  - RULE-SET,ProxyGFWlist,🚀 节点选择
   - RULE-SET,ChinaDomain,直连
   - RULE-SET,ChinaCompanyIp,直连
   - RULE-SET,Download,直连
