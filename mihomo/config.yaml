@@ -9,19 +9,21 @@ pr: &pr {type: select, proxies: [直连, 🇭🇰 香港节点, 🇨🇳 台湾�
 p: &p {type: http, interval: 86400, health-check: {enable: false, url: https://www.gstatic.com/generate_204, interval: 300}}
 ######### 锚点 end #######
 
-# 机场订阅 url 里填写自己的订阅,名称不能重复
+# 机场订阅 url 里填写自己的订阅,名称不能重复, path 订阅拉取到本地，去掉 url 只读取本地信息
 proxy-providers:
   provider1:
     <<: *p
-    url: ""
+    path: ./proxy_provider/订阅一.yaml
+    url: "https://xxx.xxx/xxxxx"
 
   provider2:
     <<: *p
-    url: ""
+    path: ./proxy_provider/订阅二.yaml
+    url: "https://xxx.xxx/xxxxx"
 
-#  provider3:
-#    <<: *p
-#    url: ""
+  provider3:
+    <<: *p
+    path: ./proxy_provider/本地订阅.yaml
 
 # 全局配置
 # 开启 IPv6 总开关，关闭阻断所有 IPv6 链接和屏蔽 DNS 请求 AAAA 记录
@@ -77,10 +79,11 @@ sniffer:
 tun:
   enable: true
 # 可选： system/gvisor/mixed
-  stack: system
+  stack: mixed
 # 需要劫持的 DNS
   dns-hijack:
     - "any:53"
+    - "tcp://any:53"
 # 配置路由表
   auto-route: true
 # 自动识别出口网卡
@@ -109,6 +112,15 @@ dns:
   nameserver:
     - https://doh.pub/dns-query
     - https://dns.alidns.com/dns-query
+  proxy-server-nameserver:
+    - https://doh.pub/dns-query
+  nameserver-policy:
+    "rule-set:Cn_Domain":
+      - https://doh.pub/dns-query
+      - https://dns.alidns.com/dns-query
+    "rule-set:geolocation-!cn":
+      - "https://dns.cloudflare.com/dns-query#dns"
+      - "https://dns.google/dns-query#dns"
 
 proxies:
 - name: "直连"
@@ -124,7 +136,7 @@ proxy-groups:
   - {name: 💻 SSH, type: select, include-all-providers: true, filter: "AWS|AZURE"}
   - {name: 💻 RDP, type: select, include-all-providers: true, filter: "AWS|AZURE"}
   - {name: 📲 电报消息, <<: *pr}
-  - {name: 📹 油管视频, type: select, include-all-providers: true, filter: "^((?!.*流量|.*套餐|.*剩余|.*官网|.*订阅).)*$"}
+  - {name: 📹 油管视频, type: select, include-all-providers: true, filter: "^((?!.*流量|.*套餐|.*剩余|.*官网|.*订阅).)*$", proxies: [⛓️ 代理链]}
   - {name: 🎥 奈飞节点, type: select, include-all-providers: true, filter: "WAP"}
   - {name: 🎥 奈飞视频, type: select, proxies: [🎥 奈飞节点]}
   - {name: 🎬 AmazonPrime, type: select, proxies: [🎥 奈飞节点]}
@@ -153,8 +165,8 @@ proxy-groups:
   - {name: 🇰🇷 韩国节点, type: select, include-all-providers: true, filter: "(?=.*(韩|KR|(?i)Korea))^((?!(台|日|港|新|美)).)*$"}
   - {name: ⚖️ 负载均衡-轮询, type: load-balance, include-all-providers: true, filter: "LB", strategy: round-robin}
   - {name: ⚖️ 负载均衡-散列, type: load-balance, include-all-providers: true, filter: "LB", strategy: consistent-hashing}
-  - {name: ⛓️ 代理链1, type: select, include-all-providers: true}
-  - {name: ⛓️ 代理链2, type: select, include-all-providers: true}
+  - {name: ⛓️ 代理链1, type: select, include-all-providers: true, filter: "^((?!.*流量|.*套餐|.*剩余|.*官网|.*订阅).)*$"}
+  - {name: ⛓️ 代理链2, type: select, include-all-providers: true, filter: "^((?!.*流量|.*套餐|.*剩余|.*官网|.*订阅).)*$"}
   - {name: ⛓️ 代理链, type: relay, proxies: [⛓️ 代理链1, ⛓️ 代理链2]}
 
 # 分流策略
@@ -163,6 +175,7 @@ rules:
   - IP-CIDR,172.16.0.0/12,直连,no-resolve
   - IP-CIDR,10.0.0.0/8,直连,no-resolve
   - IP-CIDR,127.0.0.0/8,直连,no-resolve
+  - RULE-SET,Heroku,🚀 节点选择
   - RULE-SET,Snapchat,🇯🇵 日本节点
   - RULE-SET,TikTok,🇯🇵 日本节点
   - RULE-SET,Instagram,🇯🇵 日本节点
@@ -173,7 +186,6 @@ rules:
   - RULE-SET,Mydomain,🚀 节点选择
   - RULE-SET,PikPak,🚀 节点选择
   - RULE-SET,Cloudflare,🚀 节点选择
-  - RULE-SET,Netflix,🎥 奈飞视频
   - RULE-SET,Termius,🚀 节点选择
   - RULE-SET,Docker,🚀 节点选择
   - RULE-SET,SSH,💻 SSH
@@ -186,6 +198,7 @@ rules:
   - RULE-SET,Amazon,🚀 节点选择
   - RULE-SET,AmazonPrime,🎬 AmazonPrime
   - RULE-SET,Disneyplus,🎞️ Disneyplus
+  - RULE-SET,Netflix,🎥 奈飞视频
   - RULE-SET,Spotify,🎵 Spotify
   - RULE-SET,BardAI,🇺🇲 美国节点
   - RULE-SET,UnBan,直连
@@ -208,154 +221,222 @@ rules:
   - RULE-SET,ProxyMedia,🌍 国外媒体
   - RULE-SET,ChinaDomain,直连
   - RULE-SET,ChinaCompanyIp,直连
+  - RULE-SET,Cn_Domain,直连
+  - RULE-SET,Cn_Ip,直连
+  - RULE-SET,geolocation-!cn,🐟 漏网之鱼
   - RULE-SET,Download,直连
   - RULE-SET,Lan,直连
   - MATCH,🐟 漏网之鱼
+
 
 # 
 rule-anchor:
   # classical 规则相关
   classical: &classical {type: http, interval: 86400, behavior: classical, format: text}
+  ip: &ip {type: http, interval: 86400, behavior: ipcidr, format: text}
+  domain: &domain {type: http, interval: 86400, behavior: domain, format: text}
 
-# 规则集
+# 规则集 只保留 path 则读取本地规则
 rule-providers:
+  Heroku:
+    <<: *classical
+    path: ./proxy_rules/Heroku.list
+    url: "https://raw.githubusercontent.com/kissyouhunter/ios_rule_script/master/rule/Clash/Heroku/Heroku.list"
   Snapchat:
     <<: *classical
+    path: ./proxy_rules/Snap.list
     url: "https://raw.githubusercontent.com/kissyouhunter/ios_rule_script/master/rule/Clash/Snap/Snap.list"
   TikTok:
     <<: *classical
+    path: ./proxy_rules/TikTok.list
     url: "https://raw.githubusercontent.com/kissyouhunter/ios_rule_script/master/rule/Clash/TikTok/TikTok.list"
   Instagram:
     <<: *classical
+    path: ./proxy_rules/Instagram.list
     url: "https://raw.githubusercontent.com/kissyouhunter/ios_rule_script/master/rule/Clash/Instagram/Instagram.list"
   Custom:
     <<: *classical
+    path: ./proxy_rules/custom.list
     url: "https://raw.githubusercontent.com/kissyouhunter/Tools/main/Subconverter/custom.list"
   YouTube:
     <<: *classical
+    path: ./proxy_rules/YouTube.list
     url: "https://raw.githubusercontent.com/kissyouhunter/ios_rule_script/master/rule/Clash/YouTube/YouTube.list"
   TalkaTone:
     <<: *classical
+    path: ./proxy_rules/talkatone.ini
     url: "https://github.com/kissyouhunter/Tools/raw/main/Subconverter/talkatone.ini"
   Mydomain:
     <<: *classical
+    path: ./proxy_rules/mydomain.list
     url: "https://github.com/kissyouhunter/Tools/raw/main/Subconverter/mydomain.list"
   PikPak:
     <<: *classical
+    path: ./proxy_rules/PikPak.list
     url: "https://raw.githubusercontent.com/kissyouhunter/Tools/main/Subconverter/PikPak.list"
   Cloudflare:
     <<: *classical
+    path: ./proxy_rules/Cloudflare.list
     url: "https://github.com/kissyouhunter/Tools/raw/main/Subconverter/Cloudflare.list"
   Netflix:
     <<: *classical
+    path: ./proxy_rules/Netflix.list
     url: "https://github.com/kissyouhunter/ios_rule_script/raw/master/rule/Clash/Netflix/Netflix.list"
   Termius:
     <<: *classical
+    path: ./proxy_rules/Termius.list
     url: "https://raw.githubusercontent.com/kissyouhunter/Tools/main/Subconverter/Termius.list"
   Docker:
     <<: *classical
+    path: ./proxy_rules//Docker.list
     url: "https://github.com/kissyouhunter/ios_rule_script/raw/master/rule/Clash/Docker/Docker.list"
   SSH:
     <<: *classical
+    path: ./proxy_rules/SSH.list
     url: "https://raw.githubusercontent.com/kissyouhunter/Tools/main/Subconverter/SSH.list"
   RDP:
     <<: *classical
+    path: ./proxy_rules/RDP.list
     url: "https://raw.githubusercontent.com/kissyouhunter/Tools/main/Subconverter/RDP.list"
   ChatGPT:
     <<: *classical
+    path: ./proxy_rules/OpenAI.list
     url: "https://raw.githubusercontent.com/kissyouhunter/ios_rule_script/master/rule/Clash/OpenAI/OpenAI.list"
   Emby:
     <<: *classical
+    path: ./proxy_rules/EMBY.list
     url: "https://raw.githubusercontent.com/kissyouhunter/Tools/main/Subconverter/EMBY.list"
   PayPal:
     <<: *classical
+    path: ./proxy_rules/PayPal.list
     url: "https://raw.githubusercontent.com/kissyouhunter/ios_rule_script/master/rule/Clash/PayPal/PayPal.list"
   Iqiyi:
     <<: *classical
+    path: ./proxy_rules/iQIYIIntl.list
     url: "https://raw.githubusercontent.com/kissyouhunter/ios_rule_script/master/rule/Clash/iQIYIIntl/iQIYIIntl.list"
   Amazon:
     <<: *classical
+    path: ./proxy_rules/Amazon.list
     url: "https://raw.githubusercontent.com/kissyouhunter/ios_rule_script/master/rule/Clash/Amazon/Amazon.list"
   AmazonPrime:
     <<: *classical
+    path: ./proxy_rules/AmazonPrimeVideo.list
     url: "https://raw.githubusercontent.com/kissyouhunter/ios_rule_script/master/rule/Clash/AmazonPrimeVideo/AmazonPrimeVideo.list"
   Disneyplus:
     <<: *classical
+    path: ./proxy_rules/Disney.list
     url: "https://raw.githubusercontent.com/kissyouhunter/ios_rule_script/master/rule/Clash/Disney/Disney.list"
   Spotify:
     <<: *classical
+    path: ./proxy_rules/Spotify.list
     url: "https://raw.githubusercontent.com/kissyouhunter/ios_rule_script/master/rule/Clash/Spotify/Spotify.list"
   BardAI:
     <<: *classical
+    path: ./proxy_rules/BardAI.list
     url: "https://github.com/kissyouhunter/ios_rule_script/raw/master/rule/Clash/BardAI/BardAI.list"
   UnBan:
     <<: *classical
+    path: ./proxy_rules/UnBan.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/UnBan.list"
   GoogleFCM:
     <<: *classical
+    path: ./proxy_rules/GoogleFCM.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/GoogleFCM.list"
   GoogleCN:
     <<: *classical
+    path: ./proxy_rules/GoogleCN.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/GoogleCN.list"
   SteamCN:
     <<: *classical
+    path: ./proxy_rules/SteamCN.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/SteamCN.list"
   OneDrive:
     <<: *classical
+    path: ./proxy_rules/OneDrive.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/OneDrive.list"
   Microsoft:
     <<: *classical
+    path: ./proxy_rules/Microsoft.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Microsoft.list"
   Apple:
     <<: *classical
+    path: ./proxy_rules/Apple.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Apple.list"
   Telegram:
     <<: *classical
+    path: ./proxy_rules/Telegram.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Telegram.list"
   NetEaseMusic:
     <<: *classical
+    path: ./proxy_rules/NetEaseMusic.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/NetEaseMusic.list"
   Epic:
     <<: *classical
+    path: ./proxy_rules/Epic.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/Epic.list"
   Origin:
     <<: *classical
+    path: ./proxy_rules/Origin.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/Origin.list"
   Sony:
     <<: *classical
+    path: ./proxy_rules/Sony.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/Sony.list"
   Steam:
     <<: *classical
+    path: ./proxy_rules/Steam.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/Steam.list"
   Nintendo:
     <<: *classical
+    path: ./proxy_rules/Nintendo.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/Nintendo.list"
   BilibiliHMT:
     <<: *classical
+    path: ./proxy_rules/BilibiliHMT.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/BilibiliHMT.list"
   Bilibili:
     <<: *classical
+    path: ./proxy_rules/Bilibili.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/Bilibili.list"
   ChinaMedia:
     <<: *classical
+    path: ./proxy_rules/ChinaMedia.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaMedia.list"
   ProxyMedia:
     <<: *classical
+    path: ./proxy_rules/ProxyMedia.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ProxyMedia.list"
   ProxyGFWlist:
     <<: *classical
+    path: ./proxy_rules/ProxyGFWlist.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ProxyGFWlist.list"
   ChinaDomain:
     <<: *classical
+    path: ./proxy_rules/ChinaDomain.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaDomain.list"
   ChinaCompanyIp:
-    <<: *classical
+    <<: *ip
+    path: ./proxy_rules/ChinaCompanyIp.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaCompanyIp.list"
+  Cn_Domain:
+    <<: *domain
+    path: ./proxy_rules/geosite/cn_domain.list
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/cn.list"
+  Cn_Ip:
+    <<: *ip
+    path: ./proxy_rules/cn_ip.list
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geoip/cn.list"
+  geolocation-!cn:
+    <<: *domain
+    path: ./proxy_rules/geolocation-!cn.list
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/geolocation-!cn.list"
   Download:
     <<: *classical
+    path: ./proxy_rules/ownload.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Download.list"
   Lan:
     <<: *classical
+    path: ./proxy_rules/LocalAreaNetwork.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/LocalAreaNetwork.list"
 
 # 屏蔽443
