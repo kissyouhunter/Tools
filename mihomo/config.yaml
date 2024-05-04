@@ -415,7 +415,7 @@ rule-providers:
     path: ./proxy_rules/ChinaDomain.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaDomain.list"
   ChinaCompanyIp:
-    <<: *ip
+    <<: *classical
     path: ./proxy_rules/ChinaCompanyIp.list
     url: "https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/ChinaCompanyIp.list"
   Cn_Domain:
