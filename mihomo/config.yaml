@@ -194,7 +194,7 @@ rules:
   - RULE-SET,Emby,🎥 EMBY
   - RULE-SET,PayPal,🪙 PAYPAL
   - RULE-SET,Iqiyi,🌍 爱奇艺国际
-  - RULE-SET,ProxyGFWlist,🚀 节点选择
+  - RULE-SET,Telegram,📲 电报消息
   - RULE-SET,Amazon,🚀 节点选择
   - RULE-SET,AmazonPrime,🎬 AmazonPrime
   - RULE-SET,Disneyplus,🎞️ Disneyplus
@@ -208,7 +208,6 @@ rules:
   - RULE-SET,OneDrive,Ⓜ️ 微软云盘
   - RULE-SET,Microsoft,Ⓜ️ 微软服务
   - RULE-SET,Apple,🍎 苹果服务
-  - RULE-SET,Telegram,📲 电报消息
   - RULE-SET,NetEaseMusic,🎶 网易音乐
   - RULE-SET,Epic,🎮 游戏平台
   - RULE-SET,Origin,🎮 游戏平台
@@ -219,11 +218,12 @@ rules:
   - RULE-SET,Bilibili,📺 哔哩哔哩
   - RULE-SET,ChinaMedia,🌏 国内媒体
   - RULE-SET,ProxyMedia,🌍 国外媒体
+  - RULE-SET,ProxyGFWlist,🚀 节点选择
   - RULE-SET,ChinaDomain,直连
   - RULE-SET,ChinaCompanyIp,直连
   - RULE-SET,Cn_Domain,直连
   - RULE-SET,Cn_Ip,直连
-  - RULE-SET,geolocation-!cn,🐟 漏网之鱼
+  - RULE-SET,geolocation-!cn,直连
   - RULE-SET,Download,直连
   - RULE-SET,Lan,直连
   - MATCH,🐟 漏网之鱼
