@@ -133,11 +133,11 @@ proxy-groups:
   - {name: 🚀 节点选择, <<: *pr}
   - {name: 🚀 手动切换, type: select, include-all-providers: true, filter: "^((?!.*流量|.*套餐|.*剩余|.*官网|.*订阅).)*$"}
   - {name: 🥷 CHATGPT, type: select, include-all-providers: true, filter: "^((?!.*流量|.*套餐|.*剩余|.*官网|.*订阅).)*$"}
-  - {name: 💻 SSH, type: select, include-all-providers: true, filter: "AWS|AZURE"}
-  - {name: 💻 RDP, type: select, include-all-providers: true, filter: "AWS|AZURE"}
+  - {name: 💻 SSH, type: select, include-all-providers: true, filter: "^((?!.*流量|.*套餐|.*剩余|.*官网|.*订阅).)*$"}
+  - {name: 💻 RDP, type: select, include-all-providers: true, filter: "^((?!.*流量|.*套餐|.*剩余|.*官网|.*订阅).)*$"}
   - {name: 📲 电报消息, <<: *pr}
   - {name: 📹 油管视频, type: select, include-all-providers: true, filter: "^((?!.*流量|.*套餐|.*剩余|.*官网|.*订阅).)*$", proxies: [⛓️ 代理链]}
-  - {name: 🎥 奈飞节点, type: select, include-all-providers: true, filter: "WAP"}
+  - {name: 🎥 奈飞节点, type: select, include-all-providers: true, filter: "^((?!.*流量|.*套餐|.*剩余|.*官网|.*订阅).)*$"}
   - {name: 🎥 奈飞视频, type: select, proxies: [🎥 奈飞节点]}
   - {name: 🎬 AmazonPrime, type: select, proxies: [🎥 奈飞节点]}
   - {name: 🎞️ Disneyplus, type: select, proxies: [🎥 奈飞节点]}
