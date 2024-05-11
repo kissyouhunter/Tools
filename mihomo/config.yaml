@@ -114,13 +114,13 @@ dns:
     - https://dns.alidns.com/dns-query
   proxy-server-nameserver:
     - https://doh.pub/dns-query
-  nameserver-policy:
-    "rule-set:Cn_Domain":
-      - https://doh.pub/dns-query
-      - https://dns.alidns.com/dns-query
-    "rule-set:geolocation-!cn":
-      - "https://dns.cloudflare.com/dns-query#dns"
-      - "https://dns.google/dns-query#dns"
+  #nameserver-policy:
+  #  "rule-set:Cn_Domain":
+  #    - https://doh.pub/dns-query
+  #    - https://dns.alidns.com/dns-query
+  #  "rule-set:geolocation-!cn":
+  #    - "https://dns.cloudflare.com/dns-query#dns"
+  #    - "https://dns.google/dns-query#dns"
 
 proxies:
 - name: "直连"
@@ -142,6 +142,7 @@ proxy-groups:
   - {name: 🎬 AmazonPrime, type: select, proxies: [🎥 奈飞节点]}
   - {name: 🎞️ Disneyplus, type: select, proxies: [🎥 奈飞节点]}
   - {name: 🎵 Spotify, type: select, include-all-providers: true, filter: "^((?!.*流量|.*套餐|.*剩余|.*官网|.*订阅).)*$"}
+  - {name: 🎤 TIKTOK, <<: *pr}
   - {name: 📺 哔哩哔哩, type: select, proxies: [直连, 🇭🇰 香港节点, 🇨🇳 台湾节点]}
   - {name: 🌍 国外媒体, type: select, proxies: [📹 油管视频, 直连]}
   - {name: 🌏 国内媒体, <<: *pr}
@@ -176,8 +177,8 @@ rules:
   - IP-CIDR,10.0.0.0/8,直连,no-resolve
   - IP-CIDR,127.0.0.0/8,直连,no-resolve
   - RULE-SET,Heroku,🚀 节点选择
-  - RULE-SET,Snapchat,🇯🇵 日本节点
-  - RULE-SET,TikTok,🇯🇵 日本节点
+  - RULE-SET,Snapchat,🎤 TIKTOK
+  - RULE-SET,TikTok,🎤 TIKTOK
   - RULE-SET,Instagram,🇯🇵 日本节点
   - RULE-SET,Custom,🚀 节点选择
   - GEOIP,CN,直连,no-resolve
