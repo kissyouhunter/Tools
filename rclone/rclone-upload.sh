@@ -19,26 +19,33 @@ leeching_mode="true"
 log_dir="/config/rclone"
 rclone_parallel="4"
 
-# 检查文件夹名结尾是否为"-UC"或"-C"
-if [[ "${content_dir}" == *"-UC" || "${content_dir}" == *"-C" ]]; then
-  # 删除文件夹名结尾的"-UC"或"-C"，并移除文件名中的空格
-  new_dir=$(echo "${content_dir}" | sed 's/-UC$//; s/-C$//; s/ //g')
+# 检查文件夹名结尾是否为"-UC"或"-C"，并移除名称中的空格
+if [[ "${content_dir}" == *" "* || "${content_dir}" == *"-UC" || "${content_dir}" == *"-C" ]]; then
+  # 移除文件夹名中的空格和结尾的"-UC"或"-C"
+  new_dir=$(echo "${content_dir}" | sed 's/ //g; s/-UC$//; s/-C$//')
 
   if [ -d "${content_dir}" ]; then
     # 重命名文件夹
     mv "${content_dir}" "${new_dir}"
 
-    # 移除文件夹下视频文件名末尾的"-UC"或"-C"，并移除文件名中的空格
+    # 更新变量以反映文件夹的最新路径
+    content_dir="${new_dir}"
+    root_dir="${new_dir}"
+
+    # 移除文件夹下视频文件名中的空格和末尾的"-UC"或"-C"
     find "${new_dir}" -type f \( -iname "*.mp4" -o -iname "*.avi" -o -iname "*.mkv" -o -iname "*.mov" \) -exec bash -c '
-    new_name=$(echo "$1" | sed "s/\(.*\)\(-UC\|-C\)\(\..*\)$/\1\3/; s/ //g")
+    new_name=$(echo "$1" | sed "s/ //g; s/\(.*\)\(-UC\|-C\)\(\..*\)$/\1\3/")
     mv "$1" "${new_name}"
     ' _ {} \;
   fi
 fi
 
-# 更新变量以反映文件夹的最新路径
-content_dir="${new_dir}"
-root_dir="${new_dir}"
+# 对 torrent_name 也执行类似的操作：先移除空格，再检查并删除结尾的 "-C" 或 "-UC"
+if [[ "$torrent_name" == *" "* || "$torrent_name" == *"-C" || "$torrent_name" == *"-UC" ]]; then
+  # 删除名称中的空格和结尾的 "-C" 或 "-UC"
+  new_name=$(echo "$torrent_name" | sed 's/ //g; s/-C$//; s/-UC$//')
+  torrent_name="$new_name"
+fi
 
 function tg_push_message1() {
     TOKEN=${TG_TOKEN}   #TG机器人token
