@@ -126,6 +126,9 @@ proxies:
 - name: "直连"
   type: direct
   udp: true
+  tfo: true
+  mptcp: true
+  ip-version: ipv6-prefer
 
 # 策略组
 proxy-groups:
