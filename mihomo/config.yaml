@@ -179,6 +179,10 @@ rules:
   - IP-CIDR,172.16.0.0/12,直连,no-resolve
   - IP-CIDR,10.0.0.0/8,直连,no-resolve
   - IP-CIDR,127.0.0.0/8,直连,no-resolve
+  - IP-CIDR,fc00::/7,直连,no-resolve
+  - IP-CIDR,fe80::/10,直连,no-resolve
+  - IP-CIDR,::1/128,直连,no-resolve
+  - IP-CIDR,::ffff:0:0/96,直连,no-resolve
   - RULE-SET,Heroku,🚀 节点选择
   - RULE-SET,Snapchat,🎤 TIKTOK
   - RULE-SET,TikTok,🎤 TIKTOK
