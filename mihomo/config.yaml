@@ -227,7 +227,7 @@ rules:
   - RULE-SET,ChinaCompanyIp,直连
   - RULE-SET,Cn_Domain,直连
   - RULE-SET,Cn_Ip,直连
-  - RULE-SET,geolocation-!cn,直连
+  - RULE-SET,geolocation-!cn,🚀 节点选择
   - RULE-SET,Download,直连
   - RULE-SET,Lan,直连
   - MATCH,🐟 漏网之鱼
