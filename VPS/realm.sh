@@ -100,7 +100,7 @@ listen = "0.0.0.0:5000"
 remote = "1.1.1.1:443"
 
 [[endpoints]]
-listen = "0.0.0.0:10000"
+listen = "[::]:10000"
 remote = "www.google.com:443"
 EOF
 
