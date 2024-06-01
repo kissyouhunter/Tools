@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+# 提示用户输入 username 和 password
+read -p "请输入用户名: " username
+read -p "请输入密码: " password
+echo
+
+# 提供一个 domain 列表供用户选择
+echo "请选择一个域名:"
+domains=("aws.kissnb.cc" "tz.kisssik.top" "vu.kissnb.cc" "az100.kisssik.top")
+select domain in "${domains[@]}"; do
+    if [[ -n "$domain" ]]; then
+        break
+    else
+        echo "无效选择，请重试。"
+    fi
+done
+
+# 构造 UPM 参数
+UPM="https://$username:$password@$domain"
+
+mkdir -p /opt/ServerStatus/client
+mkdir -p /opt/ServerStatus/server
+
+# 调用原脚本，并传递参数
+bash <(curl -s -S -L https://raw.githubusercontent.com/zdz/ServerStatus-Rust/master/scripts/status.sh) -i -c "$UPM"
