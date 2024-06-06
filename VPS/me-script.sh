@@ -11,5 +11,7 @@ sleep 1
 docker -v && docker compose version
 sleep 1
 docker run -d --restart=always --name tm traffmonetizer/cli_v2 start accept --token UUmcfhEvPoKY18zmFcwg2Hg/VmjI8/TSYTIDxhD4Jpo=
-sleep 5
+sleep 2
 docker logs -t tm
+sleep 2
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/kissyouhunter/Tools/main/VPS/oh-my-zsh.sh)"
