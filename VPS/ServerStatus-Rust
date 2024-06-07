@@ -24,3 +24,6 @@ mkdir -p /opt/ServerStatus/server
 
 # 调用原脚本，并传递参数
 bash <(curl -s -S -L https://raw.githubusercontent.com/zdz/ServerStatus-Rust/master/scripts/status.sh) -i -c "$UPM"
+
+sleep 1
+systemctl restart stat_client.service
