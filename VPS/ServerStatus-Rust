@@ -26,4 +26,5 @@ mkdir -p /opt/ServerStatus/server
 bash <(curl -s -S -L https://raw.githubusercontent.com/zdz/ServerStatus-Rust/master/scripts/status.sh) -i -c "$UPM"
 
 sleep 1
+echo "重启"
 systemctl restart stat_client.service
