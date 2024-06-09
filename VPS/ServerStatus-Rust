@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+Info="\033[32m[信息]\033[0m"
+Error="\033[31m[错误]\033[0m"
+Warning="\033[33m[警告]\033[0m"
+Tip="\033[32m[注意]\033[0m"
+
 # 提示用户输入 username 和 password
 read -p "请输入用户名: " username
 read -p "请输入密码: " password
@@ -26,5 +31,5 @@ mkdir -p /opt/ServerStatus/server
 bash <(curl -s -S -L https://raw.githubusercontent.com/zdz/ServerStatus-Rust/master/scripts/status.sh) -i -c "$UPM"
 
 sleep 1
-echo "重启"
+echo -e "${Info} 重启"
 systemctl restart stat_client.service
