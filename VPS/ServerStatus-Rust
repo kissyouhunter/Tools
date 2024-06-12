@@ -12,7 +12,7 @@ echo
 
 # 提供一个 domain 列表供用户选择
 echo "请选择一个域名:"
-domains=("aws.kissnb.cc" "tz.kisssik.top" "vu.kissnb.cc" "az100.kisssik.top")
+domains=("aws.kissnb.cc" "tz.kisssik.top" "vultr.kissnb.cc" "az100.kisssik.top")
 select domain in "${domains[@]}"; do
     if [[ -n "$domain" ]]; then
         break
