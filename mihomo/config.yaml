@@ -183,15 +183,18 @@ rules:
   - IP-CIDR,fe80::/10,直连,no-resolve
   - IP-CIDR,::1/128,直连,no-resolve
   - IP-CIDR,::ffff:0:0/96,直连,no-resolve
+  - DOMAIN-SUFFIX,sehuatang.net,🚀 节点选择
+  - RULE-SET,Mydomain,🚀 节点选择
   - RULE-SET,Heroku,🚀 节点选择
   - RULE-SET,Snapchat,🎤 TIKTOK
   - RULE-SET,TikTok,🎤 TIKTOK
+  - DOMAIN-SUFFIX,x.com,📘 Facebook
+  - RULE-SET,Facebook,📘 Facebook
   - RULE-SET,Instagram,🇯🇵 日本节点
   - RULE-SET,Custom,🚀 节点选择
-  - GEOIP,CN,直连,no-resolve
   - RULE-SET,YouTube,📹 油管视频
   - RULE-SET,TalkaTone,📞 Talkatone
-  - RULE-SET,Mydomain,🚀 节点选择
+  - RULE-SET,Emby,🎥 EMBY
   - RULE-SET,PikPak,🚀 节点选择
   - RULE-SET,Cloudflare,🚀 节点选择
   - RULE-SET,Termius,🚀 节点选择
@@ -199,8 +202,6 @@ rules:
   - RULE-SET,SSH,💻 SSH
   - RULE-SET,RDP,💻 RDP
   - RULE-SET,ChatGPT,🥷 CHATGPT
-  - RULE-SET,Copilot,🥷 CHATGPT
-  - RULE-SET,Emby,🎥 EMBY
   - RULE-SET,PayPal,🪙 PAYPAL
   - RULE-SET,Iqiyi,🌍 爱奇艺国际
   - RULE-SET,Telegram,📲 电报消息
@@ -232,11 +233,11 @@ rules:
   - RULE-SET,ChinaCompanyIp,直连
   - RULE-SET,Cn_Domain,直连
   - RULE-SET,Cn_Ip,直连
-  - RULE-SET,geolocation-!cn,🚀 节点选择
+  - GEOIP,CN,直连
+  - RULE-SET,geolocation-!cn,🐟 漏网之鱼
   - RULE-SET,Download,直连
   - RULE-SET,Lan,直连
   - MATCH,🐟 漏网之鱼
-
 
 # 
 rule-anchor:
@@ -245,8 +246,16 @@ rule-anchor:
   ip: &ip {type: http, interval: 86400, behavior: ipcidr, format: text}
   domain: &domain {type: http, interval: 86400, behavior: domain, format: text}
 
-# 规则集 只保留 path 则读取本地规则
+# 规则集
 rule-providers:
+  Facebook:
+    <<: *domain
+    path: ./proxy_rules/Facebook.list
+    url: "https://raw.githubusercontent.com/kissyouhunter/ios_rule_script/master/rule/Clash/Facebook/Facebook.list"
+  private:
+    <<: *domain
+    path: ./proxy_rules/private.list
+    url: "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/private.list"
   Heroku:
     <<: *classical
     path: ./proxy_rules/Heroku.list
@@ -286,7 +295,7 @@ rule-providers:
   Cloudflare:
     <<: *classical
     path: ./proxy_rules/Cloudflare.list
-    url: "https://github.com/kissyouhunter/Tools/raw/main/Subconverter/Cloudflare.list"
+    url: "https://raw.githubusercontent.com/kissyouhunter/ios_rule_script/master/rule/Clash/Cloudflare/Cloudflare.list"
   Netflix:
     <<: *classical
     path: ./proxy_rules/Netflix.list
@@ -311,10 +320,6 @@ rule-providers:
     <<: *classical
     path: ./proxy_rules/OpenAI.list
     url: "https://raw.githubusercontent.com/kissyouhunter/ios_rule_script/master/rule/Clash/OpenAI/OpenAI.list"
-  Copilot:
-    <<: *classical
-    path: ./proxy_rules/Copilot.list
-    url: "https://raw.githubusercontent.com/kissyouhunter/ios_rule_script/master/rule/Clash/Copilot/Copilot.list"
   Emby:
     <<: *classical
     path: ./proxy_rules/EMBY.list
