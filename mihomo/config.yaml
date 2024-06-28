@@ -232,8 +232,8 @@ rules:
   - RULE-SET,ChinaDomain,直连
   - RULE-SET,ChinaCompanyIp,直连
   - RULE-SET,Cn_Domain,直连
-  - RULE-SET,Cn_Ip,直连
-  - GEOIP,CN,直连
+  - RULE-SET,Cn_Ip,直连,no-resolve
+  #- GEOIP,CN,直连
   - RULE-SET,geolocation-!cn,🐟 漏网之鱼
   - RULE-SET,Download,直连
   - RULE-SET,Lan,直连
