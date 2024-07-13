@@ -86,6 +86,7 @@ tun:
     - "tcp://any:53"
 # 配置路由表
   auto-route: true
+  auto-redirect: true
 # 自动识别出口网卡
   auto-detect-interface: true
 
