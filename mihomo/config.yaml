@@ -72,8 +72,16 @@ sniffer:
     QUIC:
       ports: [443, 8443]
 # 需要跳过嗅探的域名
-  skip-classical:
+  skip-domain:
     - "Mijia Cloud"
+    - "+.apple.com"
+
+# Enable the TPROXY listener
+#tproxy-port: 9898                      
+# 自动配置iptables
+#iptables:                              
+#  enable: true
+#  inbound-interface: eth0
 
 # TUN配置
 tun:
@@ -94,8 +102,8 @@ tun:
 dns:
 # 关闭将使用系统 DNS
   enable: true
-# 开启 DNS 服务器监听
-  listen: :53
+# 开启 DNS 服务器监听 TPproxy必须开启
+  #listen: 0.0.0.0:53
   ipv6: true
 # 模式：redir-host 或 fake-ip
   enhanced-mode: fake-ip
@@ -105,23 +113,12 @@ dns:
     - "*"
     - "+.lan"
     - "+.local"
-# 只能使用纯 IP 地址，可使用加密 DNS
-  default-nameserver:
-    - 223.5.5.5
-    - 119.29.29.29
-# 这部分为主要 DNS 配置，影响所有直连，确保使用对大陆解析精准的 DNS
-  nameserver:
-    - https://doh.pub/dns-query
-    - https://dns.alidns.com/dns-query
+nameserver:
+    - https://120.53.53.53/dns-query
+    - https://223.5.5.5/dns-query
   proxy-server-nameserver:
-    - https://doh.pub/dns-query
-  #nameserver-policy:
-  #  "rule-set:Cn_Domain":
-  #    - https://doh.pub/dns-query
-  #    - https://dns.alidns.com/dns-query
-  #  "rule-set:geolocation-!cn":
-  #    - "https://dns.cloudflare.com/dns-query#dns"
-  #    - "https://dns.google/dns-query#dns"
+    - https://120.53.53.53/dns-query
+    - https://223.5.5.5/dns-query
 
 proxies:
 - name: "直连"
