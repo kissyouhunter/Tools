@@ -9,7 +9,7 @@ if [[ "$EUID" -ne '0' ]]; then
 fi
 
 # Set the desired GitHub repository
-repo="go-gost/gost"
+repo="ginuerzh/gost"
 base_url="https://api.github.com/repos/$repo/releases"
 
 # Function to download and install gost
