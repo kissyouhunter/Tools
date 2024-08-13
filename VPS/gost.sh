@@ -74,6 +74,7 @@ install_gost() {
     tar -xzf gost.tar.gz
     chmod +x gost
     mv gost /usr/local/bin/gost
+    rm -f LICENSE  README.md  README_en.md  gost.tar.gz
 
     # 创建目录 /root/.gost/ 并写入 gost.yml 文件
     mkdir -p /root/.gost/
