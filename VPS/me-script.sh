@@ -6,7 +6,7 @@ sudo timedatectl set-timezone Asia/Shanghai
 sleep 1
 echo 'net.core.default_qdisc=fq' | sudo tee -a /etc/sysctl.conf && echo 'net.ipv4.tcp_congestion_control=bbr' | sudo tee -a /etc/sysctl.conf && sudo sysctl -p && sysctl net.ipv4.tcp_congestion_control
 sleep 1
-bash <(curl -s -S -L https://get.docker.com)
+curl -sSL https://get.docker.com | bash
 sleep 1
 docker -v && docker compose version
 sleep 1
@@ -19,4 +19,4 @@ fi
 sleep 2
 docker logs -t tm
 sleep 2
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/kissyouhunter/Tools/main/VPS/oh-my-zsh.sh)"
+curl -fsSL https://raw.githubusercontent.com/kissyouhunter/Tools/main/VPS/oh-my-zsh.sh | sh
