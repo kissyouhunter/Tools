@@ -9,6 +9,13 @@ SOCKS5_OUTPUT_FILE="/root/ss5.txt"
 
 # --- 函数定义 ---
 
+check_root() {
+    if [ "$EUID" -ne 0 ]; then
+        echo "本脚本需要以 root 用户执行，请使用 sudo 或以 root 用户执行。"
+        exit 1
+    fi
+}
+
 # 确保 jq 已安装
 ensure_jq_installed() {
     if ! command -v jq &> /dev/null; then
@@ -221,7 +228,7 @@ show_menu() {
 }
 
 # --- 主逻辑 ---
-
+check_root
 ensure_jq_installed
 
 while true; do
