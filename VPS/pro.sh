@@ -58,12 +58,30 @@ generate_random_user_pass() {
 
 # 获取公网 IPv4 地址
 get_ipv4() {
-    curl -4 -s --max-time 5 http://api.ipify.org
+    local ipv4=$(curl -4 -s --max-time 5 http://api.ipify.org)
+    if [[ $? -ne 0 ]]; then
+        echo "获取 IPv4 地址失败，请检查网络连接或手动配置 IPv4 地址。"
+        return 1 # 返回非零状态码表示失败
+    fi
+    if ! [[ $ipv4 =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        echo "获取到的 IPv4 地址格式不正确: $ipv4"
+        return 1
+    fi
+    echo "$ipv4"
 }
 
 # 获取公网 IPv6 地址
 get_ipv6() {
-    curl -6 -s --max-time 5 http://api6.ipify.org
+    local ipv6=$(curl -6 -s --max-time 5 http://api6.ipify.org)
+    if [[ $? -ne 0 ]]; then
+        echo "获取 IPv6 地址失败，但 IPv6 是可选的，继续..." # IPv6 可选，不强制退出
+        return 1 # 返回非零状态码，但不退出脚本
+    fi
+    if ! [[ $ipv6 =~ ^[0-9a-f:]+$ ]]; then
+        echo "获取到的 IPv6 地址格式不正确: $ipv6"
+        return 1
+    fi
+    echo "$ipv6"
 }
 
 # 解析现有配置
@@ -166,17 +184,28 @@ install_xray() {
     if ! command -v xray &> /dev/null; then
         echo "安装 Xray..."
         bash -c "$(curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" @ install
+        if [[ $? -ne 0 ]]; then
+            echo "Xray 安装失败，请检查错误信息并重试。"
+            exit 1
+        fi
     fi
 }
 
 # 卸载 Xray
 remove_xray() {
-    echo "卸载 Xray..."
-    bash -c "$(curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" @ remove
-    rm -rf "$BACKUP_DIR"
-    rm -rf "$LOG_DIR"
-    rm -f "$VMESS_OUTPUT_FILE"
-    rm -f "$SOCKS5_OUTPUT_FILE"
+    read -p "!! 警告 !! 你确定要卸载 Xray 吗？此操作不可逆! (y/n): " confirm
+    local lower_confirm=$(echo "$confirm" | tr '[:upper:]' '[:lower:]')  # 将用户输入转换为小写
+    if [[ "$lower_confirm" == "y" ]]; then
+        echo "卸载 Xray..."
+        bash -c "$(curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" @ remove
+        rm -rf "$BACKUP_DIR"
+        rm -rf "$LOG_DIR"
+        rm -f "$VMESS_OUTPUT_FILE"
+        rm -f "$SOCKS5_OUTPUT_FILE"
+    else
+        echo "已取消卸载。"
+        return
+    fi
 }
 
 # 显示菜单
@@ -199,37 +228,52 @@ while true; do
     show_menu
     read -p "请输入选项 (1-7): " choice
     case $choice in
-        1)
+        1)  # 安装 Socks5
             install_socks5=true
             install_vmess=false
             remove_vmess=false
             remove_socks5=false
             ;;
-        2)
+        2)  # 安装 VMess
             install_socks5=false
             install_vmess=true
             remove_vmess=false
             remove_socks5=false
             ;;
-        3)
+        3)  # 安装 Socks5 和 VMess
             install_socks5=true
             install_vmess=true
             remove_vmess=false
             remove_socks5=false
             ;;
-        4)
+        4)  # 删除 VMess 配置
             install_socks5=false
             install_vmess=false
             remove_vmess=true
             remove_socks5=false
+            # **在执行删除操作前检测 Xray 是否已安装**
+            if ! command -v xray &> /dev/null; then
+                echo "错误：检测到 Xray 未安装，无法删除 VMess 配置。请先安装 Xray。"
+                continue # 跳回菜单
+            fi
             ;;
-        5)
+        5)  # 删除 Socks5 配置
             install_socks5=false
             install_vmess=false
             remove_vmess=false
             remove_socks5=true
+            # **在执行删除操作前检测 Xray 是否已安装**
+            if ! command -v xray &> /dev/null; then
+                echo "错误：检测到 Xray 未安装，无法删除 Socks5 配置。请先安装 Xray。"
+                continue # 跳回菜单
+            fi
             ;;
-        6)
+        6)  # 卸载 Xray
+            # **在执行卸载操作前检测 Xray 是否已安装**
+            if ! command -v xray &> /dev/null; then
+                echo "错误：检测到 Xray 未安装，无法执行卸载操作。"
+                continue # 跳回菜单
+            fi
             remove_xray
             exit 0
             ;;
