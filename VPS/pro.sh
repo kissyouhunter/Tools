@@ -214,8 +214,8 @@ show_menu() {
     echo "1. 安装 Socks5"
     echo "2. 安装 VMess"
     echo "3. 安装 Socks5 和 VMess"
-    echo "4. 删除 VMess 配置"
-    echo "5. 删除 Socks5 配置"
+    echo "4. 删除 Socks5 配置"
+    echo "5. 删除 VMess 配置"
     echo "6. 卸载 Xray"
     echo "7. 退出"
 }
@@ -246,18 +246,7 @@ while true; do
             remove_vmess=false
             remove_socks5=false
             ;;
-        4)  # 删除 VMess 配置
-            install_socks5=false
-            install_vmess=false
-            remove_vmess=true
-            remove_socks5=false
-            # **在执行删除操作前检测 Xray 是否已安装**
-            if ! command -v xray &> /dev/null; then
-                echo "错误：检测到 Xray 未安装，无法删除 VMess 配置。请先安装 Xray。"
-                continue # 跳回菜单
-            fi
-            ;;
-        5)  # 删除 Socks5 配置
+        4)  # 删除 Socks5 配置
             install_socks5=false
             install_vmess=false
             remove_vmess=false
@@ -265,6 +254,17 @@ while true; do
             # **在执行删除操作前检测 Xray 是否已安装**
             if ! command -v xray &> /dev/null; then
                 echo "错误：检测到 Xray 未安装，无法删除 Socks5 配置。请先安装 Xray。"
+                continue # 跳回菜单
+            fi
+            ;;
+        5)  # 删除 VMess 配置
+            install_socks5=false
+            install_vmess=false
+            remove_vmess=true
+            remove_socks5=false
+            # **在执行删除操作前检测 Xray 是否已安装**
+            if ! command -v xray &> /dev/null; then
+                echo "错误：检测到 Xray 未安装，无法删除 VMess 配置。请先安装 Xray。"
                 continue # 跳回菜单
             fi
             ;;
@@ -316,16 +316,34 @@ while true; do
 
     # 过滤旧配置，移除将被替换或删除的协议类型
     filtered_inbounds=$(echo "$existing_inbounds" | jq -c '
-        # 如果安装或删除 VMess，则移除所有旧的 vmess 配置
         if '"$install_vmess"' or '"$remove_vmess"' then
             . | map(select(.protocol != "vmess"))
         else . end
         |
-        # 如果安装或删除 Socks5，则移除所有旧的 socks 配置
         if '"$install_socks5"' or '"$remove_socks5"' then
             . | map(select(.protocol != "socks"))
         else . end
     ')
+
+    # --- 检查是否存在要删除的协议，并设置 skip_update 标志 ---
+    skip_update=false  # 初始化标志
+
+    if $remove_vmess; then
+        if ! echo "$existing_inbounds" | jq -e '.[] | select(.protocol == "vmess")' > /dev/null; then
+            echo "配置文件中未找到 VMess 配置"
+            vmess_not_found=true
+            skip_update=true  # 如果未找到 VMess，设置跳过更新标志
+        fi
+    fi
+
+    if $remove_socks5; then
+        if ! echo "$existing_inbounds" | jq -e '.[] | select(.protocol == "socks")' > /dev/null; then
+            echo "配置文件中未找到 Socks5 配置"
+            socks5_not_found=true
+            skip_update=true  # 如果未找到 Socks5，设置跳过更新标志
+        fi
+    fi
+    # --- 检查结束 ---
 
     # 将新生成的 inbounds 与过滤后的旧配置合并
     all_inbounds=$(echo "$filtered_inbounds" | jq --argjson new_inbounds "$(printf '%s\n' "${new_inbounds[@]}" | jq -s '.')" '. + $new_inbounds')
@@ -339,27 +357,34 @@ while true; do
         new_config=$(echo "$existing_config" | jq --argjson inbounds "$all_inbounds" --argjson outbounds "$existing_outbounds" '.inbounds = $inbounds | .outbounds = $outbounds')
     fi
 
-    # 如果没有任何操作，直接跳过
-    if ! $install_socks5 && ! $install_vmess && ! $remove_vmess && ! $remove_socks5; then
+     # 如果没有任何操作，或者设置了跳过更新标志，直接跳过
+    if (! $install_socks5 && ! $install_vmess && ! $remove_vmess && ! $remove_socks5) || $skip_update; then
+        if $skip_update; then
+          echo "未进行任何更改。"
+        fi
         continue
     fi
 
-    # 备份并写入新配置
-    if [ -f "$CONFIG_PATH" ]; then
-        timestamp=$(date +%Y%m%d%H%M%S)
-        backup_file="${BACKUP_DIR}config_${timestamp}.json"
-        echo "已备份现有配置到: $backup_file"
-        cp "$CONFIG_PATH" "$backup_file"
-    fi
-    echo "写入新配置到: $CONFIG_PATH"
-    echo "$new_config" | jq . | tee "$CONFIG_PATH" > /dev/null
-    chmod 644 "$CONFIG_PATH"
+    # --- 根据 skip_update 标志决定是否执行备份、写入和重启 ---
+    if [ "$skip_update" = false ]; then  # 只有在 skip_update 为 false 时才执行
+        # 备份并写入新配置
+        if [ -f "$CONFIG_PATH" ]; then
+            timestamp=$(date +%Y%m%d%H%M%S)
+            backup_file="${BACKUP_DIR}config_${timestamp}.json"
+            echo "已备份现有配置到: $backup_file"
+            cp "$CONFIG_PATH" "$backup_file"
+        fi
+        echo "写入新配置到: $CONFIG_PATH"
+        echo "$new_config" | jq . | tee "$CONFIG_PATH" > /dev/null
+        chmod 644 "$CONFIG_PATH"
 
-    # 重启 Xray 服务
-    if systemctl is-active xray &>/dev/null; then
-        echo "重启 Xray 服务..."
-        systemctl restart xray
+        # 重启 Xray 服务
+        if systemctl is-active xray &>/dev/null; then
+            echo "重启 Xray 服务..."
+            systemctl restart xray
+        fi
     fi
+    # --- 执行块结束 ---
 
     # 如果是安装操作，生成连接信息
     ipv4_address=$(get_ipv4)
@@ -429,7 +454,7 @@ EOF
         echo -e "$socks5_output" > "$SOCKS5_OUTPUT_FILE"
     fi
 
-    # 根据操作显示提示信息
+    # --- 根据操作显示提示信息 ---
     if $install_vmess && $install_socks5; then
         echo "连接信息已保存到: $VMESS_OUTPUT_FILE 和 $SOCKS5_OUTPUT_FILE"
     elif $install_vmess; then
@@ -437,9 +462,18 @@ EOF
     elif $install_socks5; then
         echo "连接信息已保存到: $SOCKS5_OUTPUT_FILE"
     elif $remove_vmess; then
-        echo "已删除 VMess 配置"
+        if [ "$vmess_not_found" = true ]; then
+            echo "配置文件中未找到 VMess 配置"
+        else
+            echo "已删除 VMess 配置"
+        fi
     elif $remove_socks5; then
-        echo "已删除 Socks5 配置"
+        if [ "$socks5_not_found" = true ]; then
+            echo "配置文件中未找到 Socks5 配置"
+        else
+            echo "已删除 Socks5 配置"
+        fi
     fi
-    break
+    # --- 提示信息结束 ---
+    break # 退出循环
 done
