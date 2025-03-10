@@ -561,7 +561,9 @@ EOF
   setup_zshrc
   setup_shell
   git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+  git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k"
   curl -Lo ~/.zshrc https://raw.githubusercontent.com/kissyouhunter/Tools/main/VPS/zshrc
+  curl -Lo ~/.p10k.zsh https://github.com/kissyouhunter/Tools/raw/refs/heads/main/VPS/p10k.zsh
   print_success
 
   if [ $RUNZSH = no ]; then
