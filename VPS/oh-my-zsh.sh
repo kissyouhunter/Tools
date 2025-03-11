@@ -564,6 +564,7 @@ EOF
   git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k"
   curl -Lo ~/.zshrc https://raw.githubusercontent.com/kissyouhunter/Tools/main/VPS/zshrc
   curl -Lo ~/.p10k.zsh https://github.com/kissyouhunter/Tools/raw/refs/heads/main/VPS/p10k.zsh
+  curl https://raw.githubusercontent.com/scopatz/nanorc/master/install.sh | sh
   print_success
 
   if [ $RUNZSH = no ]; then
