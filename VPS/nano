@@ -1,0 +1,49 @@
+#!/bin/bash
+
+curl https://raw.githubusercontent.com/galenguyer/nano-syntax-highlighting/master/install.sh | bash
+
+# 定义 .nanorc 文件路径
+NANORC="$HOME/.nanorc"
+
+# 定义要添加的配置内容
+CONFIG_LINES=(
+    "set atblanks"
+    "set autoindent"
+    "set boldtext"
+    "set constantshow"
+    "set cutfromcursor"
+    "set indicator"
+    "#set linenumbers"
+    "set minibar"
+    "set showcursor"
+    "set softwrap"
+    "set speller \"aspell -x -c\""
+    "set trimblanks"
+    "set whitespace \"»·\""
+    "set zap"
+    "set multibuffer"
+)
+
+# 检查 .nanorc 是否存在
+if [ -f "$NANORC" ]; then
+    echo ".nanorc 文件已存在，将追加配置..."
+else
+    echo ".nanorc 文件不存在，将创建新文件..."
+    touch "$NANORC"
+fi
+
+# 逐行检查并添加配置（避免重复）
+for line in "${CONFIG_LINES[@]}"; do
+    # 检查是否已存在该配置（忽略注释和空格差异）
+    if ! grep -Fx "$line" "$NANORC" > /dev/null 2>&1; then
+        echo "$line" >> "$NANORC"
+        echo "已添加: $line"
+    else
+        echo "已存在，跳过: $line"
+    fi
+done
+
+# 完成提示
+echo "配置已添加到 $NANORC，请检查文件内容："
+cat "$NANORC"
+
