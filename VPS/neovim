@@ -1,0 +1,157 @@
+#!/bin/bash
+
+# 检测包管理器并定义安装函数
+detect_package_manager() {
+    if command -v apt >/dev/null 2>&1; then
+        PKG_MANAGER="apt"
+        INSTALL_CMD="sudo apt update && sudo apt install -y"
+        BUILD_ESSENTIAL="build-essential"
+    elif command -v yum >/dev/null 2>&1; then
+        PKG_MANAGER="yum"
+        INSTALL_CMD="sudo yum install -y"
+        BUILD_ESSENTIAL="gcc make glibc-devel"
+    elif command -v dnf >/dev/null 2>&1; then
+        PKG_MANAGER="dnf"
+        INSTALL_CMD="sudo dnf install -y"
+        BUILD_ESSENTIAL="gcc make glibc-devel"
+    elif command -v pacman >/dev/null 2>&1; then
+        PKG_MANAGER="pacman"
+        INSTALL_CMD="sudo pacman -Syu --noconfirm"
+        BUILD_ESSENTIAL="base-devel"
+    else
+        echo "错误：未检测到支持的包管理器 (apt/yum/dnf/pacman)"
+        exit 1
+    fi
+}
+
+# 安装缺失的依赖
+install_if_missing() {
+    local cmd=$1
+    local pkg=$2
+    if ! command -v "$cmd" >/dev/null 2>&1; then
+        echo "检测到 $cmd 未安装，正在尝试安装 $pkg..."
+        $INSTALL_CMD "$pkg" || {
+            echo "错误：安装 $pkg 失败"
+            exit 1
+        }
+    fi
+}
+
+# 检查 build-essential 或等价包
+check_build_essential() {
+    if ! command -v gcc >/dev/null 2>&1 || ! command -v make >/dev/null 2>&1; then
+        echo "检测到缺少构建工具，正在尝试安装 $BUILD_ESSENTIAL..."
+        $INSTALL_CMD "$BUILD_ESSENTIAL" || {
+            echo "错误：安装 $BUILD_ESSENTIAL 失败"
+            exit 1
+        }
+    fi
+}
+
+# 检测当前 shell 并确定 rc 文件
+detect_shell() {
+    CURRENT_SHELL=$(basename "$SHELL")
+    case "$CURRENT_SHELL" in
+        "bash")
+            RC_FILE="$HOME/.bashrc"
+            ;;
+        "zsh")
+            RC_FILE="$HOME/.zshrc"
+            ;;
+        "fish")
+            RC_FILE="$HOME/.config/fish/config.fish"
+            ;;
+        *)
+            echo "警告：检测到不受支持的 shell ($CURRENT_SHELL)，默认使用 ~/.bashrc"
+            RC_FILE="$HOME/.bashrc"
+            ;;
+    esac
+    echo "检测到当前 shell: $CURRENT_SHELL，将使用 $RC_FILE"
+}
+
+# 主安装流程开始
+echo "开始安装 Neovim..."
+
+# 检测包管理器
+detect_package_manager
+
+# 检查并安装依赖
+install_if_missing "curl" "curl"
+install_if_missing "git" "git"
+install_if_missing "tar" "tar"
+check_build_essential
+
+# 检查 sudo 权限
+if ! sudo -n true 2>/dev/null; then
+    echo "错误：需要 sudo 权限来安装到 /opt 目录"
+    exit 1
+fi
+
+# 下载 Neovim
+echo "正在下载 Neovim..."
+curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz
+
+# 验证下载
+if [ ! -f "nvim-linux-x86_64.tar.gz" ] || [ ! -s "nvim-linux-x86_64.tar.gz" ]; then
+    echo "错误：Neovim 下载失败或文件为空"
+    rm -f nvim-linux-x86_64.tar.gz
+    exit 1
+fi
+
+# 清理旧安装
+echo "正在清理旧的 Neovim 安装..."
+sudo rm -rf /opt/nvim
+
+# 安装 Neovim
+echo "正在安装 Neovim 到 /opt 目录..."
+sudo tar -C /opt -xzf nvim-linux-x86_64.tar.gz
+
+if [ ! -d "/opt/nvim-linux-x86_64" ]; then
+    echo "错误：Neovim 解压安装失败"
+    exit 1
+fi
+
+# 检测 shell 并更新 PATH
+detect_shell
+if [ "$CURRENT_SHELL" = "fish" ]; then
+    # fish shell 使用不同的语法
+    if [ -f "$RC_FILE" ] && ! grep -q "/opt/nvim-linux-x86_64/bin" "$RC_FILE"; then
+        echo "set -x PATH \$PATH /opt/nvim-linux-x86_64/bin" >> "$RC_FILE"
+    elif [ ! -f "$RC_FILE" ]; then
+        mkdir -p "$(dirname "$RC_FILE")"
+        echo "set -x PATH \$PATH /opt/nvim-linux-x86_64/bin" > "$RC_FILE"
+    fi
+else
+    # bash/zsh 等使用 export 语法
+    if [ -f "$RC_FILE" ] && ! grep -q "/opt/nvim-linux-x86_64/bin" "$RC_FILE"; then
+        echo 'export PATH="$PATH:/opt/nvim-linux-x86_64/bin"' >> "$RC_FILE"
+    elif [ ! -f "$RC_FILE" ]; then
+        echo 'export PATH="$PATH:/opt/nvim-linux-x86_64/bin"' > "$RC_FILE"
+    fi
+fi
+
+# 安装 kickstart.nvim
+CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/nvim"
+echo "正在安装 kickstart.nvim 配置..."
+mkdir -p "$(dirname "$CONFIG_DIR")"
+if [ -d "$CONFIG_DIR" ]; then
+    mv "$CONFIG_DIR" "${CONFIG_DIR}_backup_$(date +%Y%m%d_%H%M%S)"
+fi
+git clone https://github.com/nvim-lua/kickstart.nvim.git "$CONFIG_DIR"
+
+if [ ! -d "$CONFIG_DIR" ]; then
+    echo "错误：kickstart.nvim 安装失败"
+    exit 1
+fi
+
+# 清理
+echo "清理临时文件..."
+rm -f nvim-linux-x86_64.tar.gz
+
+echo "安装完成！"
+echo "Neovim 已安装到: /opt/nvim-linux-x86_64/bin/nvim"
+if [ "$CURRENT_SHELL" = "fish" ]; then
+    echo "请运行 'source $RC_FILE' 或重启终端以应用配置"
+else
+    echo "请运行 'source $RC_FILE' 或重启终端以应用 PATH 配置"
+fi
