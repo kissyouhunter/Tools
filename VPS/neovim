@@ -4,7 +4,9 @@
 detect_package_manager() {
     if command -v apt >/dev/null 2>&1; then
         PKG_MANAGER="apt"
-        INSTALL_CMD="sudo apt update && sudo apt install -y"
+        # 先更新包索引，然后定义安装命令
+        sudo apt update || { echo "错误：apt update 失败"; exit 1; }
+        INSTALL_CMD="sudo apt install -y"
         BUILD_ESSENTIAL="build-essential"
     elif command -v yum >/dev/null 2>&1; then
         PKG_MANAGER="yum"
