@@ -143,7 +143,7 @@ cat > "$MICRO_CONFIG_FILE" << 'EOF'
     "matchbraceleft": true,
     "matchbracestyle": "underline",
     "mkparents": false,
-    "mouse": true,
+    "mouse": false,
     "multiopen": "tab",
     "pageoverlap": 2,
     "parsecursor": false,
