@@ -157,7 +157,7 @@ cat > "$MICRO_CONFIG_FILE" << 'EOF'
     "relativeruler": false,
     "reload": "prompt",
     "rmtrailingws": false,
-    "ruler": true,
+    "ruler": false,
     "savecursor": false,
     "savehistory": true,
     "saveundo": false,
