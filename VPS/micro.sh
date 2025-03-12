@@ -201,6 +201,6 @@ else
 fi
 
 # 完成提示
-echo "所有步骤完成！现在输入 'nano' 将运行 micro，输入 'nano -l' 将启用 ruler"
-echo "验证最终结果：尝试 'nano' 和 'nano -l' 检查功能是否正常"
+echo "所有步骤完成！现在输入 'nano' 将运行 micro，输入 'nano -l' 将显示行数"
+echo "重启终端以应用更改"
 exit 0
