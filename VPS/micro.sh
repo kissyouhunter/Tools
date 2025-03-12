@@ -89,7 +89,124 @@ else
   exit 1
 fi
 
+# 步骤 5：创建并保存 micro 配置文件
+echo "步骤 5：创建 micro 配置文件 ~/.config/micro/settings.json..."
+MICRO_CONFIG_DIR="$HOME/.config/micro"
+MICRO_CONFIG_FILE="$MICRO_CONFIG_DIR/settings.json"
+
+# 创建配置目录（如果不存在）
+if [ ! -d "$MICRO_CONFIG_DIR" ]; then
+  mkdir -p "$MICRO_CONFIG_DIR"
+  # 验证目录是否创建成功
+  if [ ! -d "$MICRO_CONFIG_DIR" ]; then
+    echo "错误：无法创建 $MICRO_CONFIG_DIR 目录，请检查权限"
+    exit 1
+  fi
+  echo "验证：已成功创建 $MICRO_CONFIG_DIR 目录"
+fi
+
+# 写入配置文件内容
+cat > "$MICRO_CONFIG_FILE" << 'EOF'
+{
+    "autoclose": true,
+    "autoindent": true,
+    "autosave": 0,
+    "autosu": false,
+    "backup": true,
+    "backupdir": "",
+    "basename": false,
+    "clipboard": "external",
+    "colorcolumn": 0,
+    "colorscheme": "default",
+    "comment": true,
+    "cursorline": true,
+    "detectlimit": 100,
+    "diff": true,
+    "diffgutter": false,
+    "divchars": "|-",
+    "divreverse": true,
+    "encoding": "utf-8",
+    "eofnewline": true,
+    "fakecursor": false,
+    "fastdirty": false,
+    "fileformat": "unix",
+    "filetype": "unknown",
+    "ftoptions": true,
+    "helpsplit": "hsplit",
+    "hlsearch": false,
+    "hltaberrors": false,
+    "hltrailingws": false,
+    "ignorecase": true,
+    "incsearch": true,
+    "indentchar": " ",
+    "infobar": true,
+    "initlua": true,
+    "keepautoindent": false,
+    "keymenu": false,
+    "linter": true,
+    "literate": true,
+    "matchbrace": true,
+    "matchbraceleft": true,
+    "matchbracestyle": "underline",
+    "mkparents": false,
+    "mouse": false,
+    "multiopen": "tab",
+    "pageoverlap": 2,
+    "parsecursor": false,
+    "paste": false,
+    "permbackup": false,
+    "pluginchannels": [
+        "https://raw.githubusercontent.com/micro-editor/plugin-channel/master/channel.json"
+    ],
+    "pluginrepos": [],
+    "readonly": false,
+    "relativeruler": false,
+    "reload": "prompt",
+    "rmtrailingws": false,
+    "ruler": false,
+    "savecursor": false,
+    "savehistory": true,
+    "saveundo": false,
+    "scrollbar": false,
+    "scrollbarchar": "|",
+    "scrollmargin": 3,
+    "scrollspeed": 2,
+    "smartpaste": true,
+    "softwrap": false,
+    "splitbottom": true,
+    "splitright": true,
+    "status": true,
+    "statusformatl": "$(filename) $(modified)$(overwrite)($(line),$(col)) $(status.paste)| ft:$(opt:filetype) | $(opt:fileformat) | $(opt:encoding)",
+    "statusformatr": "$(bind:ToggleKeyMenu): bindings, $(bind:ToggleHelp): help",
+    "statusline": true,
+    "sucmd": "sudo",
+    "syntax": true,
+    "tabhighlight": true,
+    "tabmovement": false,
+    "tabreverse": false,
+    "tabsize": 4,
+    "tabstospaces": false,
+    "useprimary": true,
+    "wordwrap": false,
+    "xterm": false
+}
+EOF
+
+# 验证配置文件是否创建成功
+if [ -f "$MICRO_CONFIG_FILE" ]; then
+  # 检查文件内容是否包含特定字段（例如 "autoclose": true）
+  if grep -q '"autoclose": true' "$MICRO_CONFIG_FILE"; then
+    echo "验证：micro 配置文件 $MICRO_CONFIG_FILE 已成功创建并写入"
+  else
+    echo "错误：$MICRO_CONFIG_FILE 创建成功但内容写入失败，请检查"
+    exit 1
+  fi
+else
+  echo "错误：无法创建 $MICRO_CONFIG_FILE，请检查 $MICRO_CONFIG_DIR 权限"
+  exit 1
+fi
+
 # 完成提示
 echo "所有步骤完成！请运行 'source ~/.zshrc' 或重启终端以应用更改"
-echo "验证最终结果：输入 'nano' 应启动 micro"
+echo "验证最终结果：输入 'nano' 应启动 micro，且配置已生效"
 exit 0
