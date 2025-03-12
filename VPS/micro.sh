@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# 定义安装目录变量
+INSTALL_DIR="/usr/local/bin"
+
 # 检查是否以 root 权限运行
 if [ "$EUID" -ne 0 ]; then
   echo "错误：请以 root 权限运行此脚本（使用 sudo）"
@@ -43,53 +46,44 @@ else
   exit 1
 fi
 
-# 步骤 3：移动 micro 到 /usr/local/bin
-echo "步骤 3：移动 micro 到 /usr/local/bin..."
-mv ./micro /usr/local/bin/micro
-chmod +x /usr/local/bin/micro
+# 步骤 3：移动 micro 到 $INSTALL_DIR
+echo "步骤 3：移动 micro 到 $INSTALL_DIR..."
+mv ./micro "$INSTALL_DIR/micro"
+chmod +x "$INSTALL_DIR/micro"
 # 验证 micro 是否成功移动并可执行
-if [ -x "/usr/local/bin/micro" ]; then
-  echo "验证：micro 已成功移动到 /usr/local/bin 并具有执行权限"
+if [ -x "$INSTALL_DIR/micro" ]; then
+  echo "验证：micro 已成功移动到 $INSTALL_DIR 并具有执行权限"
 else
-  echo "错误：micro 移动或设置权限失败，请检查 /usr/local/bin 目录权限"
+  echo "错误：micro 移动或设置权限失败，请检查 $INSTALL_DIR 目录权限"
   exit 1
 fi
 
-# 步骤 4：检查 zsh 并添加 alias 到 ~/.zshrc
-echo "步骤 4：配置 zsh alias..."
-if command -v zsh &> /dev/null; then
-  ZSHRC="$HOME/.zshrc"
-  if [ -f "$ZSHRC" ]; then
-    # 检查是否已存在相同的 alias
-    if ! grep -q 'alias nano="micro"' "$ZSHRC"; then
-      echo 'alias nano="micro"' >> "$ZSHRC"
-      # 验证 alias 是否成功添加
-      if grep -q 'alias nano="micro"' "$ZSHRC"; then
-        echo "验证：已成功将 'alias nano=\"micro\"' 添加到 $ZSHRC"
-      else
-        echo "错误：alias 添加到 $ZSHRC 失败，请检查文件权限"
-        exit 1
-      fi
-    else
-      echo "验证：$ZSHRC 中已存在 'alias nano=\"micro\"'，无需重复添加"
-    fi
+# 步骤 4：创建 $INSTALL_DIR/nano 文件
+echo "步骤 4：创建 $INSTALL_DIR/nano 文件..."
+cat > "$INSTALL_DIR/nano" << 'EOF'
+#!/bin/bash
+if [[ "$1" == "-l" ]]; then
+    /usr/local/bin/micro -ruler true "${@:2}"
+else
+    /usr/local/bin/micro "$@"
+fi
+EOF
+chmod +x "$INSTALL_DIR/nano"
+# 验证 $INSTALL_DIR/nano 是否创建成功并可执行
+if [ -f "$INSTALL_DIR/nano" ] && [ -x "$INSTALL_DIR/nano" ]; then
+  # 检查文件内容是否正确
+  if grep -q "if \[\[ \"\$1\" == \"-l\" \]\]" "$INSTALL_DIR/nano"; then
+    echo "验证：$INSTALL_DIR/nano 已成功创建并具有执行权限"
   else
-    # 如果 .zshrc 不存在，创建并添加
-    echo 'alias nano="micro"' > "$ZSHRC"
-    # 验证文件创建和内容
-    if [ -f "$ZSHRC" ] && grep -q 'alias nano="micro"' "$ZSHRC"; then
-      echo "验证：已创建 $ZSHRC 并成功添加 'alias nano=\"micro\"'"
-    else
-      echo "错误：创建 $ZSHRC 或添加 alias 失败，请检查写入权限"
-      exit 1
-    fi
+    echo "错误：$INSTALL_DIR/nano 创建成功但内容写入失败，请检查"
+    exit 1
   fi
 else
-  echo "错误：未检测到 zsh，请确保已安装 zsh 并手动配置 alias"
+  echo "错误：无法创建 $INSTALL_DIR/nano 或设置权限失败，请检查 $INSTALL_DIR 目录权限"
   exit 1
 fi
 
-# 步骤 5：创建并保存 micro 配置文件
+# 步骤 5：创建 micro 配置文件
 echo "步骤 5：创建 micro 配置文件 ~/.config/micro/settings.json..."
 MICRO_CONFIG_DIR="$HOME/.config/micro"
 MICRO_CONFIG_FILE="$MICRO_CONFIG_DIR/settings.json"
@@ -149,7 +143,7 @@ cat > "$MICRO_CONFIG_FILE" << 'EOF'
     "matchbraceleft": true,
     "matchbracestyle": "underline",
     "mkparents": false,
-    "mouse": false,
+    "mouse": true,
     "multiopen": "tab",
     "pageoverlap": 2,
     "parsecursor": false,
@@ -163,7 +157,7 @@ cat > "$MICRO_CONFIG_FILE" << 'EOF'
     "relativeruler": false,
     "reload": "prompt",
     "rmtrailingws": false,
-    "ruler": false,
+    "ruler": true,
     "savecursor": false,
     "savehistory": true,
     "saveundo": false,
@@ -172,7 +166,7 @@ cat > "$MICRO_CONFIG_FILE" << 'EOF'
     "scrollmargin": 3,
     "scrollspeed": 2,
     "smartpaste": true,
-    "softwrap": false,
+    "softwrap": true,
     "splitbottom": true,
     "splitright": true,
     "status": true,
@@ -187,7 +181,7 @@ cat > "$MICRO_CONFIG_FILE" << 'EOF'
     "tabsize": 4,
     "tabstospaces": false,
     "useprimary": true,
-    "wordwrap": false,
+    "wordwrap": true,
     "xterm": false
 }
 EOF
@@ -207,6 +201,6 @@ else
 fi
 
 # 完成提示
-echo "所有步骤完成！请运行 'source ~/.zshrc' 或重启终端以应用更改"
-echo "验证最终结果：输入 'nano' 应启动 micro，且配置已生效"
+echo "所有步骤完成！现在输入 'nano' 将运行 micro，输入 'nano -l' 将启用 ruler"
+echo "验证最终结果：尝试 'nano' 和 'nano -l' 检查功能是否正常"
 exit 0
