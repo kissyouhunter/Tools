@@ -98,6 +98,8 @@ use_udp = true
 [[endpoints]]
 listen = "0.0.0.0:5000"
 remote = "1.1.1.1:443"
+extra_remotes = ["1.1.1.2:443", "1.1.1.3:443"]
+balance = "roundrobin: 4, 2, 1"
 
 [[endpoints]]
 listen = "[::]:10000"
