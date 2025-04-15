@@ -7,6 +7,8 @@ LOG_DIR="/var/log/xray/"
 VMESS_OUTPUT_FILE="/root/vmess.txt"
 SOCKS5_OUTPUT_FILE="/root/ss5.txt"
 SHADOWSOCKS_OUTPUT_FILE="/root/shadowsocks.txt"
+# 新增：存储优先级配置
+PRIORITY_FILE="/usr/local/etc/xray/priority.txt"
 
 # --- 函数定义 ---
 
@@ -266,6 +268,7 @@ remove_xray() {
         rm -f "$VMESS_OUTPUT_FILE"
         rm -f "$SOCKS5_OUTPUT_FILE"
         rm -f "$SHADOWSOCKS_OUTPUT_FILE"
+        rm -f "$PRIORITY_FILE"
     else
         echo "已取消卸载。"
         return
@@ -280,15 +283,84 @@ show_status() {
     else
         echo "无有效配置"
     fi
+    # 显示当前优先级
+    if [ -f "$PRIORITY_FILE" ]; then
+        echo "当前出口优先级：$(cat "$PRIORITY_FILE")"
+    else
+        echo "当前出口优先级：默认 (AsIs)"
+    fi
 }
 
-# 显示菜单
+# 设置出口优先级（新增）
+set_priority() {
+    echo "请选择出口优先级："
+    echo "1. IPv6 优先"
+    echo "2. IPv4 优先"
+    echo "3. 默认 (AsIs)"
+    read -p "请输入选项 (1-3): " priority_choice
+    case $priority_choice in
+        1)
+            priority="UseIPv6v4"
+            priority_desc="IPv6 优先"
+            ;;
+        2)
+            priority="UseIPv4v6"
+            priority_desc="IPv4 优先"
+            ;;
+        3)
+            priority="AsIs"
+            priority_desc="默认 (AsIs)"
+            ;;
+        *)
+            echo "无效选择，返回主菜单。"
+            return
+            ;;
+    esac
+
+    # 备份现有配置
+    if [ -f "$CONFIG_PATH" ]; then
+        timestamp=$(date +%Y%m%d%H%M%S)
+        backup_file="${BACKUP_DIR}config_${timestamp}.json"
+        echo "已备份现有配置到: $backup_file"
+        cp "$CONFIG_PATH" "$backup_file"
+    fi
+
+    # 更新 outbound 配置
+    existing_config=$(parse_existing_config)
+    existing_inbounds=$(echo "$existing_config" | jq '.inbounds // []')
+    existing_outbounds=$(echo "$existing_config" | jq '.outbounds // []')
+    if [ "$(echo "$existing_outbounds" | jq 'length')" -eq 0 ]; then
+        new_outbounds="[{\"protocol\": \"freedom\", \"settings\": {\"domainStrategy\": \"$priority\"}}]"
+    else
+        new_outbounds=$(echo "$existing_outbounds" | jq ".[0].settings.domainStrategy = \"$priority\"")
+    fi
+
+    # 写入新配置
+    new_config=$(echo "$existing_config" | jq --argjson inbounds "$existing_inbounds" --argjson outbounds "$new_outbounds" '.inbounds = $inbounds | .outbounds = $outbounds')
+    echo "写入新配置到: $CONFIG_PATH"
+    echo "$new_config" | jq . | tee "$CONFIG_PATH" > /dev/null
+    chmod 644 "$CONFIG_PATH"
+
+    # 保存优先级描述
+    echo "$priority_desc" > "$PRIORITY_FILE"
+
+    # 重启 Xray 服务
+    if systemctl is-active xray > /dev/null; then
+        echo "重启 Xray 服务..."
+        systemctl restart xray
+    fi
+
+    echo "已设置出口优先级为：$priority_desc"
+}
+
+# 显示菜单（新增优先级选项）
 show_menu() {
     echo "请选择操作："
     echo "1. 安装协议"
     echo "2. 删除协议"
     echo "3. 查看配置状态"
     echo "4. 卸载 Xray"
+    echo "5. 设置出口优先级"
     echo "0. 退出"
 }
 
@@ -300,7 +372,7 @@ cleanup_old_backups
 
 while true; do
     show_menu
-    read -p "请输入选项 (0-4): " choice
+    read -p "请输入选项 (0-5): " choice
     case $choice in
         1)  # 安装协议
             echo "请选择要安装的协议（可多选，用空格分隔）："
@@ -374,6 +446,10 @@ while true; do
             fi
             remove_xray
             exit 0
+            ;;
+        5)  # 设置出口优先级
+            set_priority
+            continue
             ;;
         0)
             exit 0
@@ -486,13 +562,20 @@ while true; do
         config_changed=true
     fi
 
-    # 检查并设置 outbounds
+    # 检查并设置 outbounds（应用优先级）
     existing_outbounds=$(echo "$existing_config" | jq '.outbounds // []')
+    # 读取当前优先级（若存在）
+    if [ -f "$PRIORITY_FILE" ]; then
+        priority=$(grep -o "IPv6 优先\|IPv4 优先\|默认 (AsIs)" "$PRIORITY_FILE" | grep -o "UseIPv6v4\|UseIPv4v6\|AsIs" || echo "AsIs")
+    else
+        priority="AsIs"
+    fi
     if [ "$(echo "$existing_outbounds" | jq 'length')" -eq 0 ]; then
-        default_outbounds='[{"protocol": "freedom", "settings": {}}]'
+        default_outbounds="[{\"protocol\": \"freedom\", \"settings\": {\"domainStrategy\": \"$priority\"}}]"
         new_config=$(echo "$existing_config" | jq --argjson inbounds "$all_inbounds" --argjson outbounds "$default_outbounds" '.inbounds = $inbounds | .outbounds = $outbounds')
     else
-        new_config=$(echo "$existing_config" | jq --argjson inbounds "$all_inbounds" --argjson outbounds "$existing_outbounds" '.inbounds = $inbounds | .outbounds = $outbounds')
+        new_outbounds=$(echo "$existing_outbounds" | jq ".[0].settings.domainStrategy = \"$priority\"")
+        new_config=$(echo "$existing_config" | jq --argjson inbounds "$all_inbounds" --argjson outbounds "$new_outbounds" '.inbounds = $inbounds | .outbounds = $outbounds')
     fi
 
     # 如果没有任何操作，或者设置了跳过更新标志，直接跳过
