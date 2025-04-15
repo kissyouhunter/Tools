@@ -17,6 +17,12 @@ check_root() {
     fi
 }
 
+# 清理超过 30 天的备份文件
+cleanup_old_backups() {
+    find "$BACKUP_DIR" -name 'config_*.json' -mtime +30 -delete 2>/dev/null
+    echo "已清理 30 天前的备份文件"
+}
+
 # 确保 jq 已安装
 ensure_jq_installed() {
     if ! command -v jq &> /dev/null; then
@@ -45,6 +51,35 @@ ensure_jq_installed() {
         exit 1
     else
         echo "jq 已就绪，可以使用"
+    fi
+}
+
+# 确保 uuidgen 已安装
+ensure_uuidgen_installed() {
+    if ! command -v uuidgen &> /dev/null; then
+        echo "uuidgen 未安装，正在尝试自动安装..."
+        if [ -f /etc/os-release ]; then
+            . /etc/os-release
+            case $ID in
+                ubuntu|debian)
+                    sudo apt update && sudo apt install -y uuid-runtime
+                    ;;
+                centos|rhel)
+                    sudo yum install -y libuuid
+                    ;;
+                *)
+                    echo "不支持的系统，请手动安装 uuidgen"
+                    exit 1
+                    ;;
+            esac
+        else
+            echo "无法检测系统类型，请手动安装 uuidgen"
+            exit 1
+        fi
+    fi
+    if ! command -v uuidgen &> /dev/null; then
+        echo "uuidgen 安装失败，请手动安装后重试"
+        exit 1
     fi
 }
 
@@ -157,8 +192,7 @@ generate_socks5_inbound() {
         "pass": "${pass}"
       }
     ],
-    "udp": true,
-    "ip": "::"
+    "udp": true
   },
   "sniffing": {
     "enabled": true,
@@ -238,22 +272,35 @@ remove_xray() {
     fi
 }
 
+# 查看当前配置状态
+show_status() {
+    echo "当前 Xray 配置："
+    if [ -f "$CONFIG_PATH" ]; then
+        jq '.inbounds[] | "协议: \(.protocol), 端口: \(.port)"' "$CONFIG_PATH" 2>/dev/null || echo "配置文件格式错误"
+    else
+        echo "无有效配置"
+    fi
+}
+
 # 显示菜单
 show_menu() {
     echo "请选择操作："
     echo "1. 安装协议"
     echo "2. 删除协议"
-    echo "3. 卸载 Xray"
+    echo "3. 查看配置状态"
+    echo "4. 卸载 Xray"
     echo "0. 退出"
 }
 
 # --- 主逻辑 ---
 check_root
 ensure_jq_installed
+ensure_uuidgen_installed
+cleanup_old_backups
 
 while true; do
     show_menu
-    read -p "请输入选项 (0-3): " choice  # 更新提示
+    read -p "请输入选项 (0-4): " choice
     case $choice in
         1)  # 安装协议
             echo "请选择要安装的协议（可多选，用空格分隔）："
@@ -316,7 +363,11 @@ while true; do
                 continue
             fi
             ;;
-        3)  # 卸载 Xray
+        3)  # 查看配置状态
+            show_status
+            continue
+            ;;
+        4)  # 卸载 Xray
             if ! command -v xray &> /dev/null; then
                 echo "错误：检测到 Xray 未安装，无法执行卸载操作。"
                 continue
