@@ -7,7 +7,6 @@ LOG_DIR="/var/log/xray/"
 VMESS_OUTPUT_FILE="/root/vmess.txt"
 SOCKS5_OUTPUT_FILE="/root/ss5.txt"
 SHADOWSOCKS_OUTPUT_FILE="/root/shadowsocks.txt"
-# 新增：存储优先级配置
 PRIORITY_FILE="/usr/local/etc/xray/priority.txt"
 
 # --- 函数定义 ---
@@ -225,6 +224,32 @@ generate_shadowsocks_inbound() {
 EOF
 }
 
+# 生成 Dokodemo-door inbound 配置
+generate_dokodemo_inbound() {
+    local port=$1
+    local remote_host=$2
+    local remote_port=$3
+    local remark=$4
+    local index=$5
+    cat <<EOF
+{
+  "port": ${port},
+  "protocol": "dokodemo-door",
+  "settings": {
+    "address": "${remote_host}",
+    "port": ${remote_port},
+    "network": "tcp,udp",
+    "followRedirect": false
+  },
+  "tag": "dokodemo-${remark}-${index}",
+  "sniffing": {
+    "enabled": true,
+    "destOverride": ["http", "tls"]
+  }
+}
+EOF
+}
+
 # 获取现有端口
 get_existing_ports() {
     local config=$1
@@ -242,6 +267,28 @@ generate_unique_port() {
             break
         fi
     done
+}
+
+# 验证端口合法性
+validate_port() {
+    local port=$1
+    if [[ "$port" =~ ^[0-9]+$ && "$port" -ge 1 && "$port" -le 65535 ]]; then
+        return 0
+    else
+        echo "错误：端口必须是 1-65535 之间的数字"
+        return 1
+    fi
+}
+
+# 验证地址格式（简单检查）
+validate_address() {
+    local addr=$1
+    if [[ "$addr" =~ ^[a-zA-Z0-9.-]+$ || "$addr" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ || "$addr" =~ ^[0-9a-f:]+$ ]]; then
+        return 0
+    else
+        echo "错误：无效的远程地址格式"
+        return 1
+    fi
 }
 
 # 安装 Xray（如果未安装）
@@ -275,23 +322,7 @@ remove_xray() {
     fi
 }
 
-# 查看当前配置状态
-show_status() {
-    echo "当前 Xray 配置："
-    if [ -f "$CONFIG_PATH" ]; then
-        jq '.inbounds[] | "协议: \(.protocol), 端口: \(.port)"' "$CONFIG_PATH" 2>/dev/null || echo "配置文件格式错误"
-    else
-        echo "无有效配置"
-    fi
-    # 显示当前优先级
-    if [ -f "$PRIORITY_FILE" ]; then
-        echo "当前出口优先级：$(cat "$PRIORITY_FILE")"
-    else
-        echo "当前出口优先级：默认 (AsIs)"
-    fi
-}
-
-# 设置出口优先级（新增）
+# 设置出口优先级
 set_priority() {
     echo "请选择出口优先级："
     echo "1. IPv6 优先"
@@ -348,19 +379,242 @@ set_priority() {
     if systemctl is-active xray > /dev/null; then
         echo "重启 Xray 服务..."
         systemctl restart xray
+        if [[ $? -ne 0 ]]; then
+            echo "警告：Xray 服务重启失败，查看日志..."
+            journalctl -u xray -n 50 --no-pager
+        fi
     fi
 
     echo "已设置出口优先级为：$priority_desc"
 }
 
-# 显示菜单（新增优先级选项）
+# 管理 Dokodemo-door 配置
+manage_dokodemo() {
+    # 在操作 Dokodemo-door 前确保 Xray 已安装
+    install_xray
+
+    while true; do
+        echo "Dokodemo-door 管理："
+        echo "1. 添加配置"
+        echo "2. 管理配置"
+        echo "0. 返回主菜单"
+        read -p "请输入选项 (0-2): " dokodemo_choice
+        case $dokodemo_choice in
+            1)  # 添加 Dokodemo-door 配置
+                existing_config=$(parse_existing_config)
+                existing_ports=$(get_existing_ports "$existing_config")
+
+                echo "请输入本地监听端口（留空则随机生成）："
+                read -p "端口: " local_port
+                if [ -z "$local_port" ]; then
+                    local_port=$(generate_unique_port "$existing_ports")
+                else
+                    validate_port "$local_port" || continue
+                    if echo "$existing_ports" | grep -q "^$local_port$"; then
+                        echo "错误：端口 $local_port 已占用"
+                        continue
+                    fi
+                fi
+
+                read -p "请输入远程地址（例如 example.com 或 IP）：" remote_host
+                validate_address "$remote_host" || continue
+
+                read -p "请输入远程端口：" remote_port
+                validate_port "$remote_port" || continue
+
+                read -p "请输入备注（英文或数字，避免特殊字符）：" remark
+                if [ -z "$remark" ]; then
+                    remark="default"
+                fi
+
+                # 生成唯一索引
+                existing_dokodemo=$(echo "$existing_config" | jq '.inbounds[] | select(.protocol == "dokodemo-door")')
+                dokodemo_count=$(echo "$existing_dokodemo" | jq -s 'length')
+                index=$((dokodemo_count + 1))
+
+                dokodemo_inbound=$(generate_dokodemo_inbound "$local_port" "$remote_host" "$remote_port" "$remark" "$index")
+                new_inbounds=$(echo "$existing_config" | jq '.inbounds // []' | jq --argjson new "$dokodemo_inbound" '. += [$new]')
+
+                # 更新配置
+                existing_outbounds=$(echo "$existing_config" | jq '.outbounds // []')
+                if [ "$(echo "$existing_outbounds" | jq 'length')" -eq 0 ]; then
+                    if [ -f "$PRIORITY_FILE" ]; then
+                        priority=$(grep -o "IPv6 优先\|IPv4 优先\|默认 (AsIs)" "$PRIORITY_FILE" | grep -o "UseIPv6v4\|UseIPv4v6\|AsIs" || echo "AsIs")
+                    else
+                        priority="AsIs"
+                    fi
+                    default_outbounds="[{\"protocol\": \"freedom\", \"settings\": {\"domainStrategy\": \"$priority\"}}]"
+                    new_config=$(echo "$existing_config" | jq --argjson inbounds "$new_inbounds" --argjson outbounds "$default_outbounds" '.inbounds = $inbounds | .outbounds = $outbounds')
+                else
+                    new_config=$(echo "$existing_config" | jq --argjson inbounds "$new_inbounds" --argjson outbounds "$existing_outbounds" '.inbounds = $inbounds | .outbounds = $outbounds')
+                fi
+
+                # 备份并写入配置
+                if [ -f "$CONFIG_PATH" ]; then
+                    timestamp=$(date +%Y%m%d%H%M%S)
+                    backup_file="${BACKUP_DIR}config_${timestamp}.json"
+                    echo "已备份现有配置到: $backup_file"
+                    cp "$CONFIG_PATH" "$backup_file"
+                fi
+                echo "写入新配置到: $CONFIG_PATH"
+                echo "$new_config" | jq . | tee "$CONFIG_PATH" > /dev/null
+                chmod 644 "$CONFIG_PATH"
+
+                # 重启 Xray 服务
+                echo "重启 Xray 服务..."
+                systemctl restart xray
+                if [[ $? -ne 0 ]]; then
+                    echo "警告：Xray 服务重启失败，查看日志..."
+                    journalctl -u xray -n 50 --no-pager
+                fi
+
+                echo "已添加 Dokodemo-door 配置：端口 $local_port -> $remote_host:$remote_port，备注：$remark"
+                ;;
+            2)  # 管理配置（列出配置，选择删除或修改）
+                existing_config=$(parse_existing_config)
+                dokodemo_configs=$(echo "$existing_config" | jq '.inbounds[] | select(.protocol == "dokodemo-door")')
+                if [ -z "$dokodemo_configs" ]; then
+                    echo "没有 Dokodemo-door 配置可管理"
+                    continue
+                fi
+
+                echo "当前 Dokodemo-door 配置："
+                # 列出配置，IPv6 地址加 []
+                echo "$dokodemo_configs" | jq -r '
+                    if (.settings.address | test("^[0-9a-f:]+$")) then
+                        "[\(.tag)] 端口: \(.port), 远程: [\(.settings.address)]:\(.settings.port)"
+                    else
+                        "[\(.tag)] 端口: \(.port), 远程: \(.settings.address):\(.settings.port)"
+                    end' | nl -w2 -s". "
+
+                read -p "请输入要管理的配置编号（0 取消）：" manage_index
+                if [ "$manage_index" == "0" ]; then
+                    continue
+                fi
+
+                if ! [[ "$manage_index" =~ ^[0-9]+$ ]] || [ "$manage_index" -lt 1 ] || [ "$manage_index" -gt "$(echo "$dokodemo_configs" | jq -s 'length')" ]; then
+                    echo "无效编号"
+                    continue
+                fi
+
+                # 获取选定配置
+                manage_tag=$(echo "$dokodemo_configs" | jq -s ".[$((manage_index-1))].tag" | tr -d '"')
+                current_port=$(echo "$dokodemo_configs" | jq -s ".[$((manage_index-1))].port")
+                current_remote_host=$(echo "$dokodemo_configs" | jq -s ".[$((manage_index-1))].settings.address" | tr -d '"')
+                current_remote_port=$(echo "$dokodemo_configs" | jq -s ".[$((manage_index-1))].settings.port")
+                current_remark=$(echo "$manage_tag" | sed 's/^dokodemo-\(.*\)-[0-9]*$/\1/')
+                current_index=$(echo "$manage_tag" | sed 's/^dokodemo-.*-\([0-9]*\)$/\1/')
+
+                echo "已选择配置：端口 $current_port, 远程 $current_remote_host:$current_remote_port, 备注 $current_remark"
+                echo "请选择操作："
+                echo "1. 删除配置"
+                echo "2. 修改配置"
+                echo "0. 取消"
+                read -p "请输入选项 (0-2): " manage_action
+                case $manage_action in
+                    1)  # 删除配置
+                        new_inbounds=$(echo "$existing_config" | jq ".inbounds | map(select(.tag != \"$manage_tag\"))")
+                        existing_outbounds=$(echo "$existing_config" | jq '.outbounds // []')
+                        new_config=$(echo "$existing_config" | jq --argjson inbounds "$new_inbounds" --argjson outbounds "$existing_outbounds" '.inbounds = $inbounds | .outbounds = $outbounds')
+
+                        # 备份并写入配置
+                        if [ -f "$CONFIG_PATH" ]; then
+                            timestamp=$(date +%Y%m%d%H%M%S)
+                            backup_file="${BACKUP_DIR}config_${timestamp}.json"
+                            echo "已备份现有配置到: $backup_file"
+                            cp "$CONFIG_PATH" "$backup_file"
+                        fi
+                        echo "写入新配置到: $CONFIG_PATH"
+                        echo "$new_config" | jq . | tee "$CONFIG_PATH" > /dev/null
+                        chmod 644 "$CONFIG_PATH"
+
+                        # 重启 Xray 服务
+                        echo "重启 Xray 服务..."
+                        systemctl restart xray
+                        if [[ $? -ne 0 ]]; then
+                            echo "警告：Xray 服务重启失败，查看日志..."
+                            journalctl -u xray -n 50 --no-pager
+                        fi
+
+                        echo "已删除 Dokodemo-door 配置：$manage_tag"
+                        ;;
+                    2)  # 修改配置
+                        echo "请输入新值（留空保持不变）："
+                        read -p "本地端口 [$current_port]: " new_port
+                        new_port=${new_port:-$current_port}
+                        if [ "$new_port" != "$current_port" ]; then
+                            validate_port "$new_port" || continue
+                            existing_ports=$(get_existing_ports "$existing_config")
+                            if echo "$existing_ports" | grep -q "^$new_port$" && [ "$new_port" != "$current_port" ]; then
+                                echo "错误：端口 $new_port 已占用"
+                                continue
+                            fi
+                        fi
+
+                        read -p "远程地址 [$current_remote_host]: " new_remote_host
+                        new_remote_host=${new_remote_host:-$current_remote_host}
+                        validate_address "$new_remote_host" || continue
+
+                        read -p "远程端口 [$current_remote_port]: " new_remote_port
+                        new_remote_port=${new_remote_port:-$current_remote_port}
+                        validate_port "$new_remote_port" || continue
+
+                        read -p "备注 [$current_remark]: " new_remark
+                        new_remark=${new_remark:-$current_remark}
+
+                        # 更新配置
+                        dokodemo_inbound=$(generate_dokodemo_inbound "$new_port" "$new_remote_host" "$new_remote_port" "$new_remark" "$current_index")
+                        new_inbounds=$(echo "$existing_config" | jq ".inbounds | map(if .tag == \"$manage_tag\" then $dokodemo_inbound else . end)")
+                        existing_outbounds=$(echo "$existing_config" | jq '.outbounds // []')
+                        new_config=$(echo "$existing_config" | jq --argjson inbounds "$new_inbounds" --argjson outbounds "$existing_outbounds" '.inbounds = $inbounds | .outbounds = $outbounds')
+
+                        # 备份并写入配置
+                        if [ -f "$CONFIG_PATH" ]; then
+                            timestamp=$(date +%Y%m%d%H%M%S)
+                            backup_file="${BACKUP_DIR}config_${timestamp}.json"
+                            echo "已备份现有配置到: $backup_file"
+                            cp "$CONFIG_PATH" "$backup_file"
+                        fi
+                        echo "写入新配置到: $CONFIG_PATH"
+                        echo "$new_config" | jq . | tee "$CONFIG_PATH" > /dev/null
+                        chmod 644 "$CONFIG_PATH"
+
+                        # 重启 Xray 服务
+                        echo "重启 Xray 服务..."
+                        systemctl restart xray
+                        if [[ $? -ne 0 ]]; then
+                            echo "警告：Xray 服务重启失败，查看日志..."
+                            journalctl -u xray -n 50 --no-pager
+                        fi
+
+                        echo "已修改 Dokodemo-door 配置：端口 $new_port -> $new_remote_host:$new_remote_port，备注：$new_remark"
+                        ;;
+                    0)
+                        echo "已取消操作"
+                        ;;
+                    *)
+                        echo "无效选择，请重试。"
+                        ;;
+                esac
+                ;;
+            0)
+                break
+                ;;
+            *)
+                echo "无效选择，请重试。"
+                ;;
+        esac
+    done
+}
+
+# 显示菜单
 show_menu() {
     echo "请选择操作："
     echo "1. 安装协议"
     echo "2. 删除协议"
-    echo "3. 查看配置状态"
-    echo "4. 卸载 Xray"
-    echo "5. 设置出口优先级"
+    echo "3. 管理 Dokodemo-door 配置"
+    echo "4. 设置出口优先级"
+    echo "5. 卸载 Xray"
     echo "0. 退出"
 }
 
@@ -372,7 +626,7 @@ cleanup_old_backups
 
 while true; do
     show_menu
-    read -p "请输入选项 (0-5): " choice
+    read -p "请输入选项 (0-6): " choice
     case $choice in
         1)  # 安装协议
             echo "请选择要安装的协议（可多选，用空格分隔）："
@@ -435,21 +689,22 @@ while true; do
                 continue
             fi
             ;;
-        3)  # 查看配置状态
-            show_status
+        3)  # 管理 Dokodemo-door
+            manage_dokodemo
             continue
             ;;
-        4)  # 卸载 Xray
+        4)  # 设置出口优先级
+            install_xray  # 确保 Xray 已安装
+            set_priority
+            continue
+            ;;
+        5)  # 卸载 Xray
             if ! command -v xray &> /dev/null; then
                 echo "错误：检测到 Xray 未安装，无法执行卸载操作。"
                 continue
             fi
             remove_xray
             exit 0
-            ;;
-        5)  # 设置出口优先级
-            set_priority
-            continue
             ;;
         0)
             exit 0
@@ -460,7 +715,7 @@ while true; do
             ;;
     esac
 
-    # 如果选择了安装选项，确保 Xray 已安装
+    # 如果选择了协议安装，确保 Xray 已安装
     if $install_socks5 || $install_vmess || $install_shadowsocks; then
         install_xray
     fi
@@ -536,7 +791,6 @@ while true; do
 
     # 设置 skip_update 逻辑
     if $remove_vmess && $remove_socks5 && $remove_shadowsocks; then
-        # 删除所有协议：如果没有任何协议存在，则跳过更新
         if [ "$(echo "$existing_inbounds" | jq 'length')" -eq 0 ]; then
             skip_update=true
             echo "配置文件中没有任何协议配置，无需删除。"
@@ -544,11 +798,9 @@ while true; do
             skip_update=false
         fi
     elif $remove_vmess || $remove_socks5 || $remove_shadowsocks; then
-        # 只删除部分协议：如果所选协议都不存在，则跳过更新
         if ($remove_vmess && $vmess_not_found) && ($remove_socks5 && $socks5_not_found) && ($remove_shadowsocks && $shadowsocks_not_found); then
             skip_update=true
         elif ! $install_socks5 && ! $install_vmess && ! $install_shadowsocks; then
-            # 如果没有安装操作，且至少有一种协议存在，则不跳过更新
             skip_update=false
         fi
     fi
@@ -562,20 +814,18 @@ while true; do
         config_changed=true
     fi
 
-    # 检查并设置 outbounds（应用优先级）
+    # 检查并设置 outbounds
     existing_outbounds=$(echo "$existing_config" | jq '.outbounds // []')
-    # 读取当前优先级（若存在）
-    if [ -f "$PRIORITY_FILE" ]; then
-        priority=$(grep -o "IPv6 优先\|IPv4 优先\|默认 (AsIs)" "$PRIORITY_FILE" | grep -o "UseIPv6v4\|UseIPv4v6\|AsIs" || echo "AsIs")
-    else
-        priority="AsIs"
-    fi
     if [ "$(echo "$existing_outbounds" | jq 'length')" -eq 0 ]; then
+        if [ -f "$PRIORITY_FILE" ]; then
+            priority=$(grep -o "IPv6 优先\|IPv4 优先\|默认 (AsIs)" "$PRIORITY_FILE" | grep -o "UseIPv6v4\|UseIPv4v6\|AsIs" || echo "AsIs")
+        else
+            priority="AsIs"
+        fi
         default_outbounds="[{\"protocol\": \"freedom\", \"settings\": {\"domainStrategy\": \"$priority\"}}]"
         new_config=$(echo "$existing_config" | jq --argjson inbounds "$all_inbounds" --argjson outbounds "$default_outbounds" '.inbounds = $inbounds | .outbounds = $outbounds')
     else
-        new_outbounds=$(echo "$existing_outbounds" | jq ".[0].settings.domainStrategy = \"$priority\"")
-        new_config=$(echo "$existing_config" | jq --argjson inbounds "$all_inbounds" --argjson outbounds "$new_outbounds" '.inbounds = $inbounds | .outbounds = $outbounds')
+        new_config=$(echo "$existing_config" | jq --argjson inbounds "$all_inbounds" --argjson outbounds "$existing_outbounds" '.inbounds = $inbounds | .outbounds = $outbounds')
     fi
 
     # 如果没有任何操作，或者设置了跳过更新标志，直接跳过
@@ -600,9 +850,11 @@ while true; do
         chmod 644 "$CONFIG_PATH"
 
         # 重启 Xray 服务
-        if systemctl is-active xray > /dev/null; then
-            echo "重启 Xray 服务..."
-            systemctl restart xray
+        echo "重启 Xray 服务..."
+        systemctl restart xray
+        if [[ $? -ne 0 ]]; then
+            echo "警告：Xray 服务重启失败，查看日志..."
+            journalctl -u xray -n 50 --no-pager
         fi
 
         # 删除对应的输出文件
