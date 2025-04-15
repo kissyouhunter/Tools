@@ -243,8 +243,7 @@ generate_dokodemo_inbound() {
   },
   "tag": "dokodemo-${remark}-${index}",
   "sniffing": {
-    "enabled": true,
-    "destOverride": ["http", "tls"]
+    "enabled": false
   }
 }
 EOF
