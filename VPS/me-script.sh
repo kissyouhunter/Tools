@@ -4,7 +4,7 @@ apt update
 sleep 1
 sudo timedatectl set-timezone Asia/Shanghai
 sleep 1
-cat > /etc/sysctl.conf << EOF
+cat >> /etc/sysctl.conf << EOF
 fs.file-max = 6815744
 net.ipv4.tcp_no_metrics_save=1
 net.ipv4.tcp_ecn=0
