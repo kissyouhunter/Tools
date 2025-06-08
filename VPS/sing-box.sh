@@ -248,7 +248,8 @@ add_shadowsocks() {
         "method": "chacha20-ietf-poly1305",
         "password": "'"$password"'",
         "tag": "ss-'"$port"'",
-        "sniff": false
+        "sniff": false,
+        "tcp_fast_open": true
     }]' "$CONFIG_FILE" > "${CONFIG_FILE}.tmp" && mv "${CONFIG_FILE}.tmp" "$CONFIG_FILE"
     ensure_outbounds
     sing-box check -c "$CONFIG_FILE" || echo -e "${RED}配置文件验证失败，请检查日志！${NC}"
@@ -271,6 +272,8 @@ add_shadowsocks() {
     echo -e "${RED}调试提示：${NC}"
     echo "- 验证客户端配置（密码、IP、端口）。"
     echo "- 检查防火墙或云安全组是否允许入站流量。"
+    echo "- 确保系统支持 TCP Fast Open（检查 'sysctl net.ipv4.tcp_fastopen'）。"
+    echo "- 若连接失败，尝试启用嗅探（手动设置 'sniff: true'）。"
     echo "- 使用 'journalctl -u sing-box -f' 检查日志。"
     
     # 保存到文件并提示
@@ -308,7 +311,8 @@ add_vmess() {
             "path": "/m3u8"
         },
         "tag": "vmess-'"$port"'",
-        "sniff": false
+        "sniff": false,
+        "tcp_fast_open": true
     }]' "$CONFIG_FILE" > "${CONFIG_FILE}.tmp" && mv "${CONFIG_FILE}.tmp" "$CONFIG_FILE"
     ensure_outbounds
     sing-box check -c "$CONFIG_FILE" || echo -e "${RED}配置文件验证失败，请检查日志！${NC}"
@@ -344,6 +348,8 @@ add_vmess() {
     echo -e "${RED}调试提示：${NC}"
     echo "- 验证客户端配置（UUID、IP、端口、WebSocket 路径）。"
     echo "- 检查防火墙或云安全组是否允许入站流量。"
+    echo "- 确保系统支持 TCP Fast Open（检查 'sysctl net.ipv4.tcp_fastopen'）。"
+    echo "- 若连接失败，尝试启用嗅探（手动设置 'sniff: true'）。"
     echo "- 使用 'journalctl -u sing-box -f' 检查日志。"
     
     # 保存到文件并提示
