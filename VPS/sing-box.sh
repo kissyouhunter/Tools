@@ -207,30 +207,56 @@ ensure_outbounds() {
 
 # 设置日志级别
 set_log_level() {
-    echo "=== 设置日志级别 ==="
-    echo "1. info（默认）"
-    echo "2. debug（详细）"
-    read -p "请选择一个选项: " level_choice
-    
-    backup_config
-    case "$level_choice" in
-        1)
-            jq '.log.level = "info"' "$CONFIG_FILE" > "${CONFIG_FILE}.tmp" && mv "${CONFIG_FILE}.tmp" "$CONFIG_FILE"
-            echo "日志级别已设置为 info"
-            ;;
-        2)
-            jq '.log.level = "debug"' "$CONFIG_FILE" > "${CONFIG_FILE}.tmp" && mv "${CONFIG_FILE}.tmp" "$CONFIG_FILE"
-            echo "日志级别已设置为 debug"
-            ;;
-        *)
-            echo "无效选项"
-            read -p "按回车继续..."
-            return 1
-            ;;
-    esac
-    systemctl restart "$SERVICE_NAME"
-    echo "服务已自动重启以应用配置。"
-    echo "请使用 'journalctl -u sing-box -f' 查看详细日志。"
+    while true; do
+        echo "=== 设置日志级别 ==="
+        echo "1. info（默认）"
+        echo "2. debug（详细）"
+        echo "0. 返回主菜单"
+        read -p "请选择一个选项: " level_choice
+        
+        case "$level_choice" in
+            1)
+                backup_config
+                jq '.log.level = "info"' "$CONFIG_FILE" > "${CONFIG_FILE}.tmp" && mv "${CONFIG_FILE}.tmp" "$CONFIG_FILE"
+                echo "日志级别已设置为 info"
+                systemctl restart "$SERVICE_NAME"
+                echo "服务已自动重启以应用配置。"
+                echo "请使用 'journalctl -u sing-box -f' 查看详细日志。"
+                echo "0. 返回主菜单"
+                while true; do
+                    read -p "请输入选项: " return_choice
+                    if [[ "$return_choice" == "0" ]]; then
+                        return
+                    else
+                        echo "无效选项，请输入 0 返回主菜单。"
+                    fi
+                done
+                ;;
+            2)
+                backup_config
+                jq '.log.level = "debug"' "$CONFIG_FILE" > "${CONFIG_FILE}.tmp" && mv "${CONFIG_FILE}.tmp" "$CONFIG_FILE"
+                echo "日志级别已设置为 debug"
+                systemctl restart "$SERVICE_NAME"
+                echo "服务已自动重启以应用配置。"
+                echo "请使用 'journalctl -u sing-box -f' 查看详细日志。"
+                echo "0. 返回主菜单"
+                while true; do
+                    read -p "请输入选项: " return_choice
+                    if [[ "$return_choice" == "0" ]]; then
+                        return
+                    else
+                        echo "无效选项，请输入 0 返回主菜单。"
+                    fi
+                done
+                ;;
+            0)
+                return
+                ;;
+            *)
+                echo "无效选项，请重新输入。"
+                ;;
+        esac
+    done
 }
 
 # 添加 Shadowsocks 入站
@@ -288,6 +314,7 @@ add_shadowsocks() {
         echo ""
     } >> "$CONFIG_OUTPUT"
     echo -e "配置已保存到 ${GREEN}$CONFIG_OUTPUT${NC}"
+    read -p "按回车继续..."
 }
 
 # 添加 VMess 入站
@@ -365,43 +392,75 @@ add_vmess() {
         echo ""
     } >> "$CONFIG_OUTPUT"
     echo -e "配置已保存到 ${GREEN}$CONFIG_OUTPUT${NC}"
+    read -p "按回车继续..."
 }
 
 # 删除入站配置
 delete_inbound() {
-    echo "当前入站配置:"
-    inbounds=$(jq -r '.inbounds | to_entries | map("\(.key + 1). \(.value.tag) (协议: \(.value.type), 端口: \(.value.listen_port))") | .[]' "$CONFIG_FILE")
-    if [[ -z "$inbounds" ]]; then
-        echo "没有可删除的入站配置。"
-        read -p "按回车继续..."
-        return 1
-    fi
-    echo "$inbounds"
-    read -p "请输入要删除的序号: " choice
-    if ! [[ "$choice" =~ ^[0-9]+$ ]] || [[ "$choice" -lt 1 ]] || [[ "$choice" -gt $(jq '.inbounds | length' "$CONFIG_FILE") ]]; then
-        echo "无效的序号。"
-        read -p "按回车继续..."
-        return 1
-    fi
-    index=$((choice-1))
-    tag=$(jq -r ".inbounds[$index].tag" "$CONFIG_FILE")
-    protocol=$(jq -r ".inbounds[$index].type" "$CONFIG_FILE")
-    port=$(jq -r ".inbounds[$index].listen_port" "$CONFIG_FILE")
-    echo "即将删除配置:"
-    echo "标签: $tag"
-    echo "协议: $protocol"
-    echo "端口: $port"
-    read -p "确认删除？(y/n): " confirm
-    if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
-        echo "已取消删除。"
-        read -p "按回车继续..."
-        return 1
-    fi
-    backup_config
-    jq "del(.inbounds[$index])" "$CONFIG_FILE" > "${CONFIG_FILE}.tmp" && mv "${CONFIG_FILE}.tmp" "$CONFIG_FILE"
-    systemctl restart "$SERVICE_NAME"
-    echo "入站配置 $tag 已删除"
-    echo "服务已自动重启以应用配置。"
+    while true; do
+        echo "当前入站配置:"
+        inbounds=$(jq -r '.inbounds | to_entries | map("\(.key + 1). \(.value.tag) (协议: \(.value.type), 端口: \(.value.listen_port))") | .[]' "$CONFIG_FILE")
+        if [[ -z "$inbounds" ]]; then
+            echo "没有可删除的入站配置。"
+            echo "0. 返回主菜单"
+            read -p "请输入选项: " return_choice
+            if [[ "$return_choice" == "0" ]]; then
+                return
+            else
+                echo "无效选项，请输入 0 返回主菜单。"
+                continue
+            fi
+        fi
+        echo "$inbounds"
+        echo "0. 返回主菜单"
+        read -p "请输入要删除的序号或 0 返回: " choice
+        if [[ "$choice" == "0" ]]; then
+            return
+        fi
+        if ! [[ "$choice" =~ ^[0-9]+$ ]] || [[ "$choice" -lt 1 ]] || [[ "$choice" -gt $(jq '.inbounds | length' "$CONFIG_FILE") ]]; then
+            echo "无效的序号。"
+            echo "0. 返回主菜单"
+            read -p "请输入选项: " return_choice
+            if [[ "$return_choice" == "0" ]]; then
+                return
+            else
+                echo "无效选项，请输入 0 返回主菜单。"
+                continue
+            fi
+        fi
+        index=$((choice-1))
+        tag=$(jq -r ".inbounds[$index].tag" "$CONFIG_FILE")
+        protocol=$(jq -r ".inbounds[$index].type" "$CONFIG_FILE")
+        port=$(jq -r ".inbounds[$index].listen_port" "$CONFIG_FILE")
+        echo "即将删除配置:"
+        echo "标签: $tag"
+        echo "协议: $protocol"
+        echo "端口: $port"
+        read -p "确认删除？(y/n): " confirm
+        if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
+            echo "已取消删除。"
+            echo "0. 返回主菜单"
+            read -p "请输入选项: " return_choice
+            if [[ "$return_choice" == "0" ]]; then
+                return
+            else
+                echo "无效选项，请输入 0 返回主菜单。"
+                continue
+            fi
+        fi
+        backup_config
+        jq "del(.inbounds[$index])" "$CONFIG_FILE" > "${CONFIG_FILE}.tmp" && mv "${CONFIG_FILE}.tmp" "$CONFIG_FILE"
+        systemctl restart "$SERVICE_NAME"
+        echo "入站配置 $tag 已删除"
+        echo "服务已自动重启以应用配置。"
+        echo "0. 返回主菜单"
+        read -p "请输入选项: " return_choice
+        if [[ "$return_choice" == "0" ]]; then
+            return
+        else
+            echo "无效选项，请输入 0 返回主菜单。"
+        fi
+    done
 }
 
 # 在启动时检查必要命令并获取服务器 IP
@@ -520,22 +579,18 @@ while true; do
             ;;
         "设置日志级别")
             set_log_level
-            read -p "按回车继续..."
             ;;
         "查看日志")
             journalctl -u "$SERVICE_NAME" -f
             ;;
         "添加 Shadowsocks")
             add_shadowsocks
-            read -p "按回车继续..."
             ;;
         "添加 VMess")
             add_vmess
-            read -p "按回车继续..."
             ;;
         "删除入站配置")
             delete_inbound
-            read -p "按回车继续..."
             ;;
         *)
             echo "无效选项"
