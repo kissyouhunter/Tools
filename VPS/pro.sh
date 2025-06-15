@@ -23,27 +23,76 @@ NC='\033[0m' # No Color
 show_progress() {
     local duration=$1
     local message=$2
-    local progress=0
-    local bar_length=30
+    local command=$3
     
-    echo -ne "${CYAN}${message}${NC}\n"
-    while [ $progress -le 100 ]; do
-        local filled=$((progress * bar_length / 100))
-        local empty=$((bar_length - filled))
+    echo -e "${CYAN}${message}${NC}"
+    
+    # 如果没有提供命令，使用原来的假进度条
+    if [ -z "$command" ]; then
+        local progress=0
+        local bar_length=30
         
-        printf "\r${BLUE}["
+        while [ $progress -le 100 ]; do
+            local filled=$((progress * bar_length / 100))
+            local empty=$((bar_length - filled))
+            
+            printf "\r${BLUE}["
+            printf "%*s" $filled | tr ' ' '='
+            printf "%*s" $empty | tr ' ' ' '
+            printf "] ${WHITE}%d%%${NC}" $progress
+            
+            sleep $(echo "scale=2; $duration/100" | bc -l 2>/dev/null || echo "0.05")
+            progress=$((progress + 5))
+        done
+        echo
+        return 0
+    fi
+    
+    # 后台执行实际命令，重定向所有输出
+    eval "$command" >/dev/null 2>&1 &
+    local cmd_pid=$!
+    
+    # 前台显示进度条，直到命令完成
+    local progress=0
+    local spinner_chars="⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
+    local spinner_index=0
+    
+    while kill -0 $cmd_pid 2>/dev/null; do
+        # 显示旋转指示器和进度条
+        local spinner_char=${spinner_chars:$spinner_index:1}
+        printf "\r${BLUE}${spinner_char} ["
+        
+        # 绘制进度条
+        local filled=$((progress * 30 / 100))
+        local empty=$((30 - filled))
         printf "%*s" $filled | tr ' ' '='
         printf "%*s" $empty | tr ' ' ' '
-        printf "] ${WHITE}%d%%${NC}" $progress
+        printf "] ${WHITE}%d%% ${message}...${NC}" $progress
         
-        sleep $(echo "scale=2; $duration/100" | bc -l 2>/dev/null || echo "0.05")
-        progress=$((progress + 5))
+        sleep 0.2
+        progress=$(((progress + 2) % 95))  # 保持在95%以下直到完成
+        spinner_index=$(((spinner_index + 1) % ${#spinner_chars}))
     done
-    echo
+    
+    # 等待命令完成并获取结果
+    wait $cmd_pid
+    local cmd_result=$?
+    
+    # 显示最终结果
+    if [ $cmd_result -eq 0 ]; then
+        printf "\r${GREEN}✓ ["
+        printf "%*s" 30 | tr ' ' '='
+        printf "] ${WHITE}100%% ${message} 完成${NC}\n"
+        return 0
+    else
+        printf "\r${RED}✗ ["
+        printf "%*s" 30 | tr ' ' '='
+        printf "] ${WHITE}100%% ${message} 失败${NC}\n"
+        return 1
+    fi
 }
 
 # --- 函数定义 ---
-
 check_root() {
     if [ "$EUID" -ne 0 ]; then
         echo -e "${RED}本脚本需要以 root 用户执行，请使用 sudo 或以 root 用户执行。${NC}"
@@ -92,9 +141,8 @@ start_xray() {
     fi
     
     echo -e "${CYAN}正在启动 Xray 服务...${NC}"
-    show_progress 2 "启动中"
+    show_progress 2 "启动 Xray 服务" "systemctl start xray"
     
-    systemctl start xray
     if [ $? -eq 0 ]; then
         echo -e "${GREEN}✓ Xray 服务启动成功${NC}"
     else
@@ -112,9 +160,8 @@ stop_xray() {
     fi
     
     echo -e "${CYAN}正在停止 Xray 服务...${NC}"
-    show_progress 2 "停止中"
-    
-    systemctl stop xray
+    show_progress 2 "停止 Xray 服务" "systemctl stop xray"
+
     if [ $? -eq 0 ]; then
         echo -e "${GREEN}✓ Xray 服务停止成功${NC}"
     else
@@ -125,9 +172,8 @@ stop_xray() {
 # 重启Xray服务
 restart_xray() {
     echo -e "${CYAN}正在重启 Xray 服务...${NC}"
-    show_progress 3 "重启中"
-    
-    systemctl restart xray
+    show_progress 3 "重启 Xray 服务" "systemctl restart xray"
+
     if [ $? -eq 0 ]; then
         echo -e "${GREEN}✓ Xray 服务重启成功${NC}"
     else
@@ -145,9 +191,8 @@ enable_xray() {
     fi
     
     echo -e "${CYAN}正在启用 Xray 开机自启...${NC}"
-    show_progress 1 "设置中"
+    show_progress 1 "启用开机自启" "systemctl enable xray"
     
-    systemctl enable xray
     if [ $? -eq 0 ]; then
         echo -e "${GREEN}✓ Xray 开机自启启用成功${NC}"
     else
@@ -163,9 +208,8 @@ disable_xray() {
     fi
     
     echo -e "${CYAN}正在禁用 Xray 开机自启...${NC}"
-    show_progress 1 "设置中"
+    show_progress 1 "禁用开机自启" "systemctl disable xray"
     
-    systemctl disable xray
     if [ $? -eq 0 ]; then
         echo -e "${GREEN}✓ Xray 开机自启禁用成功${NC}"
     else
@@ -183,15 +227,15 @@ cleanup_old_backups() {
 ensure_jq_installed() {
     if ! command -v jq &> /dev/null; then
         echo -e "${YELLOW}jq 未安装，正在尝试自动安装...${NC}"
-        show_progress 3 "安装 jq"
+        
         if [ -f /etc/os-release ]; then
             . /etc/os-release
             case $ID in
                 ubuntu|debian)
-                    sudo apt update && sudo apt install -y jq
+                    show_progress 5 "安装 jq" "apt update -qq && apt install -y jq"
                     ;;
                 centos|rhel)
-                    sudo yum install -y jq
+                    show_progress 5 "安装 jq" "yum install -y jq"
                     ;;
                 *)
                     echo -e "${RED}不支持的系统，请手动安装 jq${NC}"
@@ -202,7 +246,13 @@ ensure_jq_installed() {
             echo -e "${RED}无法检测系统类型，请手动安装 jq${NC}"
             exit 1
         fi
+        
+        if [ $? -ne 0 ]; then
+            echo -e "${RED}jq 安装失败，请手动安装 jq 后重试${NC}"
+            exit 1
+        fi
     fi
+    
     if ! command -v jq &> /dev/null; then
         echo -e "${RED}jq 安装失败，请手动安装 jq 后重试${NC}"
         exit 1
@@ -215,15 +265,15 @@ ensure_jq_installed() {
 ensure_uuidgen_installed() {
     if ! command -v uuidgen &> /dev/null; then
         echo -e "${YELLOW}uuidgen 未安装，正在尝试自动安装...${NC}"
-        show_progress 3 "安装 uuidgen"
+        
         if [ -f /etc/os-release ]; then
             . /etc/os-release
             case $ID in
                 ubuntu|debian)
-                    sudo apt update && sudo apt install -y uuid-runtime
+                    show_progress 5 "安装 uuidgen" "apt update -qq && apt install -y uuid-runtime"
                     ;;
                 centos|rhel)
-                    sudo yum install -y libuuid
+                    show_progress 5 "安装 uuidgen" "yum install -y libuuid"
                     ;;
                 *)
                     echo -e "${RED}不支持的系统，请手动安装 uuidgen${NC}"
@@ -234,7 +284,13 @@ ensure_uuidgen_installed() {
             echo -e "${RED}无法检测系统类型，请手动安装 uuidgen${NC}"
             exit 1
         fi
+        
+        if [ $? -ne 0 ]; then
+            echo -e "${RED}uuidgen 安装失败，请手动安装后重试${NC}"
+            exit 1
+        fi
     fi
+    
     if ! command -v uuidgen &> /dev/null; then
         echo -e "${RED}uuidgen 安装失败，请手动安装后重试${NC}"
         exit 1
@@ -501,8 +557,8 @@ validate_address() {
 install_xray() {
     if ! command -v xray &> /dev/null; then
         echo -e "${CYAN}安装 Xray...${NC}"
-        show_progress 5 "下载并安装 Xray"
-        bash -c "$(curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" @ install
+        show_progress 10 "下载并安装 Xray" 'bash -c "$(curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" @ install'
+        
         if [[ $? -ne 0 ]]; then
             echo -e "${RED}Xray 安装失败，请检查错误信息并重试。${NC}"
             exit 1
@@ -518,8 +574,8 @@ remove_xray() {
     local lower_confirm=$(echo "$confirm" | tr '[:upper:]' '[:lower:]')
     if [[ "$lower_confirm" == "y" ]]; then
         echo -e "${CYAN}卸载 Xray...${NC}"
-        show_progress 3 "卸载中"
-        bash -c "$(curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" @ remove
+        show_progress 5 "卸载 Xray" 'bash -c "$(curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" @ remove'
+        
         rm -rf "$BACKUP_DIR"
         rm -rf "$LOG_DIR"
         rm -f "$VMESS_OUTPUT_FILE"
@@ -589,8 +645,7 @@ set_priority() {
     # 重启 Xray 服务
     if systemctl is-active xray > /dev/null; then
         echo -e "${CYAN}重启 Xray 服务...${NC}"
-        show_progress 2 "重启中"
-        systemctl restart xray
+        show_progress 2 "重启 Xray 服务" "systemctl restart xray"
         if [[ $? -ne 0 ]]; then
             echo -e "${RED}警告：Xray 服务重启失败，查看日志...${NC}"
             journalctl -u xray -n 50 --no-pager
@@ -674,8 +729,7 @@ manage_dokodemo() {
 
                 # 重启 Xray 服务
                 echo -e "${CYAN}重启 Xray 服务...${NC}"
-                show_progress 2 "重启中"
-                systemctl restart xray
+                show_progress 2 "重启 Xray 服务" "systemctl restart xray"
                 if [[ $? -ne 0 ]]; then
                     echo -e "${RED}警告：Xray 服务重启失败，查看日志...${NC}"
                     journalctl -u xray -n 50 --no-pager
@@ -743,8 +797,7 @@ manage_dokodemo() {
 
                         # 重启 Xray 服务
                         echo -e "${CYAN}重启 Xray 服务...${NC}"
-                        show_progress 2 "重启中"
-                        systemctl restart xray
+                        show_progress 2 "重启 Xray 服务" "systemctl restart xray"
                         if [[ $? -ne 0 ]]; then
                             echo -e "${RED}警告：Xray 服务重启失败，查看日志...${NC}"
                             journalctl -u xray -n 50 --no-pager
@@ -795,8 +848,7 @@ manage_dokodemo() {
 
                         # 重启 Xray 服务
                         echo -e "${CYAN}重启 Xray 服务...${NC}"
-                        show_progress 2 "重启中"
-                        systemctl restart xray
+                        show_progress 2 "重启 Xray 服务" "systemctl restart xray"
                         if [[ $? -ne 0 ]]; then
                             echo -e "${RED}警告：Xray 服务重启失败，查看日志...${NC}"
                             journalctl -u xray -n 50 --no-pager
@@ -1212,8 +1264,7 @@ while true; do
 
         # 重启 Xray 服务
         echo -e "${CYAN}重启 Xray 服务...${NC}"
-        show_progress 2 "重启中"
-        systemctl restart xray
+        show_progress 2 "重启 Xray 服务" "systemctl restart xray"
         if [[ $? -ne 0 ]]; then
             echo -e "${RED}警告：Xray 服务重启失败，查看日志...${NC}"
             journalctl -u xray -n 50 --no-pager
