@@ -779,12 +779,30 @@ main() {
         exit 1
     fi
     
-    # 检查必要命令
-    for cmd in jq curl systemctl; do
-        if ! command -v "$cmd" >/dev/null 2>&1; then
-            echo -e "${RED}缺少必要命令: $cmd${NC}"
-            echo "请先安装: $cmd"
-            exit 1
+    declare -A debian_pkg=( [jq]=jq [uuidgen]=uuid-runtime [curl]=curl )
+    declare -A redhat_pkg=( [jq]=jq [uuidgen]=util-linux [curl]=curl )
+    declare -A arch_pkg=( [jq]=jq [uuidgen]=util-linux [curl]=curl )
+
+    # 检查并安装依赖
+    for cmd in jq uuidgen curl; do
+        if ! command -v $cmd >/dev/null 2>&1; then
+            echo "未检测到 $cmd，正在尝试自动安装..."
+            if command -v apt >/dev/null 2>&1; then
+                sudo apt update
+                sudo apt install -y "${debian_pkg[$cmd]}"
+            elif command -v yum >/dev/null 2>&1; then
+                sudo yum install -y epel-release
+                sudo yum install -y "${redhat_pkg[$cmd]}"
+            elif command -v dnf >/dev/null 2>&1; then
+                sudo dnf install -y "${redhat_pkg[$cmd]}"
+            elif command -v pacman >/dev/null 2>&1; then
+                sudo pacman -Sy --noconfirm "${arch_pkg[$cmd]}"
+            elif command -v apk >/dev/null 2>&1; then
+                sudo apk add "${alpine_pkg[$cmd]}"
+            else
+                echo "未能识别的包管理器，请手动安装 $cmd。"
+                exit 1
+            fi
         fi
     done
     
