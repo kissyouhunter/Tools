@@ -1143,7 +1143,8 @@ while true; do
         fi
     fi
     if $remove_shadowsocks; then
-        if ! echo "$existing_inbounds" | jq -e '.[] | select(.protocol == "shadowsocks")' > /dev/null; then            echo -e "${YELLOW}配置文件中未找到 Shadowsocks 配置${NC}"
+        if ! echo "$existing_inbounds" | jq -e '.[] | select(.protocol == "shadowsocks")' > /dev/null; then
+            echo -e "${YELLOW}配置文件中未找到 Shadowsocks 配置${NC}"
             shadowsocks_not_found=true
         fi
     fi
