@@ -183,6 +183,21 @@ restart_xray() {
     fi
 }
 
+# 升级 Xray
+upgrade_xray() {
+    if ! command -v xray &>/dev/null; then
+        echo -e "${RED}检测到 Xray 未安装，无法升级。${NC}"
+        return 1
+    fi
+    echo -e "${CYAN}正在升级 Xray...${NC}"
+    show_progress 8 "升级 Xray" 'bash -c "$(curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" @ install'
+    if [ $? -eq 0 ]; then
+        echo -e "${GREEN}✓ Xray 升级完成${NC}"
+    else
+        echo -e "${RED}✗ Xray 升级失败，请检查日志${NC}"
+    fi
+}
+
 # 启用开机自启
 enable_xray() {
     if systemctl is-enabled --quiet xray; then
@@ -882,8 +897,13 @@ show_status() {
     if command -v xray &> /dev/null; then
         echo -e "${CYAN}运行状态:${NC} $(check_xray_status)"
         echo -e "${CYAN}开机自启:${NC} $(check_xray_enabled)"
-        
-        # 只有在 Xray 已安装时才显示出口优先级
+
+        # 版本: 仅显示 "Xray 25.8.3"
+        xr_ver_line="$(xray version 2>/dev/null | head -n 1)"
+        xr_ver_short="$(echo "$xr_ver_line" | grep -Eo 'Xray[[:space:]]+[0-9]+\.[0-9]+\.[0-9]+' || echo "$xr_ver_line")"
+        echo -e "${CYAN}版本:${NC} ${GREEN}${xr_ver_short}${NC}"
+
+        # 出口优先级
         if [ -f "$PRIORITY_FILE" ]; then
             priority_desc=$(cat "$PRIORITY_FILE")
             echo -e "${CYAN}出口优先级:${NC} ${GREEN}$priority_desc${NC}"
@@ -893,7 +913,6 @@ show_status() {
     else
         echo -e "${CYAN}运行状态:${NC} ${YELLOW}未安装${NC}"
         echo -e "${CYAN}开机自启:${NC} ${YELLOW}未安装${NC}"
-        # Xray 未安装时不显示出口优先级
     fi
 }
 
@@ -946,6 +965,10 @@ show_menu() {
             ((menu_count++))
         fi
         
+        # 新增升级功能
+        menu_options+=("升级 Xray")
+        echo -e "${WHITE}${menu_count}.${NC} 升级 Xray"; ((menu_count++))
+
         # 开机自启管理 - 根据状态动态显示
         if systemctl is-enabled --quiet xray 2>/dev/null; then
             # 已启用开机自启
@@ -1117,6 +1140,11 @@ while true; do
                     fi
                     remove_xray
                     exit 0
+                    ;;
+                "升级 Xray")
+                    upgrade_xray
+                    read -p "按任意键继续..."
+                    continue
                     ;;
                 *)
                     echo -e "${RED}未知选项${NC}"
