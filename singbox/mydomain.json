@@ -1,0 +1,28 @@
+{
+  "version": 2,
+  "rules": [
+    {
+      "domain_suffix": [
+        "991231.xyz",
+        "999773.xyz",
+        "olft.cc",
+        "doti.cc",
+        "kissnb.cc",
+        "eu.org",
+        "dedyn.io",
+        "kissyouhunter.one",
+        "kisssik.in",
+        "ks0.cc",
+        "kisssik.top",
+        "kuh9.bid",
+        "nbde.men",
+        "sg0.cc",
+        "nodeseek.com",
+        "hostloc.com",
+        "oicp.top",
+        "ussg.cc",
+        "zgpo.top"
+      ]
+    }
+  ]
+}
