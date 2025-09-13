@@ -1,0 +1,21 @@
+{
+  "version": 2,
+  "rules": [
+    {
+      "domain_suffix": [
+        "qpyou.cn",
+        "hubstudio.io",
+        "hubstudio.vip",
+        "misakaf.org",
+        "bulianglin.com",
+        "duckyci.com",
+        "bulianglin.com",
+        "leonardo.ai",
+        "herokuapp.com",
+        "sehuatang.ne",
+        "nodeseek.com",
+        "hostloc.com"
+      ]
+    }
+  ]
+}
