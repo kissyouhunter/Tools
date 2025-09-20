@@ -206,6 +206,47 @@ generate_uuid() {
     fi
 }
 
+generate_tls_cert() {
+    local cert_dir="/etc/sing-box"
+    local cert_path="$cert_dir/server.crt"
+    local key_path="$cert_dir/server.key"
+    local openssl_cfg
+    openssl_cfg=$(mktemp)
+
+    cat > "$openssl_cfg" << 'EOF'
+[ req ]
+distinguished_name = req_distinguished_name
+x509_extensions    = v3_req
+prompt             = no
+
+[ req_distinguished_name ]
+CN = bing.com
+
+[ v3_req ]
+subjectAltName = @alt_names
+
+[ alt_names ]
+DNS.1 = bing.com
+DNS.2 = www.bing.com
+EOF
+
+    mkdir -p "$cert_dir"
+
+    echo "生成自签名证书..."
+    openssl req -x509 -newkey ec:<(openssl ecparam -name prime256v1) \
+        -keyout "$key_path" \
+        -out "$cert_path" \
+        -days 36500 \
+        -nodes \
+        -extensions v3_req \
+        -config "$openssl_cfg" >/dev/null 2>&1
+
+    chmod 600 "$key_path"
+    chmod 644 "$cert_path"
+    rm -f "$openssl_cfg"
+    echo -e "${GREEN}证书生成完成: $cert_path, $key_path${NC}"
+}
+
 # 自动获取服务器IP
 get_server_ips() {
     echo "正在自动获取服务器IP地址..."
@@ -347,6 +388,43 @@ generate_vmess_config() {
 EOF
 }
 
+generate_anytls_config() {
+    local port=$1
+    local username=$2
+    local password=$3
+    cat << EOF
+{
+  "type": "anytls",
+  "listen": "::",
+  "listen_port": $port,
+  "tag": "anytls-$port",
+  "users": [
+    {
+      "name": "$username",
+      "password": "$password"
+    }
+  ],
+  "padding_scheme": [
+    "stop=7",
+    "0=20-50",
+    "1=100-200",
+    "2=400-800,c,800-1200",
+    "3=50-100,300-600",
+    "4=500-800",
+    "5=50-200",
+    "6=10-10"
+  ],
+  "tls": {
+    "enabled": true,
+    "server_name": "bing.com",
+    "certificate_path": "/etc/sing-box/server.crt",
+    "key_path": "/etc/sing-box/server.key",
+    "alpn": ["h2","http/1.1"]
+  }
+}
+EOF
+}
+
 # 生成分享链接
 generate_share_links() {
     local protocol=$1
@@ -461,6 +539,50 @@ add_vmess() {
     fi
 }
 
+add_anytls() {
+    echo -e "${BLUE}添加 AnyTLS 配置${NC}"
+    generate_tls_cert
+
+    local port
+    port=$(random_port)
+    local username="sekai"
+    local client_id
+    client_id=$(generate_uuid)
+
+    # 生成服务端配置：用户名保留，密码使用 client_id
+    local config
+    config=$(generate_anytls_config "$port" "$username" "$client_id")
+
+    if safe_config_update ".inbounds += [$config]"; then
+        echo -e "${GREEN}AnyTLS 配置添加成功${NC}"
+        echo "端口: $port"
+        restart_service_with_feedback
+
+        local tag="anytls-${port}"
+        local share_links=""
+
+        # IPv6 链接（存在时）
+        if [[ -n "$SERVER_IPV6" ]]; then
+            local link6="anytls://${client_id}@[${SERVER_IPV6}]:${port}?insecure=1&allowInsecure=1#${tag}"
+            echo -e "${GREEN}分享链接 IPv6: ${link6}${NC}"
+            share_links+="$link6"$'\n'
+        fi
+
+        # IPv4 链接（存在时）
+        if [[ -n "$SERVER_IPV4" ]]; then
+            local link4="anytls://${client_id}@${SERVER_IPV4}:${port}?insecure=1&allowInsecure=1#${tag}"
+            echo -e "${GREEN}分享链接 IPv4: ${link4}${NC}"
+            share_links+="$link4"$'\n'
+        fi
+
+        # 保存两条链接（或现有的一条）
+        save_config_to_file "AnyTLS" "$port" "$share_links"
+    else
+        echo -e "${RED}添加 AnyTLS 配置失败${NC}"
+        return 1
+    fi
+}
+
 # 查看当前配置
 view_config() {
     echo -e "${BLUE}当前配置信息${NC}"
@@ -517,15 +639,20 @@ delete_config() {
             local config_info
             config_info=$(echo "$inbounds" | sed -n "${choice}p")
             
-            # 确认删除
             if confirm_action "确定要删除配置 [$config_info] 吗？"; then
                 backup_config
                 if safe_config_update "del(.inbounds[] | select(.listen_port == $port))"; then
                     echo -e "${GREEN}配置删除成功${NC}"
                     restart_service_with_feedback
                     
-                    # 删除对应的配置文件（从/root目录）
+                    # 删除对应的配置文件（从 /root 目录）
                     find /root/ -name "*_${port}.txt" -delete 2>/dev/null || true
+
+                    # 如果删除的是 AnyTLS，则同时删除证书和私钥
+                    if [[ "$config_info" == *"anytls"* ]]; then
+                        rm -f /etc/sing-box/server.crt /etc/sing-box/server.key
+                        echo -e "${YELLOW}已删除 AnyTLS 证书和私钥${NC}"
+                    fi
                 else
                     echo -e "${RED}配置删除失败${NC}"
                 fi
@@ -689,7 +816,11 @@ show_menu() {
     
     # 检查sing-box是否已安装
     if command -v sing-box >/dev/null 2>&1; then
-        echo -e "${GREEN}✓ sing-box 已安装${NC}"
+        # 获取版本号，仅保留纯版本
+        local version
+        version=$(sing-box version 2>/dev/null | head -n1 | awk '{print $3}' || echo "未知")
+
+        printf "${GREEN}✓ sing-box 已安装${NC} ${BLUE}(v%s)${NC}\n" "$version"
         
         # 显示详细服务状态
         local status
@@ -746,9 +877,7 @@ show_menu() {
         ((menu_num++))
         echo "$menu_num. 查看服务日志"
         ((menu_num++))
-        echo "$menu_num. 添加 Shadowsocks 配置"
-        ((menu_num++))
-        echo "$menu_num. 添加 VMess 配置"
+        echo "$menu_num. 添加协议"
         ((menu_num++))
         echo "$menu_num. 查看当前配置"
         ((menu_num++))
@@ -876,26 +1005,34 @@ main() {
                     journalctl -u sing-box -f --no-pager
                     ;;
                 $((menu_num+2)))
-                    add_shadowsocks
+                    echo "请选择协议类型："
+                    echo "1) Shadowsocks"
+                    echo "2) VMess"
+                    echo "3) AnyTLS"
+                    read -p "输入序号: " proto_choice
+                    case "$proto_choice" in
+                        1) add_shadowsocks;
+                        ;;
+                        2) add_vmess;
+                        ;;
+                        3) add_anytls;
+                        ;;
+                    esac
                     wait_for_return
                     ;;
                 $((menu_num+3)))
-                    add_vmess
-                    wait_for_return
-                    ;;
-                $((menu_num+4)))
                     view_config
                     wait_for_return
                     ;;
-                $((menu_num+5)))
+                $((menu_num+4)))
                     delete_config
                     wait_for_return
                     ;;
-                $((menu_num+6)))
+                $((menu_num+5)))
                     get_server_ips
                     wait_for_return
                     ;;
-                $((menu_num+7)))
+                $((menu_num+6)))
                     uninstall_singbox
                     # 卸载后会直接退出，不会到这里
                     ;;
