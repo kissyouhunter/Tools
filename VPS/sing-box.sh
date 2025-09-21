@@ -195,57 +195,32 @@ random_port() {
 
 # 生成随机密码
 random_password() {
-    openssl rand -base64 32 | tr -d "=+/" | cut -c1-25
+    sing-box generate rand 12 --hex
 }
 
 # 生成UUID
 generate_uuid() {
-    if command -v uuidgen >/dev/null 2>&1; then
-        uuidgen
-    else
-        cat /proc/sys/kernel/random/uuid
-    fi
+    sing-box generate uuid
 }
 
-generate_tls_cert() {
-    local cert_dir="/etc/sing-box"
-    local cert_path="$cert_dir/server.crt"
-    local key_path="$cert_dir/server.key"
-    local openssl_cfg
-    openssl_cfg=$(mktemp)
+generate_anytls_tls_cert() {
+  local cert_dir="/etc/sing-box"
+  mkdir -p "$cert_dir"
 
-    cat > "$openssl_cfg" << 'EOF'
-[ req ]
-distinguished_name = req_distinguished_name
-x509_extensions    = v3_req
-prompt             = no
+  echo "生成自签名证书..."
 
-[ req_distinguished_name ]
-CN = bing.com
+  # ① 生成合并 PEM → ② awk 拆分 → ③ 丢弃中间文件
+  sing-box generate tls-keypair 'bing.com,www.bing.com' -m 120 |
+    tee "$cert_dir/server.pem" |
+    awk '/-----BEGIN PRIVATE KEY-----/,/-----END PRIVATE KEY-----/ {print > "'"$cert_dir"'/server.key"}
+         /-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/ {print > "'"$cert_dir"'/server.crt"}'
 
-[ v3_req ]
-subjectAltName = @alt_names
+  rm -f "$cert_dir/server.pem"           # 不保留合并文件
 
-[ alt_names ]
-DNS.1 = bing.com
-DNS.2 = www.bing.com
-EOF
+  chmod 600 "$cert_dir/server.key"
+  chmod 644 "$cert_dir/server.crt"
 
-    mkdir -p "$cert_dir"
-
-    echo "生成自签名证书..."
-    openssl req -x509 -newkey ec:<(openssl ecparam -name prime256v1) \
-        -keyout "$key_path" \
-        -out "$cert_path" \
-        -days 36500 \
-        -nodes \
-        -extensions v3_req \
-        -config "$openssl_cfg" >/dev/null 2>&1
-
-    chmod 600 "$key_path"
-    chmod 644 "$cert_path"
-    rm -f "$openssl_cfg"
-    echo -e "${GREEN}证书生成完成: $cert_path, $key_path${NC}"
+  echo -e "${GREEN}证书生成完成: $cert_dir/server.crt, $cert_dir/server.key${NC}"
 }
 
 # 自动获取服务器IP，并在获取后自动设置优先级
@@ -667,7 +642,7 @@ add_vmess() {
 # 添加Anytls配置
 add_anytls() {
     echo -e "${BLUE}添加 AnyTLS 配置${NC}"
-    generate_tls_cert
+    generate_anytls_tls_cert
 
     local port
     port=$(random_port)
@@ -1063,12 +1038,12 @@ main() {
         exit 1
     fi
     
-    declare -A debian_pkg=( [jq]=jq [uuidgen]=uuid-runtime [curl]=curl )
-    declare -A redhat_pkg=( [jq]=jq [uuidgen]=util-linux [curl]=curl )
-    declare -A arch_pkg=( [jq]=jq [uuidgen]=util-linux [curl]=curl )
+    declare -A debian_pkg=( [jq]=jq [curl]=curl )
+    declare -A redhat_pkg=( [jq]=jq [curl]=curl )
+    declare -A arch_pkg=( [jq]=jq [curl]=curl )
 
     # 检查并安装依赖
-    for cmd in jq uuidgen curl; do
+    for cmd in jq curl; do
         if ! command -v $cmd >/dev/null 2>&1; then
             echo "未检测到 $cmd，正在尝试自动安装..."
             if command -v apt >/dev/null 2>&1; then
