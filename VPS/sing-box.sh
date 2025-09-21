@@ -19,6 +19,7 @@ TEMP_DIR="/tmp/singbox_$$"
 # 全局变量
 SERVER_IPV4=""
 SERVER_IPV6=""
+CURRENT_PRIORITY=""  # 新增：存储当前优先级
 
 # 全局错误处理函数
 error_handler() {
@@ -247,7 +248,7 @@ EOF
     echo -e "${GREEN}证书生成完成: $cert_path, $key_path${NC}"
 }
 
-# 自动获取服务器IP
+# 自动获取服务器IP，并在获取后自动设置优先级
 get_server_ips() {
     echo "正在自动获取服务器IP地址..."
     
@@ -282,6 +283,63 @@ get_server_ips() {
         echo -e "${YELLOW}⚠ 未能获取到服务器IP地址${NC}"
         echo -e "${YELLOW}  这不会影响服务运行，但会影响分享链接生成${NC}"
     fi
+
+    # 自动设置优先级
+    auto_set_priority
+}
+
+# 获取当前优先级
+get_current_priority() {
+    if [[ -f "$CONFIG_FILE" ]]; then
+        local strategy=$(jq -r '.outbounds[0].domain_resolver.strategy // "system"' "$CONFIG_FILE" 2>/dev/null)
+        case "$strategy" in
+            "prefer_ipv6"|"ipv6_only") echo "ipv6" ;;
+            "prefer_ipv4"|"ipv4_only") echo "ipv4" ;;
+            *) echo "system" ;;
+        esac
+    else
+        echo "system"
+    fi
+}
+
+# 设置 outbounds 优先级
+set_priority() {
+    local pref=$1  # "ipv4" or "ipv6"
+
+    # 确保 DNS 配置存在
+    safe_config_update 'if .dns == null then .dns = {"servers": [{"tag": "local", "type": "local"}]} else . end'
+
+    # 设置 outbounds.domain_resolver
+    local strategy
+    if [[ "$pref" == "ipv6" ]]; then
+        strategy="prefer_ipv6"
+    else
+        strategy="prefer_ipv4"
+    fi
+
+    safe_config_update '.outbounds[0].domain_resolver = {"server": "local", "strategy": "'"$strategy"'"}'
+
+    # 更新全局变量
+    CURRENT_PRIORITY=$(get_current_priority)
+
+    # 重启服务
+    restart_service_with_feedback
+}
+
+# 自动设置优先级（基于 IP 可用性）
+auto_set_priority() {
+    if [[ -n "$SERVER_IPV4" && -n "$SERVER_IPV6" ]]; then
+        set_priority "ipv6"
+        echo -e "${GREEN}已自动设置 outbounds 为 IPv6 优先${NC}"
+    elif [[ -n "$SERVER_IPV4" ]]; then
+        set_priority "ipv4"
+        echo -e "${GREEN}已自动设置 outbounds 为 IPv4 优先${NC}"
+    elif [[ -n "$SERVER_IPV6" ]]; then
+        set_priority "ipv6"
+        echo -e "${GREEN}已自动设置 outbounds 为 IPv6 优先${NC}"
+    else
+        echo -e "${YELLOW}无可用 IP，未设置 outbounds 优先级${NC}"
+    fi
 }
 
 # 备份配置
@@ -306,7 +364,7 @@ backup_config() {
     fi
 }
 
-# 强制初始化配置目录和文件[1]
+# 强制初始化配置目录和文件（添加基本 DNS 配置）
 force_initialize_config() {
     echo -e "${BLUE}强制初始化sing-box配置${NC}"
     
@@ -323,12 +381,20 @@ force_initialize_config() {
     mkdir -p "$(dirname "$CONFIG_FILE")"
     mkdir -p "$BACKUP_DIR"
     
-    # 创建基础配置文件
+    # 创建基础配置文件（添加 DNS）
     cat > "$CONFIG_FILE" << 'EOF'
 {
     "log": {
         "level": "info",
         "timestamp": true
+    },
+    "dns": {
+        "servers": [
+            {
+                "tag": "local",
+                "type": "local"
+            }
+        ]
     },
     "inbounds": [],
     "outbounds": [
@@ -350,6 +416,26 @@ EOF
 }
 
 # 生成配置模板
+generate_socks5_config() {
+    local port=$1
+    local username=$2
+    local password=$3
+    cat << EOF
+{
+    "type": "socks",
+    "listen": "::",
+    "listen_port": $port,
+    "tag": "socks5-$port",
+    "users": [
+        {
+            "username": "$username",
+            "password": "$password"
+        }
+    ]
+}
+EOF
+}
+
 generate_shadowsocks_config() {
     local port=$1
     local password=$2
@@ -362,7 +448,6 @@ generate_shadowsocks_config() {
     "method": "chacha20-ietf-poly1305",
     "password": "$password",
     "tag": "ss-$port",
-    "sniff": false,
     "tcp_fast_open": true
 }
 EOF
@@ -483,6 +568,46 @@ EOF
     echo -e "${GREEN}配置已保存到: $config_file${NC}"
 }
 
+# 添加Socks5配置
+add_socks5() {
+    echo -e "${BLUE}添加 SOCKS5 配置${NC}"
+
+    local port=$(random_port)
+    # 生成随机 username（长小写字符串，基于您的偏好）
+    local username=$(tr -dc 'a-z' < /dev/urandom | head -c 12)  # 12位小写字母
+    local password=$(random_password)  # 使用脚本中的 random_password 函数
+
+    local config
+    config=$(generate_socks5_config "$port" "$username" "$password")
+
+    if safe_config_update ".inbounds += [$config]"; then
+        echo -e "${GREEN}SOCKS5 配置添加成功${NC}"
+        echo "端口: $port"
+        echo "用户名: $username"
+        echo "密码: $password"
+
+        restart_service_with_feedback
+
+        # 生成新的分享链接格式
+        local share_links=""
+        if [[ -n "$SERVER_IPV4" ]]; then
+            local link4="${SERVER_IPV4}:${port}:${username}:${password}"
+            echo -e "${GREEN}分享链接 IPv4: ${link4}${NC}"
+            share_links+="$link4"$'\n'
+        fi
+        if [[ -n "$SERVER_IPV6" ]]; then
+            local link6="[${SERVER_IPV6}]:${port}:${username}:${password}"
+            echo -e "${GREEN}分享链接 IPv6: ${link6}${NC}"
+            share_links+="$link6"$'\n'
+        fi
+
+        save_config_to_file "SOCKS5" "$port" "$share_links"
+    else
+        echo -e "${RED}添加 SOCKS5 配置失败${NC}"
+        return 1
+    fi
+}
+
 # 添加Shadowsocks配置
 add_shadowsocks() {
     echo -e "${BLUE}添加Shadowsocks配置${NC}"
@@ -539,6 +664,7 @@ add_vmess() {
     fi
 }
 
+# 添加Anytls配置
 add_anytls() {
     echo -e "${BLUE}添加 AnyTLS 配置${NC}"
     generate_tls_cert
@@ -608,66 +734,69 @@ view_config() {
     echo "IPv6地址: ${SERVER_IPV6:-"未获取"}"
 }
 
-# 删除配置（增加确认）
-delete_config() {
-    echo -e "${BLUE}删除配置${NC}"
-    
-    if [[ ! -f "$CONFIG_FILE" ]]; then
-        echo -e "${RED}配置文件不存在${NC}"
-        return 1
-    fi
-    
-    local inbounds
-    inbounds=$(jq -r '.inbounds[] | select(.listen_port != null) | "\(.listen_port) - \(.type) - \(.tag)"' "$CONFIG_FILE" 2>/dev/null)
-    
-    if [[ -z "$inbounds" ]]; then
-        echo -e "${YELLOW}暂无可删除的配置${NC}"
-        return 0
-    fi
-    
-    echo -e "${GREEN}当前配置:${NC}"
-    echo "$inbounds" | nl
-    echo ""
-    
-    read -p "请输入要删除的配置编号: " choice
-    
-    if [[ "$choice" =~ ^[0-9]+$ ]]; then
-        local port
-        port=$(echo "$inbounds" | sed -n "${choice}p" | cut -d' ' -f1)
-        
-        if [[ -n "$port" ]]; then
-            local config_info
-            config_info=$(echo "$inbounds" | sed -n "${choice}p")
-            
-            if confirm_action "确定要删除配置 [$config_info] 吗？"; then
-                backup_config
-                if safe_config_update "del(.inbounds[] | select(.listen_port == $port))"; then
-                    echo -e "${GREEN}配置删除成功${NC}"
-                    restart_service_with_feedback
-                    
-                    # 删除对应的配置文件（从 /root 目录）
-                    find /root/ -name "*_${port}.txt" -delete 2>/dev/null || true
+# 删除协议（原删除配置，添加子菜单循环）
+delete_protocol() {
+  while true; do
+    echo -e "${BLUE}删除协议${NC}"
 
-                    # 如果删除的是 AnyTLS，则同时删除证书和私钥
-                    if [[ "$config_info" == *"anytls"* ]]; then
-                        rm -f /etc/sing-box/server.crt /etc/sing-box/server.key
-                        echo -e "${YELLOW}已删除 AnyTLS 证书和私钥${NC}"
-                    fi
-                else
-                    echo -e "${RED}配置删除失败${NC}"
-                fi
-            else
-                echo -e "${YELLOW}取消删除操作${NC}"
-            fi
-        else
-            echo -e "${RED}无效的选择${NC}"
-        fi
-    else
-        echo -e "${RED}请输入有效的数字${NC}"
+    if [[ ! -f "$CONFIG_FILE" ]]; then
+      echo -e "${RED}配置文件不存在${NC}"
+      break
     fi
+
+    local inbounds
+    inbounds=$(jq -r '.inbounds[] | select(.listen_port != null) |
+                      "\(.listen_port) - \(.type) - \(.tag)"' "$CONFIG_FILE" 2>/dev/null)
+
+    if [[ -z "$inbounds" ]]; then
+      echo -e "${YELLOW}暂无可删除的配置${NC}"
+      break
+    fi
+
+    echo -e "${GREEN}当前配置:${NC}"
+    echo "$inbounds" | awk '{printf("%d  %s\n", NR, $0)}'
+    echo "0) 返回上级目录"
+    read -p "请输入要删除的配置编号: " choice
+
+    # ---------- 处理返回 ----------
+    [[ "$choice" == "0" ]] && break
+
+    # ---------- 正常删除 ----------
+    if [[ "$choice" =~ ^[0-9]+$ ]]; then
+      local port
+      port=$(echo "$inbounds" | sed -n "${choice}p" | cut -d' ' -f1)
+
+      if [[ -n "$port" ]]; then
+        local cfg_info
+        cfg_info=$(echo "$inbounds" | sed -n "${choice}p")
+
+        if confirm_action "确定要删除 [$cfg_info] 吗？"; then
+          backup_config
+          if safe_config_update "del(.inbounds[] | select(.listen_port == $port))"; then
+            echo -e "${GREEN}配置删除成功${NC}"
+            restart_service_with_feedback
+            find /root/ -name "*_${port}.txt" -delete 2>/dev/null || true
+            [[ "$cfg_info" == *"anytls"* ]] && {
+              rm -f /etc/sing-box/server.{crt,key}
+              echo -e "${YELLOW}已删除 AnyTLS 证书和私钥${NC}"
+            }
+          else
+            echo -e "${RED}配置删除失败${NC}"
+          fi
+        else
+          echo -e "${YELLOW}取消删除操作${NC}"
+        fi
+      else
+        echo -e "${RED}无效选择${NC}"
+      fi
+    else
+      echo -e "${RED}请输入有效数字${NC}"
+    fi
+    echo
+  done
 }
 
-# 安装sing-box（仅使用curl脚本）[1]
+# 安装sing-box（仅使用curl脚本）
 install_singbox() {
     echo -e "${BLUE}安装sing-box${NC}"
     
@@ -840,7 +969,7 @@ show_menu() {
             echo -e "${YELLOW}⚠ 开机自启未启用${NC}"
         fi
         
-        # 显示服务器IP信息[4]
+        # 显示服务器IP信息
         if [[ -n "$SERVER_IPV4" || -n "$SERVER_IPV6" ]]; then
             echo ""
             echo -e "${GREEN}服务器信息:${NC}"
@@ -848,9 +977,21 @@ show_menu() {
             [[ -n "$SERVER_IPV6" ]] && echo "  IPv6: $SERVER_IPV6"
         fi
         
+        # 显示当前优先级
+        CURRENT_PRIORITY=$(get_current_priority)
+        echo ""
+        echo -e "${GREEN}当前优先级:${NC}"
+        if [[ "$CURRENT_PRIORITY" == "ipv6" ]]; then
+            echo "  IPv6优先"
+        elif [[ "$CURRENT_PRIORITY" == "ipv4" ]]; then
+            echo "  IPv4优先"
+        else
+            echo "  系统默认 (通常IPv4优先)"
+        fi
+        
         echo ""
         
-        # 根据服务状态显示相应的菜单选项[6]
+        # 根据服务状态显示相应的菜单选项
         local menu_num=1
         
         # 服务控制选项（根据当前状态显示）
@@ -873,18 +1014,32 @@ show_menu() {
             ((menu_num++))
         fi
         
-        echo "$menu_num. 查看服务状态"
-        ((menu_num++))
         echo "$menu_num. 查看服务日志"
         ((menu_num++))
         echo "$menu_num. 添加协议"
         ((menu_num++))
-        echo "$menu_num. 查看当前配置"
+        echo "$menu_num. 删除协议"
         ((menu_num++))
-        echo "$menu_num. 删除配置"
+        echo "$menu_num. 查看当前配置"
         ((menu_num++))
         echo "$menu_num. 刷新服务器IP"
         ((menu_num++))
+
+        # 动态添加优先级切换选项，并记录编号
+        SWITCH_PRIORITY_NUM=0  # 默认0，表示无
+        if [[ -n "$SERVER_IPV4" && -n "$SERVER_IPV6" ]]; then  # 只有双栈时才允许切换
+            if [[ "$CURRENT_PRIORITY" == "ipv6" ]]; then
+                SWITCH_PRIORITY_NUM=$menu_num
+                echo "$menu_num. 切换到IPv4优先"
+                ((menu_num++))
+            elif [[ "$CURRENT_PRIORITY" == "ipv4" ]]; then
+                SWITCH_PRIORITY_NUM=$menu_num
+                echo "$menu_num. 切换到IPv6优先"
+                ((menu_num++))
+            fi
+        fi
+        
+        UNINSTALL_NUM=$menu_num  # 卸载编号跟随在上一个后
         echo "$menu_num. 卸载 sing-box"
         echo "0. 退出"
     else
@@ -935,7 +1090,7 @@ main() {
         fi
     done
     
-    # 如果sing-box已安装，自动获取服务器IP[4]
+    # 如果sing-box已安装，自动获取服务器IP
     if command -v sing-box >/dev/null 2>&1; then
         get_server_ips
     fi
@@ -995,56 +1150,67 @@ main() {
             fi
             
             # 其他固定选项处理
-            case $choice in
-                $menu_num)
-                    systemctl status sing-box --no-pager -l
-                    wait_for_return
-                    ;;
-                $((menu_num+1)))
-                    echo -e "${BLUE}查看服务日志 (按 Ctrl+C 退出)${NC}"
-                    journalctl -u sing-box -f --no-pager
-                    ;;
-                $((menu_num+2)))
+            if [[ "$choice" == "$menu_num" ]]; then
+                echo -e "${BLUE}查看服务日志 (按 Ctrl+C 退出)${NC}"
+                journalctl -u sing-box -f --no-pager
+            elif [[ "$choice" == $((menu_num+1)) ]]; then
+                # 添加协议（添加子菜单循环）
+                while true; do
                     echo "请选择协议类型："
-                    echo "1) Shadowsocks"
-                    echo "2) VMess"
-                    echo "3) AnyTLS"
+                    echo "1) Socks5"
+                    echo "2) Shadowsocks"
+                    echo "3) VMess"
+                    echo "4) AnyTLS"
+                    echo "0. 返回上级目录"
                     read -p "输入序号: " proto_choice
+                    if [[ "$proto_choice" == "0" ]]; then
+                        break
+                    fi
                     case "$proto_choice" in
-                        1) add_shadowsocks;
-                        ;;
-                        2) add_vmess;
-                        ;;
-                        3) add_anytls;
-                        ;;
+                        1) add_socks5 ;;
+                        2) add_shadowsocks ;;
+                        3) add_vmess ;;
+                        4) add_anytls ;;
+                        *) echo -e "${RED}无效选项${NC}" ;;
                     esac
-                    wait_for_return
-                    ;;
-                $((menu_num+3)))
-                    view_config
-                    wait_for_return
-                    ;;
-                $((menu_num+4)))
-                    delete_config
-                    wait_for_return
-                    ;;
-                $((menu_num+5)))
-                    get_server_ips
-                    wait_for_return
-                    ;;
-                $((menu_num+6)))
-                    uninstall_singbox
-                    # 卸载后会直接退出，不会到这里
-                    ;;
-                0)
-                    echo -e "${GREEN}感谢使用！${NC}"
-                    exit 0
-                    ;;
-                *)
-                    echo -e "${RED}无效选项，请重新选择${NC}"
-                    sleep 2
-                    ;;
-            esac
+                done
+            elif [[ "$choice" == $((menu_num+2)) ]]; then
+                # 删除协议（添加子菜单循环）
+                while true; do
+                    delete_protocol
+                    echo ""
+                    echo "0. 返回上级目录"
+                    read -p "请选择: " sub_choice
+                    if [[ "$sub_choice" == "0" ]]; then
+                        break
+                    fi
+                done
+            elif [[ "$choice" == $((menu_num+3)) ]]; then
+                view_config
+                wait_for_return
+            elif [[ "$choice" == $((menu_num+4)) ]]; then
+                get_server_ips
+                wait_for_return
+            elif [[ $SWITCH_PRIORITY_NUM -ne 0 && "$choice" == "$SWITCH_PRIORITY_NUM" ]]; then
+                # 动态优先级切换
+                if [[ "$CURRENT_PRIORITY" == "ipv6" ]]; then
+                    set_priority "ipv4"
+                    echo -e "${GREEN}已切换到 IPv4 优先${NC}"
+                elif [[ "$CURRENT_PRIORITY" == "ipv4" ]]; then
+                    set_priority "ipv6"
+                    echo -e "${GREEN}已切换到 IPv6 优先${NC}"
+                fi
+                wait_for_return
+            elif [[ "$choice" == "$UNINSTALL_NUM" ]]; then
+                uninstall_singbox
+                # 卸载后会直接退出，不会到这里
+            elif [[ "$choice" == "0" ]]; then
+                echo -e "${GREEN}感谢使用！${NC}"
+                exit 0
+            else
+                echo -e "${RED}无效选项，请重新选择${NC}"
+                sleep 2
+            fi
         else
             # sing-box未安装的菜单逻辑
             case $choice in
