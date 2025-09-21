@@ -203,10 +203,46 @@ generate_uuid() {
     sing-box generate uuid
 }
 
+generate_short_id() {
+  local bytes=4
+  short_id=$(sing-box generate rand "$bytes" --hex)
+}
+
+generate_reality_keys() {
+  local key_dir="/etc/sing-box"
+  local priv="$key_dir/reality.key"      # 私钥
+  local pub="$key_dir/reality.pubkey"    # 公钥
+
+  # 两个文件都在就直接复用
+  [[ -f $priv && -f $pub ]] && return
+
+  mkdir -p "$key_dir"
+
+  # sing-box 输出：
+  # PrivateKey: <base64>   （独占一行）
+  # PublicKey:  <base64>
+  local priv_val pub_val
+  priv_val=$(sing-box generate reality-keypair | grep '^PrivateKey:' | awk '{print $2}')
+  pub_val=$(sing-box generate reality-keypair | grep '^PublicKey:'  | awk '{print $2}')
+
+  # 写入文件
+  echo "$priv_val" >"$priv"
+  echo "$pub_val"  >"$pub"
+  chmod 600 "$priv" "$pub"
+}
+
 generate_anytls_tls_cert() {
   local cert_dir="/etc/sing-box"
-  mkdir -p "$cert_dir"
+  local crt="$cert_dir/server.crt"
+  local key="$cert_dir/server.key"
+  
+  # 已存在则复用
+  if [[ -f $crt && -f $key ]]; then
+    echo "证书已存在，复用: $crt  $key"
+    return
+  fi
 
+  mkdir -p "$cert_dir"
   echo "生成自签名证书..."
 
   # ① 生成合并 PEM → ② awk 拆分 → ③ 丢弃中间文件
@@ -485,6 +521,38 @@ generate_anytls_config() {
 EOF
 }
 
+generate_vless_reality_config() {
+  local port="$1" uuid="$2" sid="$3"
+  cat <<EOF
+{
+  "type": "vless",
+  "tag": "vless-$port",
+  "listen": "::",
+  "listen_port": $port,
+  "users": [
+    {
+      "name": "sekai",
+      "uuid": "$uuid",
+      "flow": "xtls-rprx-vision"
+    }
+  ],
+  "tls": {
+    "enabled": true,
+    "server_name": "www.bing.com",
+    "reality": {
+      "enabled": true,
+      "handshake": {
+        "server": "www.bing.com",
+        "server_port": 443,
+    },
+      "private_key": "$(cat /etc/sing-box/reality.key)",
+      "short_id": "$sid"
+    }
+  }
+}
+EOF
+}
+
 # 生成分享链接
 generate_share_links() {
     local protocol=$1
@@ -684,6 +752,45 @@ add_anytls() {
     fi
 }
 
+add_vless_reality() {
+  echo -e "${BLUE}添加 Vless-Reality-Vision 配置${NC}"
+  generate_reality_keys
+
+  local port=$(random_port)
+  local uuid=$(generate_uuid)
+  generate_short_id
+
+  local cfg
+  cfg=$(generate_vless_reality_config "$port" "$uuid" "$short_id")
+
+  if safe_config_update ".inbounds += [$cfg]"; then
+    echo -e "${GREEN}已添加 VLESS-Reality-Vision:${NC}"
+    echo "端口   : $port"
+    echo "UUID   : $uuid"
+    echo "shortID: $short_id"
+    restart_service_with_feedback
+
+    # -------- 生成分享链接 --------
+    local share_links=""
+    local tag="vless-${port}"
+    local common_opts="flow=xtls-rprx-vision&encryption=none&security=reality&pbk=$(cat /etc/sing-box/reality.pubkey)&sid=${short_id}"
+
+    [[ -n "$SERVER_IPV4" ]] && \
+      share_links+="vless://${uuid}@${SERVER_IPV4}:${port}?${common_opts}#${tag}-IPv4"$'\n'
+
+    [[ -n "$SERVER_IPV6" ]] && \
+      share_links+="vless://${uuid}@[${SERVER_IPV6}]:${port}?${common_opts}#${tag}-IPv6"$'\n'
+
+    echo -e "${GREEN}分享链接:${NC}"
+    echo -e "${share_links:-无法生成（未获取到服务器IP）}"
+
+    # 保存到 /root/vless_<port>.txt
+    save_config_to_file "Vless-Reality" "$port" "$share_links"
+  else
+    echo -e "${RED}添加失败${NC}"
+  fi
+}
+
 # 查看当前配置
 view_config() {
     echo -e "${BLUE}当前配置信息${NC}"
@@ -709,52 +816,37 @@ view_config() {
     echo "IPv6地址: ${SERVER_IPV6:-"未获取"}"
 }
 
-# 删除协议（原删除配置，添加子菜单循环）
+# 删除协议
 delete_protocol() {
   while true; do
     echo -e "${BLUE}删除协议${NC}"
 
-    if [[ ! -f "$CONFIG_FILE" ]]; then
-      echo -e "${RED}配置文件不存在${NC}"
-      break
-    fi
+    [[ ! -f "$CONFIG_FILE" ]] && { echo -e "${RED}配置文件不存在${NC}"; break; }
 
     local inbounds
-    inbounds=$(jq -r '.inbounds[] | select(.listen_port != null) |
-                      "\(.listen_port) - \(.type) - \(.tag)"' "$CONFIG_FILE" 2>/dev/null)
+    inbounds=$(jq -r '.inbounds[] | select(.listen_port!=null) |
+                      "\(.listen_port) - \(.type) - \(.tag)"' "$CONFIG_FILE")
 
-    if [[ -z "$inbounds" ]]; then
-      echo -e "${YELLOW}暂无可删除的配置${NC}"
-      break
-    fi
+    [[ -z "$inbounds" ]] && { echo -e "${YELLOW}暂无可删除的配置${NC}"; break; }
 
     echo -e "${GREEN}当前配置:${NC}"
-    echo "$inbounds" | awk '{printf("%d  %s\n", NR, $0)}'
+    echo "$inbounds" | awk '{printf("%d  %s\n",NR,$0)}'
     echo "0) 返回上级目录"
     read -p "请输入要删除的配置编号: " choice
-
-    # ---------- 处理返回 ----------
     [[ "$choice" == "0" ]] && break
 
-    # ---------- 正常删除 ----------
     if [[ "$choice" =~ ^[0-9]+$ ]]; then
-      local port
+      local port cfg_info
       port=$(echo "$inbounds" | sed -n "${choice}p" | cut -d' ' -f1)
+      cfg_info=$(echo "$inbounds" | sed -n "${choice}p")
 
       if [[ -n "$port" ]]; then
-        local cfg_info
-        cfg_info=$(echo "$inbounds" | sed -n "${choice}p")
-
         if confirm_action "确定要删除 [$cfg_info] 吗？"; then
           backup_config
-          if safe_config_update "del(.inbounds[] | select(.listen_port == $port))"; then
+          if safe_config_update "del(.inbounds[] | select(.listen_port==$port))"; then
             echo -e "${GREEN}配置删除成功${NC}"
             restart_service_with_feedback
             find /root/ -name "*_${port}.txt" -delete 2>/dev/null || true
-            [[ "$cfg_info" == *"anytls"* ]] && {
-              rm -f /etc/sing-box/server.{crt,key}
-              echo -e "${YELLOW}已删除 AnyTLS 证书和私钥${NC}"
-            }
           else
             echo -e "${RED}配置删除失败${NC}"
           fi
@@ -1136,6 +1228,7 @@ main() {
                     echo "2) Shadowsocks"
                     echo "3) VMess"
                     echo "4) AnyTLS"
+                    echo "5) Vless"
                     echo "0. 返回上级目录"
                     read -p "输入序号: " proto_choice
                     if [[ "$proto_choice" == "0" ]]; then
@@ -1146,6 +1239,7 @@ main() {
                         2) add_shadowsocks ;;
                         3) add_vmess ;;
                         4) add_anytls ;;
+                        5) add_vless_reality ;;
                         *) echo -e "${RED}无效选项${NC}" ;;
                     esac
                 done
