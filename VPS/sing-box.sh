@@ -1175,16 +1175,7 @@ main() {
                     esac
                 done
             elif [[ "$choice" == $((menu_num+2)) ]]; then
-                # 删除协议（添加子菜单循环）
-                while true; do
-                    delete_protocol
-                    echo ""
-                    echo "0. 返回上级目录"
-                    read -p "请选择: " sub_choice
-                    if [[ "$sub_choice" == "0" ]]; then
-                        break
-                    fi
-                done
+                delete_protocol
             elif [[ "$choice" == $((menu_num+3)) ]]; then
                 view_config
                 wait_for_return
