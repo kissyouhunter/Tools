@@ -210,24 +210,21 @@ generate_short_id() {
 
 generate_reality_keys() {
   local key_dir="/etc/sing-box"
-  local priv="$key_dir/reality.key"      # 私钥
-  local pub="$key_dir/reality.pubkey"    # 公钥
+  local priv="$key_dir/reality.key"
+  local pub="$key_dir/reality.pubkey"
 
-  # 两个文件都在就直接复用
   [[ -f $priv && -f $pub ]] && return
 
   mkdir -p "$key_dir"
 
-  # sing-box 输出：
-  # PrivateKey: <base64>   （独占一行）
-  # PublicKey:  <base64>
-  local priv_val pub_val
-  priv_val=$(sing-box generate reality-keypair | grep '^PrivateKey:' | awk '{print $2}')
-  pub_val=$(sing-box generate reality-keypair | grep '^PublicKey:'  | awk '{print $2}')
+  local keypair_output
+  keypair_output=$(sing-box generate reality-keypair)
+  
+  local priv_val=$(echo "$keypair_output" | grep '^PrivateKey:' | awk '{print $2}')
+  local pub_val=$(echo "$keypair_output" | grep '^PublicKey:' | awk '{print $2}')
 
-  # 写入文件
   echo "$priv_val" >"$priv"
-  echo "$pub_val"  >"$pub"
+  echo "$pub_val" >"$pub"
   chmod 600 "$priv" "$pub"
 }
 
@@ -543,8 +540,8 @@ generate_vless_reality_config() {
       "enabled": true,
       "handshake": {
         "server": "www.bing.com",
-        "server_port": 443,
-    },
+        "server_port": 443
+      },
       "private_key": "$(cat /etc/sing-box/reality.key)",
       "short_id": "$sid"
     }
@@ -729,17 +726,22 @@ add_anytls() {
 
         local tag="anytls-${port}"
         local share_links=""
+        
+        # 从配置中提取 server_name 作为 SNI
+        local sni=$(echo "$config" | jq -r '.tls.server_name')
+        # 修正：使用正确的参数名
+        local common_params="insecure=1&allowInsecure=1&fp=chrome&sni=${sni}&udp=1"
 
         # IPv6 链接（存在时）
         if [[ -n "$SERVER_IPV6" ]]; then
-            local link6="anytls://${client_id}@[${SERVER_IPV6}]:${port}?insecure=1&allowInsecure=1#${tag}"
+            local link6="anytls://${client_id}@[${SERVER_IPV6}]:${port}?${common_params}#${tag}-IPv6"
             echo -e "${GREEN}分享链接 IPv6: ${link6}${NC}"
             share_links+="$link6"$'\n'
         fi
 
         # IPv4 链接（存在时）
         if [[ -n "$SERVER_IPV4" ]]; then
-            local link4="anytls://${client_id}@${SERVER_IPV4}:${port}?insecure=1&allowInsecure=1#${tag}"
+            local link4="anytls://${client_id}@${SERVER_IPV4}:${port}?${common_params}#${tag}-IPv4"
             echo -e "${GREEN}分享链接 IPv4: ${link4}${NC}"
             share_links+="$link4"$'\n'
         fi
@@ -764,22 +766,21 @@ add_vless_reality() {
   cfg=$(generate_vless_reality_config "$port" "$uuid" "$short_id")
 
   if safe_config_update ".inbounds += [$cfg]"; then
-    echo -e "${GREEN}已添加 VLESS-Reality-Vision:${NC}"
+    echo -e "${GREEN}已添加 Vless-Reality-Vision:${NC}"
     echo "端口   : $port"
     echo "UUID   : $uuid"
     echo "shortID: $short_id"
     restart_service_with_feedback
 
-    # -------- 生成分享链接 --------
-    local share_links=""
+    # 成功后生成链接
+    local sni=$(echo "$cfg" | jq -r '.tls.server_name')
+    local pbk=$(cat /etc/sing-box/reality.pubkey)
     local tag="vless-${port}"
-    local common_opts="flow=xtls-rprx-vision&encryption=none&security=reality&pbk=$(cat /etc/sing-box/reality.pubkey)&sid=${short_id}&client-fingerprint=chrome&udp=true"
+    local common_opts="encryption=none&flow=xtls-rprx-vision&security=reality&fp=chrome&pbk=${pbk}&sid=${short_id}&sni=${sni}"
 
-    [[ -n "$SERVER_IPV4" ]] && \
-      share_links+="vless://${uuid}@${SERVER_IPV4}:${port}?${common_opts}#${tag}-IPv4"$'\n'
-
-    [[ -n "$SERVER_IPV6" ]] && \
-      share_links+="vless://${uuid}@[${SERVER_IPV6}]:${port}?${common_opts}#${tag}-IPv6"$'\n'
+    local share_links=""
+    [[ -n "$SERVER_IPV4" ]] && share_links+="vless://${uuid}@${SERVER_IPV4}:${port}?${common_opts}#${tag}-IPv4"$'\n'
+    [[ -n "$SERVER_IPV6" ]] && share_links+="vless://${uuid}@[${SERVER_IPV6}]:${port}?${common_opts}#${tag}-IPv6"$'\n'
 
     echo -e "${GREEN}分享链接:${NC}"
     echo -e "${share_links:-无法生成（未获取到服务器IP）}"
