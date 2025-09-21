@@ -773,7 +773,7 @@ add_vless_reality() {
     # -------- 生成分享链接 --------
     local share_links=""
     local tag="vless-${port}"
-    local common_opts="flow=xtls-rprx-vision&encryption=none&security=reality&pbk=$(cat /etc/sing-box/reality.pubkey)&sid=${short_id}"
+    local common_opts="flow=xtls-rprx-vision&encryption=none&security=reality&pbk=$(cat /etc/sing-box/reality.pubkey)&sid=${short_id}&client-fingerprint=chrome&udp=true"
 
     [[ -n "$SERVER_IPV4" ]] && \
       share_links+="vless://${uuid}@${SERVER_IPV4}:${port}?${common_opts}#${tag}-IPv4"$'\n'
@@ -784,7 +784,6 @@ add_vless_reality() {
     echo -e "${GREEN}分享链接:${NC}"
     echo -e "${share_links:-无法生成（未获取到服务器IP）}"
 
-    # 保存到 /root/vless_<port>.txt
     save_config_to_file "Vless-Reality" "$port" "$share_links"
   else
     echo -e "${RED}添加失败${NC}"
