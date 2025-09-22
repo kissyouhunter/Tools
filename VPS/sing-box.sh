@@ -1133,6 +1133,7 @@ main() {
     declare -A debian_pkg=( [jq]=jq [curl]=curl )
     declare -A redhat_pkg=( [jq]=jq [curl]=curl )
     declare -A arch_pkg=( [jq]=jq [curl]=curl )
+    declare -A alpine_pkg=( [jq]=jq [curl]=curl )
 
     # 检查并安装依赖
     for cmd in jq curl; do
