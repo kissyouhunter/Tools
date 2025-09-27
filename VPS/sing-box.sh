@@ -314,6 +314,16 @@ get_current_priority() {
 set_priority() {
     local pref=$1  # "ipv4" or "ipv6"
 
+    # 获取当前优先级
+    local current_pref=$(get_current_priority)
+    
+    # 如果优先级没有变化，直接返回
+    if [[ "$current_pref" == "$pref" ]]; then
+        echo -e "${GREEN}优先级已经是 $pref，无需重启服务${NC}"
+        CURRENT_PRIORITY="$pref"
+        return 0
+    fi
+
     # 确保 DNS 配置存在
     safe_config_update 'if .dns == null then .dns = {"servers": [{"tag": "local", "type": "local"}]} else . end'
 
