@@ -509,7 +509,7 @@ generate_anytls_config() {
   ],
   "tls": {
     "enabled": true,
-    "server_name": "bing.com",
+    "server_name": "www.bing.com",
     "certificate_path": "/etc/sing-box/server.crt",
     "key_path": "/etc/sing-box/server.key",
     "alpn": ["h2","http/1.1"]
