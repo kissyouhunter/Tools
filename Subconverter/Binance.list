@@ -1,0 +1,139 @@
+# NAME: Binance Enhanced
+# AUTHOR: Converted from StricklandF/Filter
+# REPO: https://github.com/StricklandF/Filter
+# UPDATED: 2025-09-28 19:25:00
+# DOMAIN-SUFFIX: 79
+# TOTAL: 79
+
+# === Binance 主要域名 ===
+DOMAIN-SUFFIX,binance.com
+DOMAIN-SUFFIX,binance.me
+DOMAIN-SUFFIX,binance.cloud
+DOMAIN-SUFFIX,binancecnt.com
+DOMAIN-SUFFIX,binancefuture.com
+
+# === API 相关域名 ===
+DOMAIN-SUFFIX,api.binance.com
+DOMAIN-SUFFIX,fapi.binance.com
+DOMAIN-SUFFIX,native.binance.com
+
+# === WebSocket 数据流 ===
+DOMAIN-SUFFIX,stream.binance.com
+DOMAIN-SUFFIX,dstream.binance.com
+DOMAIN-SUFFIX,fstream.binance.com
+DOMAIN-SUFFIX,nbstream.binance.com
+DOMAIN-SUFFIX,sfstream.binance.com
+
+# === 主题和界面相关 ===
+DOMAIN-SUFFIX,themis.binance.com
+
+# === 点击和跟踪域名 ===
+DOMAIN-SUFFIX,binance.click
+
+# === API 交换相关 ===
+DOMAIN-SUFFIX,api.saasexch.cc
+DOMAIN-SUFFIX,api.saasexch.co
+DOMAIN-SUFFIX,api.saasexch.io
+DOMAIN-SUFFIX,api.saasexch.com
+
+# === 报告和信息域名 ===
+DOMAIN-SUFFIX,report.binance.im
+DOMAIN-SUFFIX,binance.info
+DOMAIN-SUFFIX,account.binance.info
+
+# === 边缘计算和API ===
+DOMAIN-SUFFIX,edge-api.binance.me
+
+# === 数据流信息 ===
+DOMAIN-SUFFIX,stream.binance.info
+DOMAIN-SUFFIX,fstream.binance.info
+DOMAIN-SUFFIX,dstream.binance.info
+DOMAIN-SUFFIX,nbstream.binance.info
+DOMAIN-SUFFIX,native.binance.info
+
+# === 日志和跟踪 ===
+DOMAIN-SUFFIX,log.bntrace.com
+
+# === 静态资源和CDN ===
+DOMAIN-SUFFIX,public.nftstatic.com
+DOMAIN-SUFFIX,bin.bnbstatic.com
+DOMAIN-SUFFIX,public.bnbstatic.com
+
+# === 内容相关 ===
+DOMAIN-SUFFIX,binancecnt.com
+
+# === 解析相关 ===
+DOMAIN-SUFFIX,resolve.saasexch.com
+
+# === 云服务相关 ===
+DOMAIN-SUFFIX,yingwangtech.cloud
+DOMAIN-SUFFIX,dstream.yingwangtech.net
+DOMAIN-SUFFIX,nbstream.yingwangtech.net
+DOMAIN-SUFFIX,stream.yingwangtech.net
+DOMAIN-SUFFIX,sfstream.yingwangtech.net
+DOMAIN-SUFFIX,fstream.yingwangtech.net
+DOMAIN-SUFFIX,yingwangtech.net
+DOMAIN-SUFFIX,yingwangtech.mobi
+DOMAIN-SUFFIX,yingwangtech.club
+DOMAIN-SUFFIX,yingwangtech.cc
+
+# === 相关域名 ===
+# Forter 相关
+DOMAIN-SUFFIX,m.api.forter.com
+DOMAIN-SUFFIX,a4dfd325e6e3.cdn4.forter.com
+
+# Amazon Trust 相关
+DOMAIN-SUFFIX,crt.r2m01.amazontrust.com
+DOMAIN-SUFFIX,crt.rootca1.amazontrust.com
+DOMAIN-SUFFIX,crt.sca2g.amazontrust.com
+
+# CloudFront 相关
+DOMAIN-SUFFIX,d1stuckbhls5t9.cloudfront.net
+
+# MyCloud 相关文件
+DOMAIN-SUFFIX,static-file-1306379396.file.myqcloud.com
+DOMAIN-SUFFIX,domain-config-1306379396.file.myqcloud.com
+
+# CDN 相关
+DOMAIN-SUFFIX,b2d8207c-e08a-43cd-bc97-268da85016dd-addfd325e6e3.cdn.forter.com
+
+# 其他相关服务
+DOMAIN-SUFFIX,bin-prod-new-websocket-alb-1463526464.ap-northeast-1.elb.amazonaws.com
+DOMAIN-SUFFIX,aa490d5c0e88c4b4289bd912f644970d-1403944741.ap-northeast-1.elb.amazonaws.com
+
+# === 美国站点 ===
+DOMAIN-SUFFIX,binance.us
+DOMAIN-SUFFIX,accounts.binance.us
+DOMAIN-SUFFIX,clicks.binance.us
+
+# === 其他地区站点 ===
+DOMAIN-SUFFIX,binance.je
+DOMAIN-SUFFIX,binance.sg
+DOMAIN-SUFFIX,binance.org
+
+# === 学院和支持 ===
+DOMAIN-SUFFIX,academy.binance.com
+DOMAIN-SUFFIX,support.binance.com
+DOMAIN-SUFFIX,community.binance.com
+
+# === NFT 和 Web3 ===
+DOMAIN-SUFFIX,nft.binance.com
+DOMAIN-SUFFIX,web3.binance.com
+
+# === 研究和数据 ===
+DOMAIN-SUFFIX,research.binance.com
+DOMAIN-SUFFIX,data.binance.com
+DOMAIN-SUFFIX,data-api.binance.vision
+DOMAIN-SUFFIX,data-stream.binance.vision
+
+# === 测试网络 ===
+DOMAIN-SUFFIX,testnet.binancefuture.com
+DOMAIN-SUFFIX,testnet.binance.vision
+
+# === 其他服务域名 ===
+DOMAIN-SUFFIX,p2p.binance.com
+DOMAIN-SUFFIX,launchpad.binance.com
+DOMAIN-SUFFIX,pool.binance.com
+DOMAIN-SUFFIX,card.binance.com
+DOMAIN-SUFFIX,pay.binance.com
+DOMAIN-SUFFIX,vision.binance.com
