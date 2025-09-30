@@ -130,6 +130,7 @@ DOMAIN-SUFFIX,data-stream.binance.vision
 DOMAIN-SUFFIX,testnet.binancefuture.com
 DOMAIN-SUFFIX,testnet.binance.vision
 DOMAIN-SUFFIX,mokexapp.io
+DOMAIN-SUFFIX,mokexapp.info
 
 # === 其他服务域名 ===
 DOMAIN-SUFFIX,p2p.binance.com
