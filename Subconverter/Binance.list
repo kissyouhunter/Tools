@@ -31,7 +31,7 @@ DOMAIN-SUFFIX,themis.binance.com
 DOMAIN-SUFFIX,binance.click
 
 # === API 交换相关 ===
-DOMAIN-KEYWORD.saasexch
+DOMAIN-KEYWORD,saasexch
 DOMAIN-SUFFIX,api.saasexch.cc
 DOMAIN-SUFFIX,api.saasexch.co
 DOMAIN-SUFFIX,api.saasexch.io
