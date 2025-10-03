@@ -1,143 +1,137 @@
-# NAME: Binance Enhanced
-# AUTHOR: Converted from StricklandF/Filter
-# REPO: https://github.com/StricklandF/Filter
-# UPDATED: 2025-09-28 19:25:00
-# DOMAIN-SUFFIX: 79
-# TOTAL: 79
+payload:
+  # ========== 域名后缀匹配（推荐） ==========
+  - DOMAIN-SUFFIX,appsflyer.com
+  - DOMAIN-SUFFIX,binance.cc
+  - DOMAIN-SUFFIX,binance.charity
+  - DOMAIN-SUFFIX,binance.cloud
+  - DOMAIN-SUFFIX,binance.co
+  - DOMAIN-SUFFIX,binance.com
+  - DOMAIN-SUFFIX,binance.im
+  - DOMAIN-SUFFIX,binance.info
+  - DOMAIN-SUFFIX,binance.me
+  - DOMAIN-SUFFIX,binance.net
+  - DOMAIN-SUFFIX,binance.org
+  - DOMAIN-SUFFIX,binance.us
+  - DOMAIN-SUFFIX,binance.vision
+  - DOMAIN-SUFFIX,binanceapi.com
+  - DOMAIN-SUFFIX,binancecnt.com
+  - DOMAIN-SUFFIX,binancefuture.com
+  - DOMAIN-SUFFIX,binancezh.be
+  - DOMAIN-SUFFIX,binancezh.biz
+  - DOMAIN-SUFFIX,binancezh.cc
+  - DOMAIN-SUFFIX,binancezh.co
+  - DOMAIN-SUFFIX,binancezh.com
+  - DOMAIN-SUFFIX,binancezh.info
+  - DOMAIN-SUFFIX,binancezh.ink
+  - DOMAIN-SUFFIX,binancezh.kim
+  - DOMAIN-SUFFIX,binancezh.link
+  - DOMAIN-SUFFIX,binancezh.live
+  - DOMAIN-SUFFIX,binancezh.mobi
+  - DOMAIN-SUFFIX,binancezh.net
+  - DOMAIN-SUFFIX,binancezh.pro
+  - DOMAIN-SUFFIX,binancezh.sh
+  - DOMAIN-SUFFIX,binancezh.top
+  - DOMAIN-SUFFIX,bnappzh.co
+  - DOMAIN-SUFFIX,bnbstatic.com
+  - DOMAIN-SUFFIX,bnbzh.ac
+  - DOMAIN-SUFFIX,bntrace.com
+  - DOMAIN-SUFFIX,saasexch.cc
+  - DOMAIN-SUFFIX,saasexch.co
+  - DOMAIN-SUFFIX,saasexch.com
+  - DOMAIN-SUFFIX,saasexch.io
+  - DOMAIN-SUFFIX,yingwangtech.cc
+  - DOMAIN-SUFFIX,yingwangtech.club
+  - DOMAIN-SUFFIX,yingwangtech.cloud
+  - DOMAIN-SUFFIX,yingwangtech.mobi
+  - DOMAIN-SUFFIX,yingwangtech.net
 
-# === Binance 主要域名 ===
-DOMAIN-SUFFIX,binance.com
-DOMAIN-SUFFIX,binance.me
-DOMAIN-SUFFIX,binance.cloud
-DOMAIN-SUFFIX,binancecnt.com
-DOMAIN-SUFFIX,binancefuture.com
+  # ========== 精确域名匹配（抓包获得的实际子域名） ==========
+  # 主站
+  - DOMAIN,www.binance.com
+  - DOMAIN,www.binance.info
+  - DOMAIN,www.binance.click
+  - DOMAIN,www.binancecnt.com
+  
+  # API 端点
+  - DOMAIN,api.binance.com
+  - DOMAIN,fapibak.binance.com
+  
+  # 账户相关
+  - DOMAIN,accounts.binance.com
+  - DOMAIN,accounts.binance.info
+  - DOMAIN,accounts.binance.me
+  - DOMAIN,native.binance.com
+  - DOMAIN,native.binance.info
+  
+  # WebSocket Stream
+  - DOMAIN,stream.binance.com
+  - DOMAIN,stream.binance.info
+  - DOMAIN,dstream.binance.com
+  - DOMAIN,dstream.binance.info
+  - DOMAIN,fstream.binance.com
+  - DOMAIN,fstream.binance.info
+  - DOMAIN,nbstream.binance.com
+  - DOMAIN,nbstream.binance.info
+  - DOMAIN,sfstream.binance.com
+  
+  # 静态资源
+  - DOMAIN,bin.bnbstatic.com
+  - DOMAIN,public.bnbstatic.com
+  - DOMAIN,public.nftstatic.com
+  
+  # 其他服务
+  - DOMAIN,themis.binance.com
+  - DOMAIN,report.binance.im
+  - DOMAIN,log.bntrace.com
+  
+  # SaaS Exchange API
+  - DOMAIN,api.saasexch.cc
+  - DOMAIN,api.saasexch.co
+  - DOMAIN,api.saasexch.io
+  - DOMAIN,api.saasexch.com
+  - DOMAIN,edge-api.saasexch.com
+  - DOMAIN,reslove.saasexch.com
+  
+  # 备用域名（yingwangtech）
+  - DOMAIN,www.yingwangtech.cloud
+  - DOMAIN,www.yingwangtech.net
+  - DOMAIN,www.yingwangtech.mobi
+  - DOMAIN,www.yingwangtech.club
+  - DOMAIN,www.yingwangtech.cc
+  - DOMAIN,sdstream.yingwangtech.net
+  - DOMAIN,nbstream.yingwangtech.net
+  - DOMAIN,stream.yingwangtech.net
+  - DOMAIN,sfstream.yingwangtech.net
+  - DOMAIN,fstream.yingwangtech.net
+  
+  # ========== 第三方服务域名 ==========
+  # Forter（反欺诈服务）
+  - DOMAIN,m.api.forter.com
+  - DOMAIN,addfd325e6e3.cdn4.forter.com
+  - DOMAIN,b2d8207c-e08a-45cd-bc97-268da85016d2-addfd325e6e3.cdn.forter.com
+  
+  # CloudFront CDN
+  - DOMAIN,d3sknckuh1o9tg.cloudfront.net
+  
+  # 腾讯云对象存储
+  - DOMAIN,public-1306379396.file.myqcloud.com
+  - DOMAIN,static-file-1306379396.file.myqcloud.com
+  - DOMAIN,domain-config-1306379396.file.myqcloud.com
+  
+  # AWS 负载均衡
+  - DOMAIN,bin-prod-new-websocket-alb-1463526464.ap-northeast-1.elb.amazonaws.com
+  - DOMAIN,aad90d5c0e88c4b4285bd912f64d970d-1403944741.ap-northeast-1.elb.amazonaws.com
+  
+  # 证书相关
+  - DOMAIN,crt.r2m01.amazontrust.com
+  - DOMAIN,crt.rootca1.amazontrust.com
+  - DOMAIN,crt.rootg2.amazontrust.com
 
-# === API 相关域名 ===
-DOMAIN-SUFFIX,api.binance.com
-DOMAIN-SUFFIX,fapi.binance.com
-DOMAIN-SUFFIX,native.binance.com
-
-# === WebSocket 数据流 ===
-DOMAIN-SUFFIX,stream.binance.com
-DOMAIN-SUFFIX,dstream.binance.com
-DOMAIN-SUFFIX,fstream.binance.com
-DOMAIN-SUFFIX,nbstream.binance.com
-DOMAIN-SUFFIX,sfstream.binance.com
-
-# === 主题和界面相关 ===
-DOMAIN-SUFFIX,themis.binance.com
-
-# === 点击和跟踪域名 ===
-DOMAIN-SUFFIX,binance.click
-
-# === API 交换相关 ===
-DOMAIN-KEYWORD,saasexch
-DOMAIN-SUFFIX,api.saasexch.cc
-DOMAIN-SUFFIX,api.saasexch.co
-DOMAIN-SUFFIX,api.saasexch.io
-DOMAIN-SUFFIX,api.saasexch.com
-DOMAIN-SUFFIX,api.saasexch.info
-
-# === 报告和信息域名 ===
-DOMAIN-SUFFIX,report.binance.im
-DOMAIN-SUFFIX,binance.info
-DOMAIN-SUFFIX,account.binance.info
-
-# === 边缘计算和API ===
-DOMAIN-SUFFIX,edge-api.binance.me
-
-# === 数据流信息 ===
-DOMAIN-SUFFIX,stream.binance.info
-DOMAIN-SUFFIX,fstream.binance.info
-DOMAIN-SUFFIX,dstream.binance.info
-DOMAIN-SUFFIX,nbstream.binance.info
-DOMAIN-SUFFIX,native.binance.info
-
-# === 日志和跟踪 ===
-DOMAIN-SUFFIX,log.bntrace.com
-
-# === 静态资源和CDN ===
-DOMAIN-SUFFIX,public.nftstatic.com
-DOMAIN-SUFFIX,bin.bnbstatic.com
-DOMAIN-SUFFIX,public.bnbstatic.com
-
-# === 内容相关 ===
-DOMAIN-SUFFIX,binancecnt.com
-
-# === 解析相关 ===
-DOMAIN-SUFFIX,resolve.saasexch.com
-
-# === 云服务相关 ===
-DOMAIN-SUFFIX,yingwangtech.cloud
-DOMAIN-SUFFIX,dstream.yingwangtech.net
-DOMAIN-SUFFIX,nbstream.yingwangtech.net
-DOMAIN-SUFFIX,stream.yingwangtech.net
-DOMAIN-SUFFIX,sfstream.yingwangtech.net
-DOMAIN-SUFFIX,fstream.yingwangtech.net
-DOMAIN-SUFFIX,yingwangtech.net
-DOMAIN-SUFFIX,yingwangtech.mobi
-DOMAIN-SUFFIX,yingwangtech.club
-DOMAIN-SUFFIX,yingwangtech.cc
-
-# === 相关域名 ===
-# Forter 相关
-DOMAIN-SUFFIX,m.api.forter.com
-DOMAIN-SUFFIX,a4dfd325e6e3.cdn4.forter.com
-
-# Amazon Trust 相关
-DOMAIN-SUFFIX,crt.r2m01.amazontrust.com
-DOMAIN-SUFFIX,crt.rootca1.amazontrust.com
-DOMAIN-SUFFIX,crt.sca2g.amazontrust.com
-
-# CloudFront 相关
-DOMAIN-SUFFIX,d1stuckbhls5t9.cloudfront.net
-
-# MyCloud 相关文件
-DOMAIN-SUFFIX,static-file-1306379396.file.myqcloud.com
-DOMAIN-SUFFIX,domain-config-1306379396.file.myqcloud.com
-
-# CDN 相关
-DOMAIN-SUFFIX,b2d8207c-e08a-43cd-bc97-268da85016dd-addfd325e6e3.cdn.forter.com
-
-# 其他相关服务
-DOMAIN-SUFFIX,bin-prod-new-websocket-alb-1463526464.ap-northeast-1.elb.amazonaws.com
-DOMAIN-SUFFIX,aa490d5c0e88c4b4289bd912f644970d-1403944741.ap-northeast-1.elb.amazonaws.com
-
-# === 美国站点 ===
-DOMAIN-SUFFIX,binance.us
-DOMAIN-SUFFIX,accounts.binance.us
-DOMAIN-SUFFIX,clicks.binance.us
-
-# === 其他地区站点 ===
-DOMAIN-SUFFIX,binance.je
-DOMAIN-SUFFIX,binance.sg
-DOMAIN-SUFFIX,binance.org
-
-# === 学院和支持 ===
-DOMAIN-SUFFIX,academy.binance.com
-DOMAIN-SUFFIX,support.binance.com
-DOMAIN-SUFFIX,community.binance.com
-
-# === NFT 和 Web3 ===
-DOMAIN-SUFFIX,nft.binance.com
-DOMAIN-SUFFIX,web3.binance.com
-
-# === 研究和数据 ===
-DOMAIN-SUFFIX,research.binance.com
-DOMAIN-SUFFIX,data.binance.com
-DOMAIN-SUFFIX,data-api.binance.vision
-DOMAIN-SUFFIX,data-stream.binance.vision
-
-# === 测试网络 ===
-DOMAIN-SUFFIX,testnet.binancefuture.com
-DOMAIN-SUFFIX,testnet.binance.vision
-DOMAIN-SUFFIX,mokexapp.io
-DOMAIN-SUFFIX,mokexapp.info
-
-# === 其他服务域名 ===
-DOMAIN-SUFFIX,p2p.binance.com
-DOMAIN-SUFFIX,launchpad.binance.com
-DOMAIN-SUFFIX,pool.binance.com
-DOMAIN-SUFFIX,card.binance.com
-DOMAIN-SUFFIX,pay.binance.com
-DOMAIN-SUFFIX,vision.binance.com
+  # ========== IP 地址段 ==========
+  - IP-CIDR,13.248.135.87/32,no-resolve
+  - IP-CIDR,35.77.148.188/32,no-resolve
+  - IP-CIDR,47.107.32.31/32,no-resolve
+  - IP-CIDR,47.107.98.27/32,no-resolve
+  - IP-CIDR,47.107.127.135/32,no-resolve
+  - IP-CIDR,52.68.117.1/32,no-resolve
+  - IP-CIDR,54.150.106.1/32,no-resolve
