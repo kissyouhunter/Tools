@@ -1,5 +1,6 @@
 # ========== 域名后缀匹配（推荐） ==========
 DOMAIN-SUFFIX,appsflyer.com
+DOMAIN-SUFFIX,appsflyersdk.com
 DOMAIN-SUFFIX,binance.cc
 DOMAIN-SUFFIX,binance.charity
 DOMAIN-SUFFIX,binance.cloud
@@ -38,6 +39,7 @@ DOMAIN-SUFFIX,saasexch.cc
 DOMAIN-SUFFIX,saasexch.co
 DOMAIN-SUFFIX,saasexch.com
 DOMAIN-SUFFIX,saasexch.io
+DOMAIN-SUFFIX,saasexch.info
 DOMAIN-SUFFIX,yingwangtech.cc
 DOMAIN-SUFFIX,yingwangtech.club
 DOMAIN-SUFFIX,yingwangtech.cloud
@@ -105,6 +107,7 @@ DOMAIN,fstream.yingwangtech.net
 
 # ========== 第三方服务域名 ==========
 # Forter（反欺诈服务）
+DOMAIN-SUFFIX,forter.com
 DOMAIN,m.api.forter.com
 DOMAIN,addfd325e6e3.cdn4.forter.com
 DOMAIN,b2d8207c-e08a-45cd-bc97-268da85016d2-addfd325e6e3.cdn.forter.com
