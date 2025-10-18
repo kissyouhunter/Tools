@@ -480,7 +480,7 @@ EOF
 # 获取现有端口
 get_existing_ports() {
     local config=$1
-    echo "$config" | jq -r '.inbounds[].port // empty' 2>/dev/null || echo ""
+    echo "$config" | jq -r '(.inbounds // [])[] | .port // empty' 2>/dev/null || echo ""
 }
 
 # 生成不冲突的端口
@@ -710,7 +710,7 @@ manage_dokodemo() {
                 fi
 
                 # 生成唯一索引
-                existing_dokodemo=$(echo "$existing_config" | jq '.inbounds[] | select(.protocol == "dokodemo-door")')
+                existing_dokodemo=$(echo "$existing_config" | jq '(.inbounds // [])[] | select(.protocol == "dokodemo-door")')
                 dokodemo_count=$(echo "$existing_dokodemo" | jq -s 'length')
                 index=$((dokodemo_count + 1))
 
@@ -754,7 +754,7 @@ manage_dokodemo() {
                 ;;
             2)  # 管理配置（列出配置，选择删除或修改）
                 existing_config=$(parse_existing_config)
-                dokodemo_configs=$(echo "$existing_config" | jq '.inbounds[] | select(.protocol == "dokodemo-door")')
+                dokodemo_configs=$(echo "$existing_config" | jq '(.inbounds // [])[] | select(.protocol == "dokodemo-door")')
                 if [ -z "$dokodemo_configs" ]; then
                     echo -e "${YELLOW}没有 Dokodemo-door 配置可管理${NC}"
                     continue
