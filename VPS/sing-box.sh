@@ -134,8 +134,19 @@ safe_config_update() {
     fi
 }
 
+# 新增：仅在需要时执行 daemon-reload，消除警告
+ensure_daemon_reload() {
+  local unit="${1:-sing-box.service}"
+  # NeedDaemonReload=yes 时才执行，避免无意义 reload
+  if [[ "$(systemctl show --property=NeedDaemonReload --value "$unit" 2>/dev/null || echo no)" == "yes" ]]; then
+    systemctl daemon-reload
+  fi
+}
+
 # 统一的服务重启逻辑
 restart_service_with_feedback() {
+    # 新增：重启前确保 systemd 已加载最新 unit，避免出现提示
+    ensure_daemon_reload "${SERVICE_NAME}.service"
     echo "正在重启服务..."
     if systemctl restart "$SERVICE_NAME"; then
         echo -e "${GREEN}服务重启成功${NC}"
@@ -248,7 +259,7 @@ generate_anytls_tls_cert() {
     awk '/-----BEGIN PRIVATE KEY-----/,/-----END PRIVATE KEY-----/ {print > "'"$cert_dir"'/server.key"}
          /-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/ {print > "'"$cert_dir"'/server.crt"}'
 
-  rm -f "$cert_dir/server.pem"           # 不保留合并文件
+  rm -f "$cert_dir/server.pem"            # 不保留合并文件
 
   chmod 600 "$cert_dir/server.key"
   chmod 644 "$cert_dir/server.crt"
@@ -890,6 +901,9 @@ install_singbox() {
     } &
     show_progress $! "正在安装 sing-box"
     wait
+
+    # 新增：安装后如需则执行 daemon-reload，避免出现提示
+    ensure_daemon_reload "${SERVICE_NAME}.service"
     
     if command -v sing-box >/dev/null 2>&1; then
         echo -e "${GREEN}sing-box安装成功${NC}"
@@ -903,6 +917,41 @@ install_singbox() {
         get_server_ips
     else
         echo -e "${RED}sing-box安装失败${NC}"
+        return 1
+    fi
+}
+
+# 升级sing-box（复用官方脚本）
+upgrade_singbox() {
+    echo -e "${BLUE}升级sing-box${NC}"
+
+    if ! command -v sing-box >/dev/null 2>&1; then
+        echo -e "${YELLOW}sing-box 未安装，请先安装${NC}"
+        return 1
+    fi
+
+    local current_version
+    current_version=$(sing-box version 2>/dev/null | head -n1 | awk '{print $3}' || echo "未知")
+    echo "当前版本: ${current_version}"
+    echo "正在通过官方脚本升级sing-box..."
+
+    {
+        curl -fsSL https://sing-box.app/install.sh | bash
+    } &
+    show_progress $! "正在升级 sing-box"
+    wait
+
+    # 新增：升级后如需则执行 daemon-reload，避免出现提示
+    ensure_daemon_reload "${SERVICE_NAME}.service"
+
+    if command -v sing-box >/dev/null 2>&1; then
+        local new_version
+        new_version=$(sing-box version 2>/dev/null | head -n1 | awk '{print $3}' || echo "未知")
+        echo -e "${GREEN}sing-box升级完成${NC}"
+        echo "升级后版本: ${new_version}"
+        restart_service_with_feedback
+    else
+        echo -e "${RED}sing-box升级失败${NC}"
         return 1
     fi
 }
@@ -1116,6 +1165,10 @@ show_menu() {
             fi
         fi
         
+        UPGRADE_NUM=$menu_num
+        echo "$menu_num. 升级 sing-box"
+        ((menu_num++))
+
         UNINSTALL_NUM=$menu_num  # 卸载编号跟随在上一个后
         echo "$menu_num. 卸载 sing-box"
         echo "0. 退出"
@@ -1184,6 +1237,9 @@ main() {
             status=$(get_service_status)
             local running_status=$(echo "$status" | head -n1)
             local enabled_status=$(echo "$status" | tail -n1)
+            local switch_priority_num="${SWITCH_PRIORITY_NUM:-0}"
+            local upgrade_num="${UPGRADE_NUM:-}"
+            local uninstall_num="${UNINSTALL_NUM:-}"
             
             # 动态菜单逻辑
             local menu_num=1
@@ -1203,6 +1259,8 @@ main() {
                 ((menu_num++))
             else
                 if [[ "$choice" == "$menu_num" ]]; then
+                    # 启动前也确保 unit 最新
+                    ensure_daemon_reload "${SERVICE_NAME}.service"
                     systemctl start sing-box && echo -e "${GREEN}服务启动成功${NC}" || echo -e "${RED}服务启动失败${NC}"
                     refresh_service_status
                     continue
@@ -1262,7 +1320,7 @@ main() {
             elif [[ "$choice" == $((menu_num+4)) ]]; then
                 get_server_ips
                 wait_for_return
-            elif [[ $SWITCH_PRIORITY_NUM -ne 0 && "$choice" == "$SWITCH_PRIORITY_NUM" ]]; then
+            elif [[ "$switch_priority_num" -ne 0 && "$choice" == "$switch_priority_num" ]]; then
                 # 动态优先级切换
                 if [[ "$CURRENT_PRIORITY" == "ipv6" ]]; then
                     set_priority "ipv4"
@@ -1272,7 +1330,10 @@ main() {
                     echo -e "${GREEN}已切换到 IPv6 优先${NC}"
                 fi
                 wait_for_return
-            elif [[ "$choice" == "$UNINSTALL_NUM" ]]; then
+            elif [[ -n "$upgrade_num" && "$choice" == "$upgrade_num" ]]; then
+                upgrade_singbox
+                wait_for_return
+            elif [[ -n "$uninstall_num" && "$choice" == "$uninstall_num" ]]; then
                 uninstall_singbox
                 # 卸载后会直接退出，不会到这里
             elif [[ "$choice" == "0" ]]; then
