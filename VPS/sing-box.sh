@@ -571,6 +571,33 @@ generate_vless_reality_config() {
 EOF
 }
 
+generate_hysteria2_config() {
+    local port=$1
+    local password=$2
+    cat << EOF
+{
+    "type": "hysteria2",
+    "listen": "::",
+    "listen_port": $port,
+    "tag": "hy2-$port",
+    "users": [
+        {
+            "password": "$password"
+        }
+    ],
+    "ignore_client_bandwidth": true,
+    "masquerade": "https://www.bing.com",
+    "tls": {
+        "enabled": true,
+        "server_name": "www.bing.com",
+        "certificate_path": "/etc/sing-box/server.crt",
+        "key_path": "/etc/sing-box/server.key",
+        "alpn": ["h3"]
+    }
+}
+EOF
+}
+
 # 生成分享链接
 generate_share_links() {
     local protocol=$1
@@ -810,6 +837,52 @@ add_vless_reality() {
   else
     echo -e "${RED}添加失败${NC}"
   fi
+}
+
+# 添加Hysteria2配置
+add_hysteria2() {
+    echo -e "${BLUE}添加 Hysteria2 配置${NC}"
+    generate_anytls_tls_cert  # 复用已有的证书生成函数
+
+    local port=$(random_port)
+    local password=$(random_password)
+    local config
+
+    config=$(generate_hysteria2_config "$port" "$password")
+
+    if safe_config_update ".inbounds += [$config]"; then
+        echo -e "${GREEN}Hysteria2 配置添加成功${NC}"
+        echo "端口: $port"
+        echo "密码: $password"
+
+        restart_service_with_feedback
+
+        # 生成 Hysteria2 分享链接
+        local tag="hy2-${port}"
+        local share_links=""
+        local sni="www.bing.com"
+        local common_params="insecure=1&sni=${sni}"
+
+        if [[ -n "$SERVER_IPV4" ]]; then
+            local link4="hysteria2://${password}@${SERVER_IPV4}:${port}?${common_params}#${tag}-IPv4"
+            echo -e "${GREEN}分享链接 IPv4:${NC}"
+            echo "$link4"
+            share_links+="$link4"$'\n'
+        fi
+
+        if [[ -n "$SERVER_IPV6" ]]; then
+            local link6="hysteria2://${password}@[${SERVER_IPV6}]:${port}?${common_params}#${tag}-IPv6"
+            echo -e "${GREEN}分享链接 IPv6:${NC}"
+            echo "$link6"
+            share_links+="$link6"$'\n'
+        fi
+
+        save_config_to_file "Hysteria2" "$port" "$share_links"
+
+    else
+        echo -e "${RED}添加 Hysteria2 配置失败${NC}"
+        return 1
+    fi
 }
 
 # 查看当前配置
@@ -1298,6 +1371,7 @@ main() {
                     echo "3) VMess"
                     echo "4) AnyTLS"
                     echo "5) Vless"
+                    echo "6) Hysteria2"
                     echo "0. 返回上级目录"
                     read -p "输入序号: " proto_choice
                     if [[ "$proto_choice" == "0" ]]; then
@@ -1309,6 +1383,7 @@ main() {
                         3) add_vmess ;;
                         4) add_anytls ;;
                         5) add_vless_reality ;;
+                        6) add_hysteria2 ;;
                         *) echo -e "${RED}无效选项${NC}" ;;
                     esac
                 done
