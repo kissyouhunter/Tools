@@ -419,12 +419,8 @@ show_log() {
     fi
 }
 
-install_bbr() {
-    bash <(curl -L -s https://github.com/ylx2016/Linux-NetSpeed/raw/master/tcpx.sh)
-}
-
 update_shell() {
-    wget -O /usr/bin/V2bX -N --no-check-certificate https://raw.githubusercontent.com/wyx2685/V2bX-script/master/V2bX.sh
+    wget -O /usr/bin/V2bX -N --no-check-certificate https://github.com/kissyouhunter/Tools/raw/refs/heads/main/VPS/v2bx/V2bX.sh
     if [[ $? != 0 ]]; then
         echo ""
         echo -e "${red}下载脚本失败，请检查本机能否连接 Github${plain}"
@@ -1067,23 +1063,6 @@ EOF
     before_show_menu
 }
 
-# 放开防火墙端口
-open_ports() {
-    systemctl stop firewalld.service 2>/dev/null
-    systemctl disable firewalld.service 2>/dev/null
-    setenforce 0 2>/dev/null
-    ufw disable 2>/dev/null
-    iptables -P INPUT ACCEPT 2>/dev/null
-    iptables -P FORWARD ACCEPT 2>/dev/null
-    iptables -P OUTPUT ACCEPT 2>/dev/null
-    iptables -t nat -F 2>/dev/null
-    iptables -t mangle -F 2>/dev/null
-    iptables -F 2>/dev/null
-    iptables -X 2>/dev/null
-    netfilter-persistent save 2>/dev/null
-    echo -e "${green}放开防火墙端口成功！${plain}"
-}
-
 show_usage() {
     echo "V2bX 管理脚本使用方法: "
     echo "------------------------------------------"
@@ -1124,14 +1103,12 @@ show_menu() {
   ${green}9.${plain} 设置 V2bX 开机自启
   ${green}10.${plain} 取消 V2bX 开机自启
 ————————————————
-  ${green}11.${plain} 一键安装 bbr (最新内核)
-  ${green}12.${plain} 查看 V2bX 版本
-  ${green}13.${plain} 生成 X25519 密钥
-  ${green}14.${plain} 升级 V2bX 维护脚本
-  ${green}15.${plain} 生成 V2bX 配置文件
-  ${green}16.${plain} 放行 VPS 的所有网络端口
-  ${green}17.${plain} 切换 IP 优先级
-  ${green}18.${plain} 退出脚本
+  ${green}11.${plain} 查看 V2bX 版本
+  ${green}12.${plain} 生成 X25519 密钥
+  ${green}13.${plain} 升级 V2bX 维护脚本
+  ${green}14.${plain} 生成 V2bX 配置文件
+  ${green}15.${plain} 切换 IP 优先级
+  ${green}16.${plain} 退出脚本
  "
     show_status
     echo && read -rp "请输入选择 [0-18]: " num
@@ -1148,14 +1125,12 @@ show_menu() {
         8) check_install && show_log ;;
         9) check_install && enable ;;
         10) check_install && disable ;;
-        11) install_bbr ;;
-        12) check_install && show_V2bX_version ;;
-        13) check_install && generate_x25519_key ;;
-        14) update_shell ;;
-        15) generate_config_file ;;
-        16) open_ports ;;
-        17) switch_ip_priority ;;
-        18) exit ;;
+        11) check_install && show_V2bX_version ;;
+        12) check_install && generate_x25519_key ;;
+        13) update_shell ;;
+        14) generate_config_file ;;
+        15) switch_ip_priority ;;
+        16) exit ;;
         *) echo -e "${red}请输入正确的数字 [0-17]${plain}" ;;
     esac
 }
