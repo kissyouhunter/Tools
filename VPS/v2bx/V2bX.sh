@@ -75,33 +75,6 @@ get_ip_priority() {
     fi
 }
 
-install_jq() {
-    if command -v jq >/dev/null 2>&1; then
-        return 0
-    fi
-    echo -e "${yellow}未检测到 jq 工具，正在尝试自动安装...${plain}"
-
-    if [[ x"${release}" == x"centos" ]] || [[ x"${release}" == x"rocky" ]] || [[ x"${release}" == x"alma" ]]; then
-        yum install -y jq && echo -e "${green}jq 已成功安装${plain}" && return 0
-    elif [[ x"${release}" == x"debian" ]] || [[ x"${release}" == x"ubuntu" ]]; then
-        apt-get update
-        apt-get install -y jq && echo -e "${green}jq 已成功安装${plain}" && return 0
-    elif [[ x"${release}" == x"alpine" ]]; then
-        apk add jq && echo -e "${green}jq 已成功安装${plain}" && return 0
-    else
-        echo -e "${red}未知系统，无法自动安装 jq，请手动安装！${plain}"
-        return 1
-    fi
-}
-
-# 在需要 jq 的函数前自动检测与安装
-ensure_jq() {
-    if ! command -v jq >/dev/null 2>&1; then
-        install_jq
-    fi
-}
-ensure_jq
-
 # 获取当前优先级（从现有配置文件读取）
 get_current_priority() {
     if [[ -f /etc/V2bX/sing_origin.json ]]; then
