@@ -220,7 +220,7 @@ before_show_menu() {
 }
 
 install() {
-    bash <(curl -Ls https://raw.githubusercontent.com/wyx2685/V2bX-script/master/install.sh)
+    bash <(curl -Ls https://raw.githubusercontent.com/kissyouhunter/Tools/refs/heads/main/VPS/v2bx/install.sh)
     if [[ $? == 0 ]]; then
         if [[ $# == 0 ]]; then
             start
@@ -236,7 +236,7 @@ update() {
     else
         version=$2
     fi
-    bash <(curl -Ls https://raw.githubusercontent.com/wyx2685/V2bX-script/master/install.sh) $version
+    bash <(curl -Ls https://raw.githubusercontent.com/kissyouhunter/Tools/refs/heads/main/VPS/v2bx/install.sh) $version
     if [[ $? == 0 ]]; then
         echo -e "${green}更新完成，已自动重启 V2bX，请使用 V2bX log 查看运行日志${plain}"
         exit
@@ -249,7 +249,7 @@ update() {
 
 config() {
     echo "V2bX在修改配置后会自动尝试重启"
-    vi /etc/V2bX/config.json
+    nano /etc/V2bX/config.json
     sleep 2
     restart
     check_status
