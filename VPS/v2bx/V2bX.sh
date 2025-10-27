@@ -75,6 +75,156 @@ get_ip_priority() {
     fi
 }
 
+install_jq() {
+    if command -v jq >/dev/null 2>&1; then
+        return 0
+    fi
+    echo -e "${yellow}未检测到 jq 工具，正在尝试自动安装...${plain}"
+
+    if [[ x"${release}" == x"centos" ]] || [[ x"${release}" == x"rocky" ]] || [[ x"${release}" == x"alma" ]]; then
+        yum install -y jq && echo -e "${green}jq 已成功安装${plain}" && return 0
+    elif [[ x"${release}" == x"debian" ]] || [[ x"${release}" == x"ubuntu" ]]; then
+        apt-get update
+        apt-get install -y jq && echo -e "${green}jq 已成功安装${plain}" && return 0
+    elif [[ x"${release}" == x"alpine" ]]; then
+        apk add jq && echo -e "${green}jq 已成功安装${plain}" && return 0
+    else
+        echo -e "${red}未知系统，无法自动安装 jq，请手动安装！${plain}"
+        return 1
+    fi
+}
+
+# 在需要 jq 的函数前自动检测与安装
+ensure_jq() {
+    if ! command -v jq >/dev/null 2>&1; then
+        install_jq
+    fi
+}
+ensure_jq
+
+# 获取当前优先级（从现有配置文件读取）
+get_current_priority() {
+    if [[ -f /etc/V2bX/sing_origin.json ]]; then
+        local strategy=$(jq -r '.dns.strategy // "system"' /etc/V2bX/sing_origin.json 2>/dev/null)
+        case "$strategy" in
+            "prefer_ipv6"|"ipv6_only") echo "ipv6" ;;
+            "prefer_ipv4"|"ipv4_only") echo "ipv4" ;;
+            *) 
+                # 如果没有配置，自动检测
+                ipv6_support=$(check_ipv6_support)
+                [[ "$ipv6_support" == "1" ]] && echo "ipv6" || echo "ipv4"
+                ;;
+        esac
+    else
+        # 配置文件不存在，自动检测
+        ipv6_support=$(check_ipv6_support)
+        [[ "$ipv6_support" == "1" ]] && echo "ipv6" || echo "ipv4"
+    fi
+}
+
+# 设置优先级（直接修改配置文件）
+set_priority() {
+    local pref="$1"  # ipv4 or ipv6
+    
+    local current_pref=$(get_current_priority)
+    if [[ "$current_pref" == "$pref" ]]; then
+        echo -e "${green}当前已是 $pref 优先${plain}"
+        return 0
+    fi
+    
+    # 确定新的策略参数
+    if [[ "$pref" == "ipv6" ]]; then
+        local dns_strategy="prefer_ipv6"
+        local listen_ip="::"
+        local send_ip="::"
+        local dns_type="UseIP"
+    else
+        local dns_strategy="prefer_ipv4"
+        local listen_ip="0.0.0.0"
+        local send_ip="0.0.0.0"
+        local dns_type="UseIPv4"
+    fi
+    
+    # 备份配置文件
+    local timestamp=$(date +%Y%m%d_%H%M%S)
+    [[ -f /etc/V2bX/config.json ]] && cp /etc/V2bX/config.json /etc/V2bX/config.json.bak.$timestamp
+    [[ -f /etc/V2bX/sing_origin.json ]] && cp /etc/V2bX/sing_origin.json /etc/V2bX/sing_origin.json.bak.$timestamp
+    
+    # 修改配置文件
+    if [[ -f /etc/V2bX/config.json ]]; then
+        # 修改 config.json 中的相关配置
+        sed -i "s/\"SendIP\": \"[^\"]*\"/\"SendIP\": \"$send_ip\"/g" /etc/V2bX/config.json
+        sed -i "s/\"ListenIP\": \"0\.0\.0\.0\"/\"ListenIP\": \"$listen_ip\"/g" /etc/V2bX/config.json
+        sed -i "s/\"DNSType\": \"[^\"]*\"/\"DNSType\": \"$dns_type\"/g" /etc/V2bX/config.json
+    fi
+    
+    # 修改 sing_origin.json
+    if [[ -f /etc/V2bX/sing_origin.json ]]; then
+        # 使用 jq 修改 DNS 策略
+        if command -v jq >/dev/null 2>&1; then
+            jq ".dns.strategy = \"$dns_strategy\" | .outbounds[0].domain_resolver.strategy = \"$dns_strategy\"" \
+               /etc/V2bX/sing_origin.json > /tmp/sing_origin_tmp.json && \
+               mv /tmp/sing_origin_tmp.json /etc/V2bX/sing_origin.json
+        else
+            # 如果没有 jq，使用 sed
+            sed -i "s/\"strategy\": \"[^\"]*\"/\"strategy\": \"$dns_strategy\"/g" /etc/V2bX/sing_origin.json
+        fi
+    fi
+    
+    echo -e "${green}已切换为 $pref 优先${plain}"
+    echo -e "${yellow}配置文件已更新并备份${plain}"
+    
+    # 询问是否重启服务
+    read -rp "是否立即重启 V2bX 使配置生效？(y/n): " restart_now
+    if [[ "$restart_now" =~ ^[Yy]$ ]]; then
+        restart 0
+        echo -e "${green}V2bX 已重启，新的优先级已生效${plain}"
+    else
+        echo -e "${yellow}请手动重启 V2bX 以使配置生效: V2bX restart${plain}"
+    fi
+}
+
+# 切换优先级
+switch_ip_priority() {
+    check_install
+    if [[ $? != 0 ]]; then
+        return 1
+    fi
+    
+    local current=$(get_current_priority)
+    
+    echo ""
+    echo -e "=========================================="
+    echo -e "${green}IP 优先级切换${plain}"
+    echo -e "=========================================="
+    
+    if [[ "$current" == "ipv4" ]]; then
+        echo -e "当前优先级: ${yellow}IPv4 优先${plain}"
+        echo -e "只能切换为: ${green}IPv6 优先${plain}"
+        echo ""
+        read -rp "确认切换到 IPv6 优先吗？(y/n): " confirm
+        if [[ "$confirm" =~ ^[Yy]$ ]]; then
+            set_priority "ipv6"
+        else
+            echo -e "${yellow}已取消切换${plain}"
+        fi
+    else
+        echo -e "当前优先级: ${green}IPv6 优先${plain}"
+        echo -e "只能切换为: ${yellow}IPv4 优先${plain}"
+        echo ""
+        read -rp "确认切换到 IPv4 优先吗？(y/n): " confirm
+        if [[ "$confirm" =~ ^[Yy]$ ]]; then
+            set_priority "ipv4"
+        else
+            echo -e "${yellow}已取消切换${plain}"
+        fi
+    fi
+    
+    if [[ $# == 0 ]]; then
+        before_show_menu
+    fi
+}
+
 confirm() {
     if [[ $# > 1 ]]; then
         echo && read -rp "$1 [默认$2]: " temp
@@ -394,11 +544,15 @@ show_status() {
         2)
             echo -e "V2bX状态: ${red}未安装${plain}"
     esac
-    ip_priority=$(get_ip_priority)
-    if [[ "$ip_priority" == "ipv6" ]]; then
-      echo -e "IP优先级: ${green}IPv6优先${plain}"
+    
+    # 显示当前优先级和可切换目标
+    local current=$(get_current_priority)
+    if [[ "$current" == "ipv6" ]]; then
+        echo -e "IP优先级: ${green}IPv6优先${plain}"
+        echo -e "可切换为: ${yellow}IPv4优先${plain}"
     else
-      echo -e "IP优先级: ${yellow}IPv4优先${plain}"
+        echo -e "IP优先级: ${yellow}IPv4优先${plain}"
+        echo -e "可切换为: ${green}IPv6优先${plain}"
     fi
 }
 
@@ -1003,10 +1157,11 @@ show_menu() {
   ${green}14.${plain} 升级 V2bX 维护脚本
   ${green}15.${plain} 生成 V2bX 配置文件
   ${green}16.${plain} 放行 VPS 的所有网络端口
-  ${green}17.${plain} 退出脚本
+  ${green}17.${plain} 切换 IP 优先级
+  ${green}18.${plain} 退出脚本
  "
     show_status
-    echo && read -rp "请输入选择 [0-17]: " num
+    echo && read -rp "请输入选择 [0-18]: " num
 
     case "${num}" in
         0) config ;;
@@ -1026,7 +1181,8 @@ show_menu() {
         14) update_shell ;;
         15) generate_config_file ;;
         16) open_ports ;;
-        17) exit ;;
+        17) switch_ip_priority ;;
+        18) exit ;;
         *) echo -e "${red}请输入正确的数字 [0-17]${plain}" ;;
     esac
 }
