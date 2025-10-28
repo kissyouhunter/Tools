@@ -98,39 +98,41 @@ get_current_priority() {
 # 设置优先级（直接修改配置文件）
 set_priority() {
     local pref="$1"  # ipv4 or ipv6
-    
+
     local current_pref=$(get_current_priority)
     if [[ "$current_pref" == "$pref" ]]; then
         echo -e "${green}当前已是 $pref 优先${plain}"
         return 0
     fi
-    
-    # 确定新的策略参数
+
+    # ListenIP 永远是 "::" 以支持双栈
+    local listen_ip="::"
+
+    # 根据优先级确定 SendIP 和 DNS 策略
     if [[ "$pref" == "ipv6" ]]; then
         local dns_strategy="prefer_ipv6"
-        local listen_ip="::"
         local send_ip="::"
         local dns_type="UseIP"
     else
         local dns_strategy="prefer_ipv4"
-        local listen_ip="0.0.0.0"
         local send_ip="0.0.0.0"
         local dns_type="UseIPv4"
     fi
-    
+
     # 备份配置文件
     local timestamp=$(date +%Y%m%d_%H%M%S)
     [[ -f /etc/V2bX/config.json ]] && cp /etc/V2bX/config.json /etc/V2bX/config.json.bak.$timestamp
     [[ -f /etc/V2bX/sing_origin.json ]] && cp /etc/V2bX/sing_origin.json /etc/V2bX/sing_origin.json.bak.$timestamp
-    
+
     # 修改配置文件
     if [[ -f /etc/V2bX/config.json ]]; then
         # 修改 config.json 中的相关配置
+        # 只修改 SendIP，ListenIP 保持为 "::"
         sed -i "s/\"SendIP\": \"[^\"]*\"/\"SendIP\": \"$send_ip\"/g" /etc/V2bX/config.json
-        sed -i "s/\"ListenIP\": \"0\.0\.0\.0\"/\"ListenIP\": \"$listen_ip\"/g" /etc/V2bX/config.json
+        sed -i "s/\"ListenIP\": \"[^\"]*\"/\"ListenIP\": \"$listen_ip\"/g" /etc/V2bX/config.json
         sed -i "s/\"DNSType\": \"[^\"]*\"/\"DNSType\": \"$dns_type\"/g" /etc/V2bX/config.json
     fi
-    
+
     # 修改 sing_origin.json
     if [[ -f /etc/V2bX/sing_origin.json ]]; then
         # 使用 jq 修改 DNS 策略
@@ -143,18 +145,14 @@ set_priority() {
             sed -i "s/\"strategy\": \"[^\"]*\"/\"strategy\": \"$dns_strategy\"/g" /etc/V2bX/sing_origin.json
         fi
     fi
-    
+
     echo -e "${green}已切换为 $pref 优先${plain}"
     echo -e "${yellow}配置文件已更新并备份${plain}"
-    
-    # 询问是否重启服务
-    read -rp "是否立即重启 V2bX 使配置生效？(y/n): " restart_now
-    if [[ "$restart_now" =~ ^[Yy]$ ]]; then
-        restart 0
-        echo -e "${green}V2bX 已重启，新的优先级已生效${plain}"
-    else
-        echo -e "${yellow}请手动重启 V2bX 以使配置生效: V2bX restart${plain}"
-    fi
+
+    # 自动重启服务
+    echo -e "${green}正在重启 V2bX...${plain}"
+    restart 0
+    echo -e "${green}V2bX 已重启，新的优先级已生效${plain}"
 }
 
 # 切换优先级
@@ -553,16 +551,221 @@ show_V2bX_version() {
 }
 
 
+# 添加节点到现有配置
+add_new_node() {
+    check_install
+    if [[ $? != 0 ]]; then
+        return 1
+    fi
+
+    if [[ ! -f /etc/V2bX/config.json ]]; then
+        echo -e "${red}配置文件不存在，请先生成配置文件${plain}"
+        before_show_menu
+        return 1
+    fi
+
+    echo -e "${green}添加节点配置${plain}"
+    echo -e "${yellow}================================================${plain}"
+
+    # 读取当前配置文件中的IP优先级
+    current_priority=$(get_current_priority)
+    echo -e "${green}当前配置优先级: ${current_priority}${plain}"
+
+    # 检查配置文件中是否已有节点
+    local node_count=$(jq '.Nodes | length' /etc/V2bX/config.json 2>/dev/null)
+
+    if [[ $node_count -gt 0 ]]; then
+        # 有节点时才询问是否使用现有API信息
+        read -rp "是否使用配置文件中已有的API信息？(y/n): " use_existing_api
+        if [[ "$use_existing_api" =~ ^[Yy]$ ]]; then
+            # 从配置文件中读取第一个节点的API信息
+            ApiHost=$(jq -r '.Nodes[0].ApiHost' /etc/V2bX/config.json)
+            ApiKey=$(jq -r '.Nodes[0].ApiKey' /etc/V2bX/config.json)
+            echo -e "${green}使用API地址: $ApiHost${plain}"
+        else
+            read -rp "请输入机场网址(https://example.com)：" ApiHost
+            read -rp "请输入面板对接API Key：" ApiKey
+        fi
+    else
+        # 没有节点时直接输入
+        echo -e "${yellow}配置文件中没有现有节点，请输入API信息${plain}"
+        read -rp "请输入机场网址(https://example.com)：" ApiHost
+        read -rp "请输入面板对接API Key：" ApiKey
+    fi
+
+    # 调用原有的节点配置函数，传入use_current_priority标记
+    nodes_config=()
+    use_current_priority=true
+    add_node_config
+    # 重置标记，避免影响其他函数调用
+    use_current_priority=false
+
+    # 备份配置文件
+    local timestamp=$(date +%Y%m%d_%H%M%S)
+    cp /etc/V2bX/config.json /etc/V2bX/config.json.bak.$timestamp
+    echo -e "${yellow}配置文件已备份到: config.json.bak.$timestamp${plain}"
+
+    # 使用jq添加新节点到配置文件
+    local new_node="${nodes_config[0]}"
+    # 移除末尾的逗号
+    new_node="${new_node%,}"
+
+    # 将新节点添加到Nodes数组
+    jq ".Nodes += [$new_node]" /etc/V2bX/config.json > /tmp/config_tmp.json
+    if [[ $? -eq 0 ]]; then
+        mv /tmp/config_tmp.json /etc/V2bX/config.json
+        echo -e "${green}节点已成功添加到配置文件${plain}"
+
+        # 自动重启服务
+        echo -e "${green}正在重启 V2bX...${plain}"
+        restart 0
+        echo -e "${green}V2bX 已重启，节点已生效${plain}"
+    else
+        echo -e "${red}添加节点失败，配置文件已回滚${plain}"
+        mv /etc/V2bX/config.json.bak.$timestamp /etc/V2bX/config.json
+    fi
+
+    if [[ $# == 0 ]]; then
+        before_show_menu
+    fi
+}
+
+# 删除节点
+delete_node() {
+    check_install
+    if [[ $? != 0 ]]; then
+        return 1
+    fi
+
+    if [[ ! -f /etc/V2bX/config.json ]]; then
+        echo -e "${red}配置文件不存在${plain}"
+        before_show_menu
+        return 1
+    fi
+
+    # 检查是否安装了jq
+    if ! command -v jq >/dev/null 2>&1; then
+        echo -e "${red}需要安装jq工具，正在安装...${plain}"
+        if [[ x"${release}" == x"centos" ]]; then
+            yum install jq -y
+        elif [[ x"${release}" == x"alpine" ]]; then
+            apk add jq
+        else
+            apt install jq -y
+        fi
+    fi
+
+    echo -e "${green}节点列表${plain}"
+    echo -e "${yellow}================================================${plain}"
+
+    # 读取并显示所有节点
+    local node_count=$(jq '.Nodes | length' /etc/V2bX/config.json)
+
+    if [[ $node_count -eq 0 ]]; then
+        echo -e "${red}配置文件中没有节点${plain}"
+        before_show_menu
+        return 1
+    fi
+
+    echo -e "${green}序号 | NodeID | 节点类型 | 核心类型 | API地址${plain}"
+    echo "------------------------------------------------------------"
+
+    for ((i=0; i<$node_count; i++)); do
+        local node_id=$(jq -r ".Nodes[$i].NodeID" /etc/V2bX/config.json)
+        local node_type=$(jq -r ".Nodes[$i].NodeType" /etc/V2bX/config.json)
+        local core=$(jq -r ".Nodes[$i].Core" /etc/V2bX/config.json)
+        local api_host=$(jq -r ".Nodes[$i].ApiHost" /etc/V2bX/config.json)
+        echo -e "${green}$((i+1))${plain}    | $node_id | $node_type | $core | $api_host"
+    done
+
+    echo "------------------------------------------------------------"
+    echo -e "${yellow}当前共有 $node_count 个节点${plain}"
+    echo ""
+
+    # 如果只有一个节点，警告用户
+    if [[ $node_count -eq 1 ]]; then
+        echo -e "${red}警告：这是最后一个节点，删除后配置文件将没有节点！${plain}"
+    fi
+
+    read -rp "请输入要删除的节点序号 (1-$node_count，输入0取消): " node_index
+
+    if [[ "$node_index" == "0" ]]; then
+        echo -e "${yellow}已取消删除${plain}"
+        before_show_menu
+        return 0
+    fi
+
+    # 验证输入
+    if ! [[ "$node_index" =~ ^[0-9]+$ ]] || [[ $node_index -lt 1 ]] || [[ $node_index -gt $node_count ]]; then
+        echo -e "${red}无效的序号${plain}"
+        before_show_menu
+        return 1
+    fi
+
+    # 显示要删除的节点信息
+    local array_index=$((node_index-1))
+    local del_node_id=$(jq -r ".Nodes[$array_index].NodeID" /etc/V2bX/config.json)
+    local del_node_type=$(jq -r ".Nodes[$array_index].NodeType" /etc/V2bX/config.json)
+    local del_core=$(jq -r ".Nodes[$array_index].Core" /etc/V2bX/config.json)
+
+    echo ""
+    echo -e "${yellow}即将删除：${plain}"
+    echo -e "  NodeID: ${red}$del_node_id${plain}"
+    echo -e "  节点类型: ${red}$del_node_type${plain}"
+    echo -e "  核心类型: ${red}$del_core${plain}"
+    echo ""
+
+    read -rp "确认删除此节点吗？(y/n): " confirm
+    if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
+        echo -e "${yellow}已取消删除${plain}"
+        before_show_menu
+        return 0
+    fi
+
+    # 备份配置文件
+    local timestamp=$(date +%Y%m%d_%H%M%S)
+    cp /etc/V2bX/config.json /etc/V2bX/config.json.bak.$timestamp
+    echo -e "${yellow}配置文件已备份到: config.json.bak.$timestamp${plain}"
+
+    # 删除节点
+    jq "del(.Nodes[$array_index])" /etc/V2bX/config.json > /tmp/config_tmp.json
+    if [[ $? -eq 0 ]]; then
+        mv /tmp/config_tmp.json /etc/V2bX/config.json
+        echo -e "${green}节点已成功删除${plain}"
+
+        # 自动重启服务
+        echo -e "${green}正在重启 V2bX...${plain}"
+        restart 0
+        echo -e "${green}V2bX 已重启，配置已生效${plain}"
+    else
+        echo -e "${red}删除节点失败，配置文件已回滚${plain}"
+        mv /etc/V2bX/config.json.bak.$timestamp /etc/V2bX/config.json
+    fi
+
+    if [[ $# == 0 ]]; then
+        before_show_menu
+    fi
+}
+
 # 节点配置自动根据 IPv4/IPv6 生成
 add_node_config() {
-    ip_priority=$(get_ip_priority)
+    # 如果是添加新节点，使用当前配置的优先级；否则自动检测系统
+    if [[ "$use_current_priority" == "true" ]]; then
+        ip_priority=$(get_current_priority)
+        echo -e "${yellow}使用当前配置的IP优先级: ${ip_priority}${plain}"
+    else
+        ip_priority=$(get_ip_priority)
+    fi
+
+    # ListenIP 永远是 "::" 以支持双栈
+    listen_ip="::"
+
+    # 根据优先级设置 SendIP
     if [[ "$ip_priority" == "ipv6" ]]; then
-        listen_ip="::"
         send_ip="::"
         dnsstrategy="prefer_ipv6"
         dnstype="UseIP"
     else
-        listen_ip="0.0.0.0"
         send_ip="0.0.0.0"
         dnsstrategy="ipv4_only"
         dnstype="UseIPv4"
@@ -767,13 +970,15 @@ generate_config_file() {
     if [[ "$continue_prompt" =~ ^[Nn][Oo]? ]]; then
         exit 0
     fi
-    
+
     nodes_config=()
     first_node=true
     core_xray=false
     core_sing=false
     fixed_api_info=false
     check_api=false
+    # 生成配置文件时使用系统检测，不使用现有配置
+    use_current_priority=false
     
     while true; do
         if [ "$first_node" = true ]; then
@@ -1076,6 +1281,8 @@ show_usage() {
     echo "V2bX log          - 查看 V2bX 日志"
     echo "V2bX x25519       - 生成 x25519 密钥"
     echo "V2bX generate     - 生成 V2bX 配置文件"
+    echo "V2bX addnode      - 添加节点到配置"
+    echo "V2bX delnode      - 删除节点"
     echo "V2bX update       - 更新 V2bX"
     echo "V2bX update x.x.x - 安装 V2bX 指定版本"
     echo "V2bX install      - 安装 V2bX"
@@ -1107,8 +1314,10 @@ show_menu() {
   ${green}12.${plain} 生成 X25519 密钥
   ${green}13.${plain} 升级 V2bX 维护脚本
   ${green}14.${plain} 生成 V2bX 配置文件
-  ${green}15.${plain} 切换 IP 优先级
-  ${green}16.${plain} 退出脚本
+  ${green}15.${plain} 添加节点
+  ${green}16.${plain} 删除节点
+  ${green}17.${plain} 切换 IP 优先级
+  ${green}18.${plain} 退出脚本
  "
     show_status
     echo && read -rp "请输入选择 [0-18]: " num
@@ -1129,9 +1338,11 @@ show_menu() {
         12) check_install && generate_x25519_key ;;
         13) update_shell ;;
         14) generate_config_file ;;
-        15) switch_ip_priority ;;
-        16) exit ;;
-        *) echo -e "${red}请输入正确的数字 [0-17]${plain}" ;;
+        15) add_new_node ;;
+        16) delete_node ;;
+        17) switch_ip_priority ;;
+        18) exit ;;
+        *) echo -e "${red}请输入正确的数字 [0-18]${plain}" ;;
     esac
 }
 
@@ -1147,6 +1358,8 @@ if [[ $# > 0 ]]; then
         "update") check_install 0 && update 0 $2 ;;
         "config") config $* ;;
         "generate") generate_config_file ;;
+        "addnode") check_install 0 && add_new_node ;;
+        "delnode") check_install 0 && delete_node ;;
         "install") check_uninstall 0 && install 0 ;;
         "uninstall") check_install 0 && uninstall 0 ;;
         "x25519") check_install 0 && generate_x25519_key 0 ;;
