@@ -604,6 +604,72 @@ remove_xray() {
     fi
 }
 
+# 设置日志级别
+set_log_level() {
+    echo -e "${CYAN}请选择日志级别：${NC}"
+    echo -e "${WHITE}1.${NC} debug (最详细，包含调试信息)"
+    echo -e "${WHITE}2.${NC} info (常规信息)"
+    echo -e "${WHITE}3.${NC} warning (警告信息，默认)"
+    echo -e "${WHITE}4.${NC} error (仅错误信息)"
+    echo -e "${WHITE}5.${NC} none (不输出日志)"
+    read -p "请输入选项 (1-5): " log_choice
+    case $log_choice in
+        1)
+            log_level="debug"
+            log_desc="debug"
+            ;;
+        2)
+            log_level="info"
+            log_desc="info"
+            ;;
+        3)
+            log_level="warning"
+            log_desc="warning"
+            ;;
+        4)
+            log_level="error"
+            log_desc="error"
+            ;;
+        5)
+            log_level="none"
+            log_desc="none"
+            ;;
+        *)
+            echo -e "${RED}无效选择，返回主菜单。${NC}"
+            return
+            ;;
+    esac
+
+    # 备份现有配置
+    if [ -f "$CONFIG_PATH" ]; then
+        timestamp=$(date +%Y%m%d%H%M%S)
+        backup_file="${BACKUP_DIR}config_${timestamp}.json"
+        echo -e "${GREEN}已备份现有配置到: $backup_file${NC}"
+        cp "$CONFIG_PATH" "$backup_file"
+    fi
+
+    # 更新配置文件，添加或修改 log 部分
+    existing_config=$(parse_existing_config)
+    new_config=$(echo "$existing_config" | jq ".log.loglevel = \"$log_level\"")
+
+    # 写入新配置
+    echo -e "${GREEN}写入新配置到: $CONFIG_PATH${NC}"
+    echo "$new_config" | jq . | tee "$CONFIG_PATH" > /dev/null
+    chmod 644 "$CONFIG_PATH"
+
+    # 重启 Xray 服务
+    if systemctl is-active xray > /dev/null; then
+        echo -e "${CYAN}重启 Xray 服务...${NC}"
+        show_progress 2 "重启 Xray 服务" "systemctl restart xray"
+        if [[ $? -ne 0 ]]; then
+            echo -e "${RED}警告：Xray 服务重启失败，查看日志...${NC}"
+            journalctl -u xray -n 50 --no-pager
+        fi
+    fi
+
+    echo -e "${GREEN}已设置日志级别为：$log_desc${NC}"
+}
+
 # 设置出口优先级
 set_priority() {
     echo -e "${CYAN}请选择出口优先级：${NC}"
@@ -668,6 +734,19 @@ set_priority() {
     fi
 
     echo -e "${GREEN}已设置出口优先级为：$priority_desc${NC}"
+}
+
+# 查看日志
+view_logs() {
+    if ! command -v xray &> /dev/null; then
+        echo -e "${RED}错误：检测到 Xray 未安装。${NC}"
+        return 1
+    fi
+
+    echo -e "\n${PURPLE}=== Xray 实时日志 ===${NC}"
+    echo -e "${YELLOW}提示: 按 Ctrl+C 可以退出实时查看模式${NC}"
+    sleep 2
+    journalctl -u xray -f
 }
 
 # 管理 Dokodemo-door 配置
@@ -910,6 +989,14 @@ show_status() {
         else
             echo -e "${CYAN}出口优先级:${NC} ${GREEN}AsIs (默认)${NC}"
         fi
+
+        # 日志级别
+        if [ -f "$CONFIG_PATH" ]; then
+            current_log_level=$(jq -r '.log.loglevel // "warning"' "$CONFIG_PATH" 2>/dev/null)
+            echo -e "${CYAN}日志级别:${NC} ${GREEN}$current_log_level${NC}"
+        else
+            echo -e "${CYAN}日志级别:${NC} ${GREEN}warning (默认)${NC}"
+        fi
     else
         echo -e "${CYAN}运行状态:${NC} ${YELLOW}未安装${NC}"
         echo -e "${CYAN}开机自启:${NC} ${YELLOW}未安装${NC}"
@@ -986,7 +1073,15 @@ show_menu() {
         menu_options+=("设置出口优先级")
         echo -e "${WHITE}${menu_count}.${NC} 设置出口优先级"
         ((menu_count++))
-        
+
+        menu_options+=("设置日志级别")
+        echo -e "${WHITE}${menu_count}.${NC} 设置日志级别"
+        ((menu_count++))
+
+        menu_options+=("查看日志")
+        echo -e "${WHITE}${menu_count}.${NC} 查看日志"
+        ((menu_count++))
+
         menu_options+=("卸载 Xray")
         echo -e "${WHITE}${menu_count}.${NC} 卸载 Xray"
         ((menu_count++))
@@ -1130,6 +1225,21 @@ while true; do
                     install_xray  # 确保 Xray 已安装
                     set_priority
                     read -p "按任意键继续..."
+                    continue
+                    ;;
+                "设置日志级别")
+                    install_xray  # 确保 Xray 已安装
+                    set_log_level
+                    read -p "按任意键继续..."
+                    continue
+                    ;;
+                "查看日志")
+                    if ! command -v xray &> /dev/null; then
+                        echo -e "${RED}错误：检测到 Xray 未安装。${NC}"
+                        read -p "按任意键继续..."
+                        continue
+                    fi
+                    view_logs
                     continue
                     ;;
                 "卸载 Xray")
