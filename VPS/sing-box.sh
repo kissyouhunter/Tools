@@ -190,16 +190,16 @@ random_port() {
     local port
     local max_attempts=50
     local attempts=0
-    
+
     while [[ $attempts -lt $max_attempts ]]; do
         port=$((RANDOM % 40001 + 10000))
         if ! ss -tuln | grep -q ":$port "; then
             echo "$port"
             return 0
         fi
-        ((attempts++))
+        attempts=$((attempts + 1))  # 避免 ((attempts++)) 在 set -e 下 attempts=0 时返回假値退出
     done
-    
+
     echo -e "${RED}无法找到可用端口，请手动指定${NC}" >&2
     read_port
 }
@@ -574,7 +574,16 @@ EOF
 generate_hysteria2_config() {
     local port=$1
     local password=$2
-    cat << EOF
+    local up_mbps=${3:-0}
+    local down_mbps=${4:-0}
+
+    # 有带宽限制时使用 BBR+限速，ignore_client_bandwidth 设为 false
+    # 无带宽限制时纯 BBR 自动控制，ignore_client_bandwidth 设为 true
+    local ignore_bw="true"
+    [[ "$up_mbps" -gt 0 && "$down_mbps" -gt 0 ]] && ignore_bw="false"
+
+    local base_config
+    base_config=$(cat << EOF
 {
     "type": "hysteria2",
     "listen": "::",
@@ -585,8 +594,48 @@ generate_hysteria2_config() {
             "password": "$password"
         }
     ],
-    "ignore_client_bandwidth": true,
+    "ignore_client_bandwidth": $ignore_bw,
     "masquerade": "https://www.bing.com",
+    "tls": {
+        "enabled": true,
+        "server_name": "www.bing.com",
+        "certificate_path": "/etc/sing-box/server.crt",
+        "key_path": "/etc/sing-box/server.key",
+        "alpn": ["h3"]
+    }
+}
+EOF
+)
+
+    # 若指定了带宽，则注入 up_mbps / down_mbps 字段
+    if [[ "$up_mbps" -gt 0 && "$down_mbps" -gt 0 ]]; then
+        echo "$base_config" | jq ". + {\"up_mbps\": $up_mbps, \"down_mbps\": $down_mbps}"
+    else
+        echo "$base_config"
+    fi
+}
+
+generate_tuic_config() {
+    local port=$1
+    local uuid=$2
+    local password=$3
+    cat << EOF
+{
+    "type": "tuic",
+    "listen": "::",
+    "listen_port": $port,
+    "tag": "tuic-$port",
+    "users": [
+        {
+            "name": "sekai",
+            "uuid": "$uuid",
+            "password": "$password"
+        }
+    ],
+    "congestion_control": "bbr",
+    "auth_timeout": "3s",
+    "zero_rtt_handshake": false,
+    "heartbeat": "10s",
     "tls": {
         "enabled": true,
         "server_name": "www.bing.com",
@@ -598,43 +647,6 @@ generate_hysteria2_config() {
 EOF
 }
 
-# 生成分享链接
-generate_share_links() {
-    local protocol=$1
-    local port=$2
-    local auth=$3
-    local share_links=""
-    
-    case "$protocol" in
-        "shadowsocks")
-            if [[ -n "$SERVER_IPV4" ]]; then
-                local ss_link=$(echo -n "chacha20-ietf-poly1305:$auth" | base64 -w 0)
-                share_links+="ss://$ss_link@$SERVER_IPV4:$port#SS-IPv4-$port"$'\n'
-            fi
-            if [[ -n "$SERVER_IPV6" ]]; then
-                local ss_link=$(echo -n "chacha20-ietf-poly1305:$auth" | base64 -w 0)
-                share_links+="ss://$ss_link@[$SERVER_IPV6]:$port#SS-IPv6-$port"$'\n'
-            fi
-            ;;
-        "vmess")
-            if [[ -n "$SERVER_IPV4" ]]; then
-                local vmess_json="{\"v\":\"2\",\"ps\":\"VMess-IPv4-$port\",\"add\":\"$SERVER_IPV4\",\"port\":\"$port\",\"id\":\"$auth\",\"aid\":\"0\",\"net\":\"tcp\",\"type\":\"none\",\"host\":\"\",\"path\":\"\",\"tls\":\"\"}"
-                share_links+="vmess://$(echo -n "$vmess_json" | base64 -w 0)"$'\n'
-            fi
-            if [[ -n "$SERVER_IPV6" ]]; then
-                local vmess_json="{\"v\":\"2\",\"ps\":\"VMess-IPv6-$port\",\"add\":\"$SERVER_IPV6\",\"port\":\"$port\",\"id\":\"$auth\",\"aid\":\"0\",\"net\":\"tcp\",\"type\":\"none\",\"host\":\"\",\"path\":\"\",\"tls\":\"\"}"
-                share_links+="vmess://$(echo -n "$vmess_json" | base64 -w 0)"$'\n'
-            fi
-            ;;
-    esac
-    
-    if [[ -n "$share_links" ]]; then
-        echo -e "${GREEN}分享链接:${NC}"
-        echo "$share_links"
-    else
-        echo -e "${YELLOW}无法生成分享链接（未获取到服务器IP地址）${NC}"
-    fi
-}
 
 # 保存配置到文件（修改为/root目录）
 save_config_to_file() {
@@ -689,6 +701,8 @@ add_socks5() {
             share_links+="$link6"$'\n'
         fi
 
+        [[ -z "$share_links" ]] && echo -e "${YELLOW}无法生成分享链接（未获取到服务器IP地址）${NC}"
+
         save_config_to_file "SOCKS5" "$port" "$share_links"
     else
         echo -e "${RED}添加 SOCKS5 配置失败${NC}"
@@ -699,24 +713,39 @@ add_socks5() {
 # 添加Shadowsocks配置
 add_shadowsocks() {
     echo -e "${BLUE}添加Shadowsocks配置${NC}"
-    
+
     local port=$(random_port)
     local password=$(random_password)
     local config
-    
+
     config=$(generate_shadowsocks_config "$port" "$password")
-    
+
     if safe_config_update ".inbounds += [$config]"; then
         echo -e "${GREEN}Shadowsocks配置添加成功${NC}"
         echo "端口: $port"
         echo "密码: $password"
         echo "加密方式: chacha20-ietf-poly1305"
-        
-        local share_links
-        share_links=$(generate_share_links "shadowsocks" "$port" "$password")
-        echo "$share_links"
-        
+
         restart_service_with_feedback
+
+        # 生成分享链接并显示
+        local share_links=""
+        if [[ -n "$SERVER_IPV4" ]]; then
+            local ss_link
+            ss_link=$(echo -n "chacha20-ietf-poly1305:$password" | base64 -w 0)
+            local link4="ss://${ss_link}@${SERVER_IPV4}:${port}#SS-IPv4-${port}"
+            echo -e "${GREEN}分享链接 IPv4: ${link4}${NC}"
+            share_links+="$link4"$'\n'
+        fi
+        if [[ -n "$SERVER_IPV6" ]]; then
+            local ss_link
+            ss_link=$(echo -n "chacha20-ietf-poly1305:$password" | base64 -w 0)
+            local link6="ss://${ss_link}@[${SERVER_IPV6}]:${port}#SS-IPv6-${port}"
+            echo -e "${GREEN}分享链接 IPv6: ${link6}${NC}"
+            share_links+="$link6"$'\n'
+        fi
+        [[ -z "$share_links" ]] && echo -e "${YELLOW}无法生成分享链接（未获取到服务器IP地址）${NC}"
+
         save_config_to_file "Shadowsocks" "$port" "$share_links"
     else
         echo -e "${RED}添加Shadowsocks配置失败${NC}"
@@ -727,24 +756,37 @@ add_shadowsocks() {
 # 添加VMess配置
 add_vmess() {
     echo -e "${BLUE}添加VMess配置${NC}"
-    
+
     local port=$(random_port)
     local uuid=$(generate_uuid)
     local config
-    
+
     config=$(generate_vmess_config "$port" "$uuid")
-    
+
     if safe_config_update ".inbounds += [$config]"; then
         echo -e "${GREEN}VMess配置添加成功${NC}"
         echo "端口: $port"
         echo "UUID: $uuid"
         echo "AlterID: 0"
-        
-        local share_links
-        share_links=$(generate_share_links "vmess" "$port" "$uuid")
-        echo "$share_links"
-        
+
         restart_service_with_feedback
+
+        # 生成 VMess 分享链接并显示
+        local share_links=""
+        if [[ -n "$SERVER_IPV4" ]]; then
+            local vmess_json="{\"v\":\"2\",\"ps\":\"VMess-IPv4-$port\",\"add\":\"$SERVER_IPV4\",\"port\":\"$port\",\"id\":\"$uuid\",\"aid\":\"0\",\"net\":\"tcp\",\"type\":\"none\",\"host\":\"\",\"path\":\"\",\"tls\":\"\"}"
+            local link4="vmess://$(echo -n "$vmess_json" | base64 -w 0)"
+            echo -e "${GREEN}分享链接 IPv4: ${link4}${NC}"
+            share_links+="$link4"$'\n'
+        fi
+        if [[ -n "$SERVER_IPV6" ]]; then
+            local vmess_json="{\"v\":\"2\",\"ps\":\"VMess-IPv6-$port\",\"add\":\"$SERVER_IPV6\",\"port\":\"$port\",\"id\":\"$uuid\",\"aid\":\"0\",\"net\":\"tcp\",\"type\":\"none\",\"host\":\"\",\"path\":\"\",\"tls\":\"\"}"
+            local link6="vmess://$(echo -n "$vmess_json" | base64 -w 0)"
+            echo -e "${GREEN}分享链接 IPv6: ${link6}${NC}"
+            share_links+="$link6"$'\n'
+        fi
+        [[ -z "$share_links" ]] && echo -e "${YELLOW}无法生成分享链接（未获取到服务器IP地址）${NC}"
+
         save_config_to_file "VMess" "$port" "$share_links"
     else
         echo -e "${RED}添加VMess配置失败${NC}"
@@ -794,7 +836,9 @@ add_anytls() {
             share_links+="$link4"$'\n'
         fi
 
-        # 保存两条链接（或现有的一条）
+        [[ -z "$share_links" ]] && echo -e "${YELLOW}无法生成分享链接（未获取到服务器IP地址）${NC}"
+
+        # 保存链接到文件
         save_config_to_file "AnyTLS" "$port" "$share_links"
     else
         echo -e "${RED}添加 AnyTLS 配置失败${NC}"
@@ -839,48 +883,245 @@ add_vless_reality() {
   fi
 }
 
+# 持久化 iptables 规则
+persist_iptables_rules() {
+    if command -v netfilter-persistent > /dev/null 2>&1; then
+        netfilter-persistent save > /dev/null 2>&1 && \
+            echo -e "  ${GREEN}✓ iptables 规则已通过 netfilter-persistent 持久化${NC}" || true
+    elif command -v iptables-save > /dev/null 2>&1; then
+        if [[ -d /etc/iptables ]]; then
+            iptables-save  > /etc/iptables/rules.v4  2>/dev/null && \
+                echo -e "  ${GREEN}✓ IPv4 规则已持久化到 /etc/iptables/rules.v4${NC}" || true
+            ip6tables-save > /etc/iptables/rules.v6 2>/dev/null && \
+                echo -e "  ${GREEN}✓ IPv6 规则已持久化到 /etc/iptables/rules.v6${NC}" || true
+        else
+            echo -e "  ${YELLOW}⚠ 未找到 iptables 持久化目录，规则重启后可能失效${NC}"
+            echo -e "  ${YELLOW}  建议安装: apt install iptables-persistent${NC}"
+        fi
+    else
+        echo -e "  ${YELLOW}⚠ 未检测到 iptables-save，请手动持久化规则${NC}"
+    fi
+}
+
+# 设置 Hysteria2 端口跳跃 iptables 规则
+setup_hy2_port_hopping() {
+    local main_port=$1
+    local hop_start=$2
+    local hop_end=$3
+    local redirect_start=$((hop_start + 1))  # 主端口由 sing-box 直接监听，无需重定向
+
+    echo -e "${BLUE}正在设置端口跳跃规则 (${hop_start}-${hop_end} → ${main_port})...${NC}"
+
+    if [[ "$redirect_start" -le "$hop_end" ]]; then
+        # IPv4 规则
+        if iptables -t nat -A PREROUTING -p udp \
+            --dport "${redirect_start}:${hop_end}" \
+            -j REDIRECT --to-port "$main_port" 2>/dev/null; then
+            echo -e "  ${GREEN}✓ IPv4 iptables 规则添加成功${NC}"
+        else
+            echo -e "  ${YELLOW}⚠ IPv4 规则添加失败（可能内核不支持 NAT）${NC}"
+        fi
+
+        # IPv6 规则
+        if ip6tables -t nat -A PREROUTING -p udp \
+            --dport "${redirect_start}:${hop_end}" \
+            -j REDIRECT --to-port "$main_port" 2>/dev/null; then
+            echo -e "  ${GREEN}✓ IPv6 ip6tables 规则添加成功${NC}"
+        else
+            echo -e "  ${YELLOW}⚠ IPv6 规则添加失败（可能内核不支持 NAT）${NC}"
+        fi
+    fi
+
+    # 记录跳跃配置，便于后续删除时清理
+    mkdir -p /etc/sing-box
+    echo "${hop_start}:${hop_end}:${main_port}" >> /etc/sing-box/port_hopping.conf
+
+    persist_iptables_rules
+    echo -e "${GREEN}✓ 端口跳跃规则设置完成${NC}"
+}
+
+# 清除 Hysteria2 端口跳跃 iptables 规则
+remove_hy2_port_hopping() {
+    local main_port=$1
+    local conf_file="/etc/sing-box/port_hopping.conf"
+
+    [[ ! -f "$conf_file" ]] && return 0
+
+    local entry
+    entry=$(grep ":${main_port}$" "$conf_file" 2>/dev/null || echo "")
+    [[ -z "$entry" ]] && return 0
+
+    local hop_start hop_end
+    hop_start=$(echo "$entry" | cut -d: -f1)
+    hop_end=$(echo  "$entry" | cut -d: -f2)
+    local redirect_start=$((hop_start + 1))
+
+    echo -e "${BLUE}正在清除端口跳跃规则 (${hop_start}-${hop_end} → ${main_port})...${NC}"
+
+    if [[ "$redirect_start" -le "$hop_end" ]]; then
+        iptables  -t nat -D PREROUTING -p udp \
+            --dport "${redirect_start}:${hop_end}" \
+            -j REDIRECT --to-port "$main_port" 2>/dev/null || true
+        ip6tables -t nat -D PREROUTING -p udp \
+            --dport "${redirect_start}:${hop_end}" \
+            -j REDIRECT --to-port "$main_port" 2>/dev/null || true
+    fi
+
+    # 从记录文件中删除此条目
+    sed -i "/:${main_port}$/d" "$conf_file"
+
+    persist_iptables_rules
+    echo -e "${GREEN}✓ 端口跳跃规则已清除 (${hop_start}-${hop_end})${NC}"
+}
+
 # 添加Hysteria2配置
 add_hysteria2() {
     echo -e "${BLUE}添加 Hysteria2 配置${NC}"
     generate_anytls_tls_cert  # 复用已有的证书生成函数
 
-    local port=$(random_port)
-    local password=$(random_password)
-    local config
+    local port
+    port=$(random_port)
+    local password
+    password=$(random_password)
 
-    config=$(generate_hysteria2_config "$port" "$password")
+    # ── 带宽限制 ──────────────────────────────────────────────────
+    echo ""
+    echo -e "${BLUE}── 带宽限制（留空则使用 BBR 自动控制）──${NC}"
+    local up_mbps=0
+    local down_mbps=0
+    read -p "服务端上行带宽限制 up_mbps（Mbps，留空不限制）: " up_input
+    if [[ -n "$up_input" && "$up_input" =~ ^[0-9]+$ && "$up_input" -gt 0 ]]; then
+        read -p "服务端下行带宽限制 down_mbps（Mbps，留空不限制）: " down_input
+        if [[ -n "$down_input" && "$down_input" =~ ^[0-9]+$ && "$down_input" -gt 0 ]]; then
+            up_mbps=$up_input
+            down_mbps=$down_input
+        else
+            echo -e "${YELLOW}下行带宽无效，带宽限制已跳过${NC}"
+        fi
+    fi
+
+    # ── 端口跳跃 ──────────────────────────────────────────────────
+    echo ""
+    echo -e "${BLUE}── 端口跳跃 Port Hopping ──${NC}"
+    local enable_hopping=false
+    local hop_end=0
+    read -p "是否启用端口跳跃？(y/N): " -n 1 -r hop_reply
+    echo
+    if [[ "$hop_reply" =~ ^[Yy]$ ]]; then
+        enable_hopping=true
+        hop_end=$((port + 999))   # 默认 1000 端口范围
+        # 防止端口超过 65535 上限
+        [[ "$hop_end" -gt 65535 ]] && hop_end=65535
+        echo -e "${GREEN}端口跳跃范围: ${port}-${hop_end}（共 $((hop_end - port + 1)) 个端口）${NC}"
+    fi
+
+    # ── 生成配置并写入 ────────────────────────────────────────────
+    local config
+    config=$(generate_hysteria2_config "$port" "$password" "$up_mbps" "$down_mbps")
 
     if safe_config_update ".inbounds += [$config]"; then
-        echo -e "${GREEN}Hysteria2 配置添加成功${NC}"
-        echo "端口: $port"
-        echo "密码: $password"
+        echo ""
+        echo -e "${GREEN}✓ Hysteria2 配置添加成功${NC}"
+        echo "  端口  : $port"
+        echo "  密码  : $password"
+        if [[ "$up_mbps" -gt 0 ]]; then
+            echo "  上行限速: ${up_mbps} Mbps"
+            echo "  下行限速: ${down_mbps} Mbps"
+        else
+            echo "  带宽限速: 不限制（BBR 自动控制）"
+        fi
 
         restart_service_with_feedback
 
-        # 生成 Hysteria2 分享链接
+        # 设置端口跳跃 iptables 规则
+        if [[ "$enable_hopping" == true ]]; then
+            echo ""
+            setup_hy2_port_hopping "$port" "$port" "$hop_end"
+        fi
+
+        # ── 生成分享链接 ───────────────────────────────────────────
         local tag="hy2-${port}"
         local share_links=""
         local sni="www.bing.com"
         local common_params="insecure=1&sni=${sni}"
 
+        # 端口部分：单端口或范围
+        local port_str="$port"
+        [[ "$enable_hopping" == true ]] && port_str="${port}-${hop_end}"
+
+        echo ""
         if [[ -n "$SERVER_IPV4" ]]; then
-            local link4="hysteria2://${password}@${SERVER_IPV4}:${port}?${common_params}#${tag}-IPv4"
+            local link4="hysteria2://${password}@${SERVER_IPV4}:${port_str}?${common_params}#${tag}-IPv4"
             echo -e "${GREEN}分享链接 IPv4:${NC}"
             echo "$link4"
             share_links+="$link4"$'\n'
         fi
 
         if [[ -n "$SERVER_IPV6" ]]; then
-            local link6="hysteria2://${password}@[${SERVER_IPV6}]:${port}?${common_params}#${tag}-IPv6"
+            local link6="hysteria2://${password}@[${SERVER_IPV6}]:${port_str}?${common_params}#${tag}-IPv6"
             echo -e "${GREEN}分享链接 IPv6:${NC}"
             echo "$link6"
             share_links+="$link6"$'\n'
         fi
 
-        save_config_to_file "Hysteria2" "$port" "$share_links"
+        [[ -z "$share_links" ]] && echo -e "${YELLOW}未获取到服务器 IP，无法生成分享链接${NC}"
 
+        save_config_to_file "Hysteria2" "$port" "$share_links"
     else
         echo -e "${RED}添加 Hysteria2 配置失败${NC}"
+        return 1
+    fi
+}
+
+
+# 添加TUIC配置
+add_tuic() {
+    echo -e "${BLUE}添加 TUIC 配置${NC}"
+    generate_anytls_tls_cert  # 复用已有的自签名证书
+
+    local port
+    port=$(random_port)
+    local uuid
+    uuid=$(generate_uuid)
+    local password
+    password=$(random_password)
+    local config
+
+    config=$(generate_tuic_config "$port" "$uuid" "$password")
+
+    if safe_config_update ".inbounds += [$config]"; then
+        echo -e "${GREEN}TUIC 配置添加成功${NC}"
+        echo "端口    : $port"
+        echo "UUID    : $uuid"
+        echo "密码    : $password"
+        echo "拥塞控制: bbr"
+
+        restart_service_with_feedback
+
+        # 生成 TUIC 分享链接（仅 IPv4）
+        # TUIC 基于 QUIC/UDP，经实测 IPv6 在 Mihomo 等主流客户端中无法正常使用
+        # 故只生成 IPv4 链接，避免生成无效的 IPv6 节点
+        local tag="tuic-${port}"
+        local sni="www.bing.com"
+        local common_params="sni=${sni}&congestion_control=bbr&udp_relay_mode=quic&alpn=h3&allow_insecure=1"
+        local share_links=""
+
+        if [[ -n "$SERVER_IPV4" ]]; then
+            local link4="tuic://${uuid}:${password}@${SERVER_IPV4}:${port}?${common_params}#${tag}"
+            echo -e "${GREEN}分享链接:${NC}"
+            echo "$link4"
+            share_links+="$link4"$'\n'
+        else
+            echo -e "${YELLOW}未获取到服务器 IPv4 地址，无法生成分享链接${NC}"
+        fi
+
+        if [[ -n "$SERVER_IPV6" ]]; then
+            echo -e "${YELLOW}⚠ 检测到服务器有 IPv6，但 TUIC 协议 IPv6 连接存在兼容性问题，已跳过 IPv6 链接生成${NC}"
+        fi
+
+        save_config_to_file "TUIC" "$port" "$share_links"
+    else
+        echo -e "${RED}添加 TUIC 配置失败${NC}"
         return 1
     fi
 }
@@ -888,26 +1129,61 @@ add_hysteria2() {
 # 查看当前配置
 view_config() {
     echo -e "${BLUE}当前配置信息${NC}"
-    
+
     if [[ ! -f "$CONFIG_FILE" ]]; then
         echo -e "${RED}配置文件不存在${NC}"
         return 1
     fi
-    
+
     local inbounds
     inbounds=$(jq -r '.inbounds[] | "\(.type) - 端口: \(.listen_port) - 标签: \(.tag)"' "$CONFIG_FILE" 2>/dev/null)
-    
+
     if [[ -z "$inbounds" ]]; then
         echo -e "${YELLOW}暂无入站配置${NC}"
     else
         echo -e "${GREEN}入站配置:${NC}"
-        echo "$inbounds"
+        # 逐行输出，附加 Hysteria2 额外信息
+        while IFS= read -r line; do
+            local port_num
+            # 格式为 "type - 端口: PORT - 标签: TAG"，用 awk 解析，兼容所有发行版
+            port_num=$(echo "$line" | awk -F' - ' '{print $2}' | awk '{print $2}')
+            local proto
+            proto=$(echo "$line" | awk -F' - ' '{print $1}')
+            echo "  $line"
+            # Hysteria2：显示带宽限制和端口跳跃状态
+            if [[ "$proto" == "hysteria2" && -n "$port_num" ]]; then
+                local up_val down_val
+                up_val=$(jq -r ".inbounds[] | select(.listen_port==$port_num) | .up_mbps // 0" "$CONFIG_FILE" 2>/dev/null)
+                down_val=$(jq -r ".inbounds[] | select(.listen_port==$port_num) | .down_mbps // 0" "$CONFIG_FILE" 2>/dev/null)
+                if [[ "$up_val" != "0" && "$up_val" != "null" ]]; then
+                    echo "    ↳ 带宽限速: 上行 ${up_val} Mbps / 下行 ${down_val} Mbps"
+                else
+                    echo "    ↳ 带宽限速: 不限制（BBR 自动）"
+                fi
+                # 检查端口跳跃记录
+                local hop_conf="/etc/sing-box/port_hopping.conf"
+                if [[ -f "$hop_conf" ]]; then
+                    local hop_entry
+                    hop_entry=$(grep ":${port_num}$" "$hop_conf" 2>/dev/null || echo "")
+                    if [[ -n "$hop_entry" ]]; then
+                        local hs he
+                        hs=$(echo "$hop_entry" | cut -d: -f1)
+                        he=$(echo "$hop_entry" | cut -d: -f2)
+                        echo "    ↳ 端口跳跃: ${hs}-${he}（共 $((he - hs + 1)) 个端口）"
+                    else
+                        echo "    ↳ 端口跳跃: 未启用"
+                    fi
+                else
+                    echo "    ↳ 端口跳跃: 未启用"
+                fi
+            fi
+        done <<< "$inbounds"
     fi
-    
+
     echo ""
     echo -e "${GREEN}服务器信息:${NC}"
-    echo "IPv4地址: ${SERVER_IPV4:-"未获取"}"
-    echo "IPv6地址: ${SERVER_IPV6:-"未获取"}"
+    echo "  IPv4地址: ${SERVER_IPV4:-"未获取"}"
+    echo "  IPv6地址: ${SERVER_IPV6:-"未获取"}"
 }
 
 # 删除协议
@@ -915,32 +1191,76 @@ delete_protocol() {
   while true; do
     echo -e "${BLUE}删除协议${NC}"
 
-    [[ ! -f "$CONFIG_FILE" ]] && { echo -e "${RED}配置文件不存在${NC}"; break; }
+    [[ ! -f "$CONFIG_FILE" ]] && { echo -e "${RED}配置文件不存在${NC}"; wait_for_return; break; }
 
     local inbounds
     inbounds=$(jq -r '.inbounds[] | select(.listen_port!=null) |
-                      "\(.listen_port) - \(.type) - \(.tag)"' "$CONFIG_FILE")
+                      "\(.listen_port) - \(.type) - \(.tag)"' "$CONFIG_FILE" 2>/dev/null || true)
 
-    [[ -z "$inbounds" ]] && { echo -e "${YELLOW}暂无可删除的配置${NC}"; break; }
+    if [[ -z "$inbounds" ]]; then
+      echo -e "${YELLOW}暂无可删除的配置${NC}"
+      wait_for_return
+      break
+    fi
 
     echo -e "${GREEN}当前配置:${NC}"
     echo "$inbounds" | awk '{printf("%d  %s\n",NR,$0)}'
+    echo ""
+    echo "a) 删除所有协议"
     echo "0) 返回上级目录"
-    read -p "请输入要删除的配置编号: " choice
+    read -p "请输入编号: " choice
+
     [[ "$choice" == "0" ]] && break
 
+    # 删除全部
+    if [[ "$choice" == "a" || "$choice" == "A" ]]; then
+      if confirm_action "确定要删除全部协议？此操作不可恢复"; then
+        backup_config
+
+        # 先清理所有 Hysteria2 的端口跳跃规则
+        local hy2_ports
+        hy2_ports=$(jq -r '.inbounds[] | select(.type=="hysteria2") | .listen_port' \
+                    "$CONFIG_FILE" 2>/dev/null || true)
+        for p in $hy2_ports; do
+          remove_hy2_port_hopping "$p"
+        done
+
+        if safe_config_update '.inbounds = []'; then
+          echo -e "${GREEN}✓ 所有协议已清空${NC}"
+          restart_service_with_feedback
+          find /root/ \( -name "SOCKS5_*.txt" -o -name "Shadowsocks_*.txt" \
+            -o -name "VMess_*.txt"         -o -name "AnyTLS_*.txt" \
+            -o -name "Vless-Reality_*.txt" -o -name "Hysteria2_*.txt" \
+            -o -name "TUIC_*.txt" \) -delete 2>/dev/null || true
+          echo -e "${GREEN}✓ 配置文件已清理${NC}"
+        else
+          echo -e "${RED}删除失败${NC}"
+        fi
+        wait_for_return
+      else
+        echo -e "${YELLOW}取消操作${NC}"
+      fi
+      continue
+    fi
+
+    # 删除单个
     if [[ "$choice" =~ ^[0-9]+$ ]]; then
       local port cfg_info
       port=$(echo "$inbounds" | sed -n "${choice}p" | cut -d' ' -f1)
       cfg_info=$(echo "$inbounds" | sed -n "${choice}p")
 
       if [[ -n "$port" ]]; then
+        local inbound_type
+        inbound_type=$(echo "$cfg_info" | awk -F' - ' '{print $2}')
         if confirm_action "确定要删除 [$cfg_info] 吗？"; then
           backup_config
           if safe_config_update "del(.inbounds[] | select(.listen_port==$port))"; then
             echo -e "${GREEN}配置删除成功${NC}"
             restart_service_with_feedback
             find /root/ -name "*_${port}.txt" -delete 2>/dev/null || true
+            if [[ "$inbound_type" == "hysteria2" ]]; then
+              remove_hy2_port_hopping "$port"
+            fi
           else
             echo -e "${RED}配置删除失败${NC}"
           fi
@@ -951,11 +1271,12 @@ delete_protocol() {
         echo -e "${RED}无效选择${NC}"
       fi
     else
-      echo -e "${RED}请输入有效数字${NC}"
+      echo -e "${RED}请输入有效数字或 a${NC}"
     fi
     echo
   done
 }
+
 
 # 安装sing-box（仅使用curl脚本）
 install_singbox() {
@@ -1105,15 +1426,34 @@ uninstall_singbox() {
             ;;
     esac
     
+    # 卸载前清除所有端口跳跃 iptables 规则
+    local hop_conf="/etc/sing-box/port_hopping.conf"
+    if [[ -f "$hop_conf" ]]; then
+        echo "清除端口跳跃 iptables 规则..."
+        while IFS=: read -r hop_start hop_end main_port; do
+            local redirect_start=$((hop_start + 1))
+            [[ "$redirect_start" -le "$hop_end" ]] || continue
+            iptables  -t nat -D PREROUTING -p udp \
+                --dport "${redirect_start}:${hop_end}" \
+                -j REDIRECT --to-port "$main_port" 2>/dev/null || true
+            ip6tables -t nat -D PREROUTING -p udp \
+                --dport "${redirect_start}:${hop_end}" \
+                -j REDIRECT --to-port "$main_port" 2>/dev/null || true
+        done < "$hop_conf"
+        echo -e "${GREEN}端口跳跃规则已全部清除${NC}"
+    fi
+
     # 卸载后彻底清理残留
     echo "清理残留文件..."
     rm -rf /etc/sing-box/ 2>/dev/null || true
     rm -f /tmp/singbox_backup_$$.json 2>/dev/null || true
-    
-    # 删除保存的配置文件
-    find /root/ -name "Shadowsocks_*.txt" -delete 2>/dev/null || true
-    find /root/ -name "VMess_*.txt" -delete 2>/dev/null || true
-    
+
+    # 删除所有协议保存的配置文件
+    find /root/ -name "SOCKS5_*.txt" -o -name "Shadowsocks_*.txt" \
+        -o -name "VMess_*.txt"       -o -name "AnyTLS_*.txt" \
+        -o -name "Vless-Reality_*.txt" -o -name "Hysteria2_*.txt" \
+        -o -name "TUIC_*.txt" 2>/dev/null | xargs -r rm -f
+
     systemctl daemon-reload
     
     echo -e "${GREEN}sing-box卸载完成${NC}"
@@ -1361,7 +1701,7 @@ main() {
             # 其他固定选项处理
             if [[ "$choice" == "$menu_num" ]]; then
                 echo -e "${BLUE}查看服务日志 (按 Ctrl+C 退出)${NC}"
-                journalctl -u sing-box -f --no-pager
+                journalctl -u sing-box -f --no-pager || true  # Ctrl+C 返回非零，加 || true 防止 set -e 退出脚本
             elif [[ "$choice" == $((menu_num+1)) ]]; then
                 # 添加协议（添加子菜单循环）
                 while true; do
@@ -1372,18 +1712,20 @@ main() {
                     echo "4) AnyTLS"
                     echo "5) Vless"
                     echo "6) Hysteria2"
+                    echo "7) TUIC"
                     echo "0. 返回上级目录"
                     read -p "输入序号: " proto_choice
                     if [[ "$proto_choice" == "0" ]]; then
                         break
                     fi
                     case "$proto_choice" in
-                        1) add_socks5 ;;
-                        2) add_shadowsocks ;;
-                        3) add_vmess ;;
-                        4) add_anytls ;;
-                        5) add_vless_reality ;;
-                        6) add_hysteria2 ;;
+                        1) add_socks5;       wait_for_return ;;
+                        2) add_shadowsocks;  wait_for_return ;;
+                        3) add_vmess;        wait_for_return ;;
+                        4) add_anytls;       wait_for_return ;;
+                        5) add_vless_reality; wait_for_return ;;
+                        6) add_hysteria2;    wait_for_return ;;
+                        7) add_tuic;         wait_for_return ;;
                         *) echo -e "${RED}无效选项${NC}" ;;
                     esac
                 done
