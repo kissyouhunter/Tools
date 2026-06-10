@@ -216,7 +216,7 @@ generate_uuid() {
 
 generate_short_id() {
   local bytes=4
-  short_id=$(sing-box generate rand "$bytes" --hex)
+  sing-box generate rand "$bytes" --hex
 }
 
 generate_reality_keys() {
@@ -852,7 +852,8 @@ add_vless_reality() {
 
   local port=$(random_port)
   local uuid=$(generate_uuid)
-  generate_short_id
+  local short_id
+  short_id=$(generate_short_id)
 
   local cfg
   cfg=$(generate_vless_reality_config "$port" "$uuid" "$short_id")
@@ -883,94 +884,167 @@ add_vless_reality() {
   fi
 }
 
-# 持久化 iptables 规则
-persist_iptables_rules() {
-    if command -v netfilter-persistent > /dev/null 2>&1; then
-        netfilter-persistent save > /dev/null 2>&1 && \
-            echo -e "  ${GREEN}✓ iptables 规则已通过 netfilter-persistent 持久化${NC}" || true
-    elif command -v iptables-save > /dev/null 2>&1; then
-        if [[ -d /etc/iptables ]]; then
-            iptables-save  > /etc/iptables/rules.v4  2>/dev/null && \
-                echo -e "  ${GREEN}✓ IPv4 规则已持久化到 /etc/iptables/rules.v4${NC}" || true
-            ip6tables-save > /etc/iptables/rules.v6 2>/dev/null && \
-                echo -e "  ${GREEN}✓ IPv6 规则已持久化到 /etc/iptables/rules.v6${NC}" || true
-        else
-            echo -e "  ${YELLOW}⚠ 未找到 iptables 持久化目录，规则重启后可能失效${NC}"
-            echo -e "  ${YELLOW}  建议安装: apt install iptables-persistent${NC}"
+# 检测防火墙后端（nftables 优先，其次 iptables）
+detect_fw_backend() {
+    local use_nft=false
+    if command -v nft >/dev/null 2>&1; then
+        # 只有当 nftables 服务已启用/运行，或者系统不支持 systemctl（如 OpenWrt/容器/极简系统）时，才使用 nft
+        if ! command -v systemctl >/dev/null 2>&1; then
+            use_nft=true
+        elif systemctl is-enabled nftables >/dev/null 2>&1 || systemctl is-active nftables >/dev/null 2>&1; then
+            use_nft=true
         fi
+    fi
+
+    if [[ "$use_nft" == "true" ]]; then
+        echo "nft"
+    elif command -v iptables >/dev/null 2>&1; then
+        echo "iptables"
     else
-        echo -e "  ${YELLOW}⚠ 未检测到 iptables-save，请手动持久化规则${NC}"
+        echo "none"
     fi
 }
 
-# 设置 Hysteria2 端口跳跃 iptables 规则
+# 持久化防火墙规则
+persist_fw_rules() {
+    local backend
+    backend=$(detect_fw_backend)
+    case "$backend" in
+        "nft")
+            # nftables: 保存当前规则集到文件
+            if [[ -d /etc/nftables.d ]]; then
+                nft list ruleset > /etc/nftables.d/sing-box-hopping.nft 2>/dev/null && \
+                    echo -e "  ${GREEN}✓ nft 规则已持久化到 /etc/nftables.d/sing-box-hopping.nft${NC}" || true
+            elif [[ -f /etc/nftables.conf ]]; then
+                nft list ruleset > /etc/nftables.conf 2>/dev/null && \
+                    echo -e "  ${GREEN}✓ nft 规则已持久化到 /etc/nftables.conf${NC}" || true
+            else
+                echo -e "  ${YELLOW}⚠ 未找到 nftables 配置目录，规则重启后可能失效${NC}"
+            fi
+            ;;
+        "iptables")
+            if command -v netfilter-persistent >/dev/null 2>&1; then
+                netfilter-persistent save >/dev/null 2>&1 && \
+                    echo -e "  ${GREEN}✓ iptables 规则已通过 netfilter-persistent 持久化${NC}" || true
+            elif command -v iptables-save >/dev/null 2>&1 && [[ -d /etc/iptables ]]; then
+                iptables-save  > /etc/iptables/rules.v4 2>/dev/null && \
+                    echo -e "  ${GREEN}✓ IPv4 规则已持久化到 /etc/iptables/rules.v4${NC}" || true
+                ip6tables-save > /etc/iptables/rules.v6 2>/dev/null && \
+                    echo -e "  ${GREEN}✓ IPv6 规则已持久化到 /etc/iptables/rules.v6${NC}" || true
+            else
+                echo -e "  ${YELLOW}⚠ 未找到持久化工具，规则重启后失效${NC}"
+            fi
+            ;;
+    esac
+}
+
+# 兼容旧名称
+persist_iptables_rules() { persist_fw_rules; }
+
+# 设置 Hysteria2 端口跳跃规则（自动选择 nft / iptables）
 setup_hy2_port_hopping() {
     local main_port=$1
     local hop_start=$2
     local hop_end=$3
-    local redirect_start=$((hop_start + 1))  # 主端口由 sing-box 直接监听，无需重定向
+    local redirect_start=$((hop_start + 1))
 
-    echo -e "${BLUE}正在设置端口跳跃规则 (${hop_start}-${hop_end} → ${main_port})...${NC}"
+    local backend
+    backend=$(detect_fw_backend)
+    echo -e "${BLUE}正在设置端口跳跃规则 (${hop_start}-${hop_end} → ${main_port})，后端: ${backend}...${NC}"
 
     if [[ "$redirect_start" -le "$hop_end" ]]; then
-        # IPv4 规则
-        if iptables -t nat -A PREROUTING -p udp \
-            --dport "${redirect_start}:${hop_end}" \
-            -j REDIRECT --to-port "$main_port" 2>/dev/null; then
-            echo -e "  ${GREEN}✓ IPv4 iptables 规则添加成功${NC}"
-        else
-            echo -e "  ${YELLOW}⚠ IPv4 规则添加失败（可能内核不支持 NAT）${NC}"
-        fi
-
-        # IPv6 规则
-        if ip6tables -t nat -A PREROUTING -p udp \
-            --dport "${redirect_start}:${hop_end}" \
-            -j REDIRECT --to-port "$main_port" 2>/dev/null; then
-            echo -e "  ${GREEN}✓ IPv6 ip6tables 规则添加成功${NC}"
-        else
-            echo -e "  ${YELLOW}⚠ IPv6 规则添加失败（可能内核不支持 NAT）${NC}"
-        fi
+        case "$backend" in
+            "nft")
+                # 确保 nat 表和 PREROUTING chain 存在
+                nft add table ip  nat 2>/dev/null || true
+                nft add table ip6 nat 2>/dev/null || true
+                nft 'add chain ip  nat PREROUTING { type nat hook prerouting priority -100; }' 2>/dev/null || true
+                nft 'add chain ip6 nat PREROUTING { type nat hook prerouting priority -100; }' 2>/dev/null || true
+                if nft add rule ip  nat PREROUTING udp dport "${redirect_start}-${hop_end}" redirect to :"$main_port" 2>/dev/null; then
+                    echo -e "  ${GREEN}✓ IPv4 nft 规则添加成功${NC}"
+                else
+                    echo -e "  ${YELLOW}⚠ IPv4 nft 规则添加失败（内核可能不支持 NAT）${NC}"
+                fi
+                if nft add rule ip6 nat PREROUTING udp dport "${redirect_start}-${hop_end}" redirect to :"$main_port" 2>/dev/null; then
+                    echo -e "  ${GREEN}✓ IPv6 nft 规则添加成功${NC}"
+                else
+                    echo -e "  ${YELLOW}⚠ IPv6 nft 规则添加失败${NC}"
+                fi
+                ;;
+            "iptables")
+                if iptables -t nat -A PREROUTING -p udp \
+                    --dport "${redirect_start}:${hop_end}" \
+                    -j REDIRECT --to-port "$main_port" 2>/dev/null; then
+                    echo -e "  ${GREEN}✓ IPv4 iptables 规则添加成功${NC}"
+                else
+                    echo -e "  ${YELLOW}⚠ IPv4 规则添加失败（内核可能不支持 NAT）${NC}"
+                fi
+                if ip6tables -t nat -A PREROUTING -p udp \
+                    --dport "${redirect_start}:${hop_end}" \
+                    -j REDIRECT --to-port "$main_port" 2>/dev/null; then
+                    echo -e "  ${GREEN}✓ IPv6 ip6tables 规则添加成功${NC}"
+                else
+                    echo -e "  ${YELLOW}⚠ IPv6 规则添加失败${NC}"
+                fi
+                ;;
+            "none")
+                echo -e "  ${RED}✗ 未找到防火墙工具，端口跳跃规则设置失败${NC}"
+                return 1
+                ;;
+        esac
     fi
 
-    # 记录跳跃配置，便于后续删除时清理
+    # 记录配置（格式: hop_start:hop_end:main_port:backend）
     mkdir -p /etc/sing-box
-    echo "${hop_start}:${hop_end}:${main_port}" >> /etc/sing-box/port_hopping.conf
+    echo "${hop_start}:${hop_end}:${main_port}:${backend}" >> /etc/sing-box/port_hopping.conf
 
-    persist_iptables_rules
+    persist_fw_rules
     echo -e "${GREEN}✓ 端口跳跃规则设置完成${NC}"
 }
 
-# 清除 Hysteria2 端口跳跃 iptables 规则
+# 清除 Hysteria2 端口跳跃规则（兼容 nft / iptables）
 remove_hy2_port_hopping() {
     local main_port=$1
     local conf_file="/etc/sing-box/port_hopping.conf"
 
     [[ ! -f "$conf_file" ]] && return 0
 
+    # 兼容新格式（4字段含backend）和旧格式（3字段）
     local entry
-    entry=$(grep ":${main_port}$" "$conf_file" 2>/dev/null || echo "")
+    entry=$(grep ":${main_port}:" "$conf_file" 2>/dev/null || true)
+    [[ -z "$entry" ]] && entry=$(grep ":${main_port}$" "$conf_file" 2>/dev/null || true)
     [[ -z "$entry" ]] && return 0
 
-    local hop_start hop_end
+    local hop_start hop_end backend
     hop_start=$(echo "$entry" | cut -d: -f1)
     hop_end=$(echo  "$entry" | cut -d: -f2)
-    local redirect_start=$((hop_start + 1))
+    backend=$(echo  "$entry" | cut -d: -f4)   # 旧格式此字段为空
+    [[ -z "$backend" ]] && backend=$(detect_fw_backend)
 
-    echo -e "${BLUE}正在清除端口跳跃规则 (${hop_start}-${hop_end} → ${main_port})...${NC}"
+    local redirect_start=$((hop_start + 1))
+    echo -e "${BLUE}正在清除端口跳跃规则 (${hop_start}-${hop_end} → ${main_port})，后端: ${backend}...${NC}"
 
     if [[ "$redirect_start" -le "$hop_end" ]]; then
-        iptables  -t nat -D PREROUTING -p udp \
-            --dport "${redirect_start}:${hop_end}" \
-            -j REDIRECT --to-port "$main_port" 2>/dev/null || true
-        ip6tables -t nat -D PREROUTING -p udp \
-            --dport "${redirect_start}:${hop_end}" \
-            -j REDIRECT --to-port "$main_port" 2>/dev/null || true
+        case "$backend" in
+            "nft")
+                nft delete rule ip  nat PREROUTING udp dport "${redirect_start}-${hop_end}" redirect to :"$main_port" 2>/dev/null || true
+                nft delete rule ip6 nat PREROUTING udp dport "${redirect_start}-${hop_end}" redirect to :"$main_port" 2>/dev/null || true
+                ;;
+            *)  # iptables 及旧格式回退
+                iptables  -t nat -D PREROUTING -p udp \
+                    --dport "${redirect_start}:${hop_end}" \
+                    -j REDIRECT --to-port "$main_port" 2>/dev/null || true
+                ip6tables -t nat -D PREROUTING -p udp \
+                    --dport "${redirect_start}:${hop_end}" \
+                    -j REDIRECT --to-port "$main_port" 2>/dev/null || true
+                ;;
+        esac
     fi
 
-    # 从记录文件中删除此条目
-    sed -i "/:${main_port}$/d" "$conf_file"
+    # 从记录文件中删除此条目（新旧格式均可）
+    sed -i "/^${hop_start}:${hop_end}:${main_port}/d" "$conf_file"
 
-    persist_iptables_rules
+    persist_fw_rules
     echo -e "${GREEN}✓ 端口跳跃规则已清除 (${hop_start}-${hop_end})${NC}"
 }
 
@@ -979,9 +1053,8 @@ add_hysteria2() {
     echo -e "${BLUE}添加 Hysteria2 配置${NC}"
     generate_anytls_tls_cert  # 复用已有的证书生成函数
 
-    local port
+    local port password up_input down_input hop_reply
     port=$(random_port)
-    local password
     password=$(random_password)
 
     # ── 带宽限制 ──────────────────────────────────────────────────
@@ -1003,16 +1076,24 @@ add_hysteria2() {
     # ── 端口跳跃 ──────────────────────────────────────────────────
     echo ""
     echo -e "${BLUE}── 端口跳跃 Port Hopping ──${NC}"
-    local enable_hopping=false
+    local enable_hopping=false   # 必须在 if/else 外声明，避免 set -u 报错
     local hop_end=0
-    read -p "是否启用端口跳跃？(y/N): " -n 1 -r hop_reply
-    echo
-    if [[ "$hop_reply" =~ ^[Yy]$ ]]; then
-        enable_hopping=true
-        hop_end=$((port + 999))   # 默认 1000 端口范围
-        # 防止端口超过 65535 上限
-        [[ "$hop_end" -gt 65535 ]] && hop_end=65535
-        echo -e "${GREEN}端口跳跃范围: ${port}-${hop_end}（共 $((hop_end - port + 1)) 个端口）${NC}"
+    local fw_backend
+    fw_backend=$(detect_fw_backend)
+    if [[ "$fw_backend" == "none" ]]; then
+        echo -e "  ${YELLOW}⚠ 未检测到 nft 或 iptables，端口跳跃不可用${NC}"
+        echo -e "  ${YELLOW}  安装: apt install nftables  或  apt install iptables${NC}"
+        echo -e "  ${YELLOW}  将使用单端口模式${NC}"
+    else
+        echo -e "  ${GREEN}检测到防火墙后端: ${fw_backend}${NC}"
+        read -p "是否启用端口跳跃？(y/N): " -n 1 -r hop_reply
+        echo
+        if [[ "$hop_reply" =~ ^[Yy]$ ]]; then
+            enable_hopping=true
+            hop_end=$((port + 999))
+            [[ "$hop_end" -gt 65535 ]] && hop_end=65535
+            echo -e "${GREEN}端口跳跃范围: ${port}-${hop_end}（共 $((hop_end - port + 1)) 个端口）${NC}"
+        fi
     fi
 
     # ── 生成配置并写入 ────────────────────────────────────────────
@@ -1136,7 +1217,7 @@ view_config() {
     fi
 
     local inbounds
-    inbounds=$(jq -r '.inbounds[] | "\(.type) - 端口: \(.listen_port) - 标签: \(.tag)"' "$CONFIG_FILE" 2>/dev/null)
+    inbounds=$(jq -r '.inbounds[] | "\(.type) - 端口: \(.listen_port) - 标签: \(.tag)"' "$CONFIG_FILE" 2>/dev/null || true)
 
     if [[ -z "$inbounds" ]]; then
         echo -e "${YELLOW}暂无入站配置${NC}"
@@ -1164,7 +1245,8 @@ view_config() {
                 local hop_conf="/etc/sing-box/port_hopping.conf"
                 if [[ -f "$hop_conf" ]]; then
                     local hop_entry
-                    hop_entry=$(grep ":${port_num}$" "$hop_conf" 2>/dev/null || echo "")
+                    hop_entry=$(grep ":${port_num}:" "$hop_conf" 2>/dev/null || true)
+                    [[ -z "$hop_entry" ]] && hop_entry=$(grep ":${port_num}$" "$hop_conf" 2>/dev/null || echo "")
                     if [[ -n "$hop_entry" ]]; then
                         local hs he
                         hs=$(echo "$hop_entry" | cut -d: -f1)
@@ -1188,12 +1270,11 @@ view_config() {
 
 # 删除协议
 delete_protocol() {
+  local inbounds choice
   while true; do
     echo -e "${BLUE}删除协议${NC}"
 
     [[ ! -f "$CONFIG_FILE" ]] && { echo -e "${RED}配置文件不存在${NC}"; wait_for_return; break; }
-
-    local inbounds
     inbounds=$(jq -r '.inbounds[] | select(.listen_port!=null) |
                       "\(.listen_port) - \(.type) - \(.tag)"' "$CONFIG_FILE" 2>/dev/null || true)
 
@@ -1363,6 +1444,33 @@ uninstall_singbox() {
     systemctl stop sing-box 2>/dev/null || true
     systemctl disable sing-box 2>/dev/null || true
     
+    # 在删除文件前，先读取并清除所有端口跳跃规则（兼容 nft/iptables 及新旧格式）
+    local hop_conf="/etc/sing-box/port_hopping.conf"
+    if [[ -f "$hop_conf" ]]; then
+        echo "清除端口跳跃规则..."
+        while IFS= read -r line; do
+            local hs he mp be
+            hs=$(echo "$line" | cut -d: -f1)
+            he=$(echo "$line" | cut -d: -f2)
+            mp=$(echo "$line" | cut -d: -f3)
+            be=$(echo "$line" | cut -d: -f4)   # 旧格式此字段为空
+            [[ -z "$be" ]] && be=$(detect_fw_backend)
+            local rs=$((hs + 1))
+            [[ "$rs" -le "$he" ]] || continue
+            case "$be" in
+                "nft")
+                    nft delete rule ip  nat PREROUTING udp dport "${rs}-${he}" redirect to :"$mp" 2>/dev/null || true
+                    nft delete rule ip6 nat PREROUTING udp dport "${rs}-${he}" redirect to :"$mp" 2>/dev/null || true
+                    ;;
+                *)
+                    iptables  -t nat -D PREROUTING -p udp --dport "${rs}:${he}" -j REDIRECT --to-port "$mp" 2>/dev/null || true
+                    ip6tables -t nat -D PREROUTING -p udp --dport "${rs}:${he}" -j REDIRECT --to-port "$mp" 2>/dev/null || true
+                    ;;
+            esac
+        done < "$hop_conf"
+        echo -e "${GREEN}✓ 端口跳跃规则已全部清除${NC}"
+    fi
+
     # 在卸载前先清空配置目录（避免dpkg警告）
     if [[ -d "/etc/sing-box" ]]; then
         echo "预清理配置目录..."
@@ -1426,23 +1534,6 @@ uninstall_singbox() {
             ;;
     esac
     
-    # 卸载前清除所有端口跳跃 iptables 规则
-    local hop_conf="/etc/sing-box/port_hopping.conf"
-    if [[ -f "$hop_conf" ]]; then
-        echo "清除端口跳跃 iptables 规则..."
-        while IFS=: read -r hop_start hop_end main_port; do
-            local redirect_start=$((hop_start + 1))
-            [[ "$redirect_start" -le "$hop_end" ]] || continue
-            iptables  -t nat -D PREROUTING -p udp \
-                --dport "${redirect_start}:${hop_end}" \
-                -j REDIRECT --to-port "$main_port" 2>/dev/null || true
-            ip6tables -t nat -D PREROUTING -p udp \
-                --dport "${redirect_start}:${hop_end}" \
-                -j REDIRECT --to-port "$main_port" 2>/dev/null || true
-        done < "$hop_conf"
-        echo -e "${GREEN}端口跳跃规则已全部清除${NC}"
-    fi
-
     # 卸载后彻底清理残留
     echo "清理残留文件..."
     rm -rf /etc/sing-box/ 2>/dev/null || true
@@ -1600,6 +1691,7 @@ show_menu() {
 
 # 主函数
 main() {
+    local choice cmd proto_choice
     # 检查root权限
     if [[ $EUID -ne 0 ]]; then
         echo -e "${RED}请使用root权限运行此脚本${NC}"
