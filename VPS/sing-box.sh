@@ -53,6 +53,8 @@ detect_package_manager() {
         echo "yum"
     elif command -v pacman >/dev/null 2>&1; then
         echo "pacman"
+    elif command -v apk >/dev/null 2>&1; then
+        echo "apk"
     else
         echo "unknown"
     fi
@@ -119,16 +121,22 @@ safe_config_update() {
     temp_file=$(mktemp "${CONFIG_FILE}.XXXXXX")
     
     if jq "$filter" "$CONFIG_FILE" > "$temp_file"; then
-        if command -v sing-box >/dev/null 2>&1 && sing-box check -c "$temp_file" >/dev/null 2>&1; then
-            mv "$temp_file" "$CONFIG_FILE"
-            return 0
+        if command -v sing-box >/dev/null 2>&1; then
+            if sing-box check -c "$temp_file" >/dev/null 2>&1; then
+                mv "$temp_file" "$CONFIG_FILE"
+                return 0
+            else
+                echo -e "${RED}错误: 新配置未能通过 sing-box 校验！为了保护当前服务，已取消本次更新。${NC}" >&2
+                rm -f "$temp_file"
+                return 1
+            fi
         else
-            echo -e "${YELLOW}警告: 无法验证配置，但仍将应用更改${NC}" >&2
+            echo -e "${YELLOW}警告: sing-box 未安装，无法验证配置合法性，已强制应用更改。${NC}" >&2
             mv "$temp_file" "$CONFIG_FILE"
             return 0
         fi
     else
-        echo -e "${RED}配置更新失败${NC}" >&2
+        echo -e "${RED}配置更新失败 (jq解析异常)${NC}" >&2
         rm -f "$temp_file"
         return 1
     fi
@@ -139,7 +147,7 @@ ensure_daemon_reload() {
   local unit="${1:-sing-box.service}"
   # NeedDaemonReload=yes 时才执行，避免无意义 reload
   if [[ "$(systemctl show --property=NeedDaemonReload --value "$unit" 2>/dev/null || echo no)" == "yes" ]]; then
-    systemctl daemon-reload
+    systemctl daemon-reload 2>/dev/null || true
   fi
 }
 
@@ -253,13 +261,10 @@ generate_anytls_tls_cert() {
   mkdir -p "$cert_dir"
   echo "生成自签名证书..."
 
-  # ① 生成合并 PEM → ② awk 拆分 → ③ 丢弃中间文件
-  sing-box generate tls-keypair 'bing.com,www.bing.com' -m 120 |
-    tee "$cert_dir/server.pem" |
+  # 直接将管道传递给 awk，拆分证书和密钥
+  sing-box generate tls-keypair 'bing.com,www.bing.com' -m 120 | \
     awk '/-----BEGIN PRIVATE KEY-----/,/-----END PRIVATE KEY-----/ {print > "'"$cert_dir"'/server.key"}
          /-----BEGIN CERTIFICATE-----/,/-----END CERTIFICATE-----/ {print > "'"$cert_dir"'/server.crt"}'
-
-  rm -f "$cert_dir/server.pem"            # 不保留合并文件
 
   chmod 600 "$cert_dir/server.key"
   chmod 644 "$cert_dir/server.crt"
@@ -277,7 +282,7 @@ get_server_ips() {
     
     # 获取IPv4地址
     echo -n "获取IPv4地址... "
-    SERVER_IPV4=$(curl -4 -s --connect-timeout 10 --max-time 15 ip.sb 2>/dev/null || echo "")
+    SERVER_IPV4=$(curl -4 -s --connect-timeout 5 https://api.ipify.org 2>/dev/null || curl -4 -s --connect-timeout 5 https://ifconfig.me 2>/dev/null || curl -4 -s --connect-timeout 10 --max-time 15 ip.sb 2>/dev/null || echo "")
     if [[ -n "$SERVER_IPV4" && "$SERVER_IPV4" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
         echo -e "${GREEN}✓ $SERVER_IPV4${NC}"
     else
@@ -287,7 +292,7 @@ get_server_ips() {
     
     # 获取IPv6地址
     echo -n "获取IPv6地址... "
-    SERVER_IPV6=$(curl -6 -s --connect-timeout 10 --max-time 15 ip.sb 2>/dev/null || echo "")
+    SERVER_IPV6=$(curl -6 -s --connect-timeout 5 https://api64.ipify.org 2>/dev/null || curl -6 -s --connect-timeout 5 https://ifconfig.me 2>/dev/null || curl -6 -s --connect-timeout 10 --max-time 15 ip.sb 2>/dev/null || echo "")
     if [[ -n "$SERVER_IPV6" && "$SERVER_IPV6" =~ ^[0-9a-fA-F:]+$ ]]; then
         echo -e "${GREEN}✓ $SERVER_IPV6${NC}"
     else
@@ -932,7 +937,28 @@ persist_fw_rules() {
                 ip6tables-save > /etc/iptables/rules.v6 2>/dev/null && \
                     echo -e "  ${GREEN}✓ IPv6 规则已持久化到 /etc/iptables/rules.v6${NC}" || true
             else
-                echo -e "  ${YELLOW}⚠ 未找到持久化工具，规则重启后失效${NC}"
+                if command -v apt-get >/dev/null 2>&1; then
+                    echo -e "  ${BLUE}正在自动安装 iptables-persistent 以持久化规则...${NC}"
+                    DEBIAN_FRONTEND=noninteractive apt-get install -y iptables-persistent >/dev/null 2>&1 || true
+                    if command -v netfilter-persistent >/dev/null 2>&1; then
+                        netfilter-persistent save >/dev/null 2>&1
+                        echo -e "  ${GREEN}✓ iptables 规则已自动安装持久化工具并保存${NC}"
+                    else
+                        echo -e "  ${YELLOW}⚠ 自动安装失败，规则重启后失效。请手动执行 apt install iptables-persistent${NC}"
+                    fi
+                elif command -v yum >/dev/null 2>&1 || command -v dnf >/dev/null 2>&1; then
+                    echo -e "  ${BLUE}正在自动安装 iptables-services 以持久化规则...${NC}"
+                    if command -v dnf >/dev/null 2>&1; then dnf install -y iptables-services >/dev/null 2>&1 || true; else yum install -y iptables-services >/dev/null 2>&1 || true; fi
+                    systemctl enable iptables 2>/dev/null || true
+                    if command -v iptables-save >/dev/null 2>&1 && [[ -d /etc/sysconfig ]]; then
+                        iptables-save > /etc/sysconfig/iptables 2>/dev/null || true
+                        echo -e "  ${GREEN}✓ iptables 规则已自动安装持久化工具并保存${NC}"
+                    else
+                        echo -e "  ${YELLOW}⚠ 自动安装失败，规则重启后失效。请手动安装 iptables-services${NC}"
+                    fi
+                else
+                    echo -e "  ${YELLOW}⚠ 未找到持久化工具，规则重启后失效${NC}"
+                fi
             fi
             ;;
     esac
@@ -1382,7 +1408,7 @@ install_singbox() {
     
     if command -v sing-box >/dev/null 2>&1; then
         echo -e "${GREEN}sing-box安装成功${NC}"
-        systemctl enable sing-box
+        systemctl enable sing-box 2>/dev/null || true
         
         # 首次安装强制初始化
         force_initialize_config
@@ -1528,6 +1554,16 @@ uninstall_singbox() {
                 manual_cleanup
             fi
             ;;
+        "apk")
+            echo "使用APK卸载sing-box..."
+            if apk info -e sing-box >/dev/null 2>&1; then
+                apk del sing-box >/dev/null 2>&1 || true
+                echo -e "${GREEN}通过APK卸载成功${NC}"
+            else
+                echo -e "${YELLOW}APK中未找到sing-box包，尝试手动清理${NC}"
+                manual_cleanup
+            fi
+            ;;
         *)
             echo -e "${YELLOW}未检测到支持的包管理器，进行手动清理${NC}"
             manual_cleanup
@@ -1545,7 +1581,7 @@ uninstall_singbox() {
         -o -name "Vless-Reality_*.txt" -o -name "Hysteria2_*.txt" \
         -o -name "TUIC_*.txt" 2>/dev/null | xargs -r rm -f
 
-    systemctl daemon-reload
+    systemctl daemon-reload 2>/dev/null || true
     
     echo -e "${GREEN}sing-box卸载完成${NC}"
     echo -e "${BLUE}脚本即将退出...${NC}"
@@ -1658,15 +1694,13 @@ show_menu() {
         # 动态添加优先级切换选项，并记录编号
         SWITCH_PRIORITY_NUM=0  # 默认0，表示无
         if [[ -n "$SERVER_IPV4" && -n "$SERVER_IPV6" ]]; then  # 只有双栈时才允许切换
+            SWITCH_PRIORITY_NUM=$menu_num
             if [[ "$CURRENT_PRIORITY" == "ipv6" ]]; then
-                SWITCH_PRIORITY_NUM=$menu_num
                 echo "$menu_num. 切换到IPv4优先"
-                ((menu_num++))
-            elif [[ "$CURRENT_PRIORITY" == "ipv4" ]]; then
-                SWITCH_PRIORITY_NUM=$menu_num
+            else
                 echo "$menu_num. 切换到IPv6优先"
-                ((menu_num++))
             fi
+            ((menu_num++))
         fi
         
         UPGRADE_NUM=$menu_num
@@ -1698,29 +1732,29 @@ main() {
         exit 1
     fi
     
-    declare -A debian_pkg=( [jq]=jq [curl]=curl )
-    declare -A redhat_pkg=( [jq]=jq [curl]=curl )
-    declare -A arch_pkg=( [jq]=jq [curl]=curl )
-    declare -A alpine_pkg=( [jq]=jq [curl]=curl )
+    declare -A debian_pkg=( [jq]=jq [curl]=curl [ss]=iproute2 )
+    declare -A redhat_pkg=( [jq]=jq [curl]=curl [ss]=iproute )
+    declare -A arch_pkg=(   [jq]=jq [curl]=curl [ss]=iproute2 )
+    declare -A alpine_pkg=( [jq]=jq [curl]=curl [ss]=iproute2 )
 
     # 检查并安装依赖
-    for cmd in jq curl; do
+    for cmd in jq curl ss; do
         if ! command -v $cmd >/dev/null 2>&1; then
             echo "未检测到 $cmd，正在尝试自动安装..."
-            if command -v apt >/dev/null 2>&1; then
-                sudo apt update
-                sudo apt install -y "${debian_pkg[$cmd]}"
-            elif command -v yum >/dev/null 2>&1; then
-                sudo yum install -y epel-release
-                sudo yum install -y "${redhat_pkg[$cmd]}"
+            if command -v apt-get >/dev/null 2>&1; then
+                apt-get update
+                apt-get install -y "${debian_pkg[$cmd]}"
             elif command -v dnf >/dev/null 2>&1; then
-                sudo dnf install -y "${redhat_pkg[$cmd]}"
+                dnf install -y "${redhat_pkg[$cmd]}"
+            elif command -v yum >/dev/null 2>&1; then
+                yum install -y epel-release || true
+                yum install -y "${redhat_pkg[$cmd]}"
             elif command -v pacman >/dev/null 2>&1; then
-                sudo pacman -Sy --noconfirm "${arch_pkg[$cmd]}"
+                pacman -Sy --noconfirm "${arch_pkg[$cmd]}"
             elif command -v apk >/dev/null 2>&1; then
-                sudo apk add "${alpine_pkg[$cmd]}"
+                apk add "${alpine_pkg[$cmd]}"
             else
-                echo "未能识别的包管理器，请手动安装 $cmd。"
+                echo "未能识别的包管理器，请手动安装 ${debian_pkg[$cmd]:-$cmd}。"
                 exit 1
             fi
         fi
