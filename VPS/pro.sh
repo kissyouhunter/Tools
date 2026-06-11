@@ -48,8 +48,9 @@ show_progress() {
         return 0
     fi
     
-    # 后台执行实际命令，重定向所有输出
-    eval "$command" >/dev/null 2>&1 &
+    # 后台执行实际命令，重定向所有输出到临时文件
+    local log_file=$(mktemp)
+    eval "$command" >"$log_file" 2>&1 &
     local cmd_pid=$!
     
     # 前台显示进度条，直到命令完成
@@ -83,12 +84,41 @@ show_progress() {
         printf "\r${GREEN}✓ ["
         printf "%*s" 30 | tr ' ' '='
         printf "] ${WHITE}100%% ${message} 完成${NC}\n"
+        rm -f "$log_file"
         return 0
     else
         printf "\r${RED}✗ ["
         printf "%*s" 30 | tr ' ' '='
         printf "] ${WHITE}100%% ${message} 失败${NC}\n"
+        echo -e "${YELLOW}错误输出如下：${NC}"
+        cat "$log_file"
+        rm -f "$log_file"
         return 1
+    fi
+}
+
+# --- 辅助函数定义 ---
+backup_and_save_config() {
+    local new_config=$1
+    if [ -f "$CONFIG_PATH" ]; then
+        local timestamp=$(date +%Y%m%d%H%M%S)
+        local backup_file="${BACKUP_DIR}config_${timestamp}.json"
+        echo -e "${GREEN}已备份现有配置到: $backup_file${NC}"
+        cp "$CONFIG_PATH" "$backup_file"
+    fi
+    echo -e "${GREEN}写入新配置到: $CONFIG_PATH${NC}"
+    echo "$new_config" | jq . | tee "$CONFIG_PATH" > /dev/null
+    chmod 644 "$CONFIG_PATH"
+}
+
+restart_xray_if_active() {
+    if systemctl is-active --quiet xray; then
+        echo -e "${CYAN}重启 Xray 服务...${NC}"
+        show_progress 2 "重启 Xray 服务" "systemctl restart xray"
+        if [[ $? -ne 0 ]]; then
+            echo -e "${RED}警告：Xray 服务重启失败，查看日志...${NC}"
+            journalctl -u xray -n 50 --no-pager
+        fi
     fi
 }
 
@@ -330,13 +360,13 @@ generate_random_user_pass() {
 
 # 获取公网 IPv4 地址
 get_ipv4() {
-    local ipv4=$(curl -4 -s --max-time 5 http://api.ipify.org)
-    if [[ $? -ne 0 ]]; then
-        echo -e "${RED}获取 IPv4 地址失败，请检查网络连接或手动配置 IPv4 地址。${NC}"
+    local ipv4=$(curl -4 -s --max-time 5 http://api.ipify.org || curl -4 -s --max-time 5 http://ifconfig.me || curl -4 -s --max-time 5 http://icanhazip.com)
+    if [[ $? -ne 0 ]] || [[ -z "$ipv4" ]]; then
+        echo -e "${RED}获取 IPv4 地址失败，请检查网络连接或手动配置 IPv4 地址。${NC}" >&2
         return 1
     fi
     if ! [[ $ipv4 =~ ^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-        echo -e "${RED}获取到的 IPv4 地址格式不正确: $ipv4${NC}"
+        echo -e "${RED}获取到的 IPv4 地址格式不正确: $ipv4${NC}" >&2
         return 1
     fi
     echo "$ipv4"
@@ -344,13 +374,13 @@ get_ipv4() {
 
 # 获取公网 IPv6 地址
 get_ipv6() {
-    local ipv6=$(curl -6 -s --max-time 5 http://api6.ipify.org)
-    if [[ $? -ne 0 ]]; then
-        echo -e "${YELLOW}获取 IPv6 地址失败，但 IPv6 是可选的，继续...${NC}"
+    local ipv6=$(curl -6 -s --max-time 5 http://api6.ipify.org || curl -6 -s --max-time 5 http://ifconfig.co || curl -6 -s --max-time 5 http://icanhazip.com)
+    if [[ $? -ne 0 ]] || [[ -z "$ipv6" ]]; then
+        echo -e "${YELLOW}获取 IPv6 地址失败，但 IPv6 是可选的，继续...${NC}" >&2
         return 1
     fi
     if ! [[ $ipv6 =~ ^[0-9a-f:]+$ ]]; then
-        echo -e "${RED}获取到的 IPv6 地址格式不正确: $ipv6${NC}"
+        echo -e "${RED}获取到的 IPv6 地址格式不正确: $ipv6${NC}" >&2
         return 1
     fi
     echo "$ipv6"
@@ -361,15 +391,15 @@ parse_existing_config() {
     if [ -f "$CONFIG_PATH" ]; then
         if [ -s "$CONFIG_PATH" ]; then
             jq '.' "$CONFIG_PATH" 2>/dev/null || {
-                echo -e "${YELLOW}配置文件格式不正确，使用空配置${NC}"
+                echo -e "${YELLOW}配置文件格式不正确，使用空配置${NC}" >&2
                 echo '{}'
             }
         else
-            echo -e "${YELLOW}配置文件为空，使用空配置${NC}"
+            echo -e "${YELLOW}配置文件为空，使用空配置${NC}" >&2
             echo '{}'
         fi
     else
-        echo -e "${YELLOW}配置文件不存在，使用空配置${NC}"
+        echo -e "${YELLOW}配置文件不存在，使用空配置${NC}" >&2
         echo '{}'
     fi
 }
@@ -585,8 +615,9 @@ install_xray() {
 # 卸载 Xray
 remove_xray() {
     echo -e "${RED}!! 警告 !! 你确定要卸载 Xray 吗？此操作不可逆!${NC}"
+    local confirm lower_confirm
     read -p "请输入 (y/n): " confirm
-    local lower_confirm=$(echo "$confirm" | tr '[:upper:]' '[:lower:]')
+    lower_confirm=$(echo "$confirm" | tr '[:upper:]' '[:lower:]')
     if [[ "$lower_confirm" == "y" ]]; then
         echo -e "${CYAN}卸载 Xray...${NC}"
         show_progress 5 "卸载 Xray" 'bash -c "$(curl -L https://github.com/XTLS/Xray-install/raw/main/install-release.sh)" @ remove'
@@ -606,6 +637,7 @@ remove_xray() {
 
 # 设置日志级别
 set_log_level() {
+    local log_choice log_level log_desc
     echo -e "${CYAN}请选择日志级别：${NC}"
     echo -e "${WHITE}1.${NC} debug (最详细，包含调试信息)"
     echo -e "${WHITE}2.${NC} info (常规信息)"
@@ -640,38 +672,19 @@ set_log_level() {
             ;;
     esac
 
-    # 备份现有配置
-    if [ -f "$CONFIG_PATH" ]; then
-        timestamp=$(date +%Y%m%d%H%M%S)
-        backup_file="${BACKUP_DIR}config_${timestamp}.json"
-        echo -e "${GREEN}已备份现有配置到: $backup_file${NC}"
-        cp "$CONFIG_PATH" "$backup_file"
-    fi
-
     # 更新配置文件，添加或修改 log 部分
-    existing_config=$(parse_existing_config)
-    new_config=$(echo "$existing_config" | jq ".log.loglevel = \"$log_level\"")
+    local existing_config=$(parse_existing_config)
+    local new_config=$(echo "$existing_config" | jq ".log.loglevel = \"$log_level\"")
 
-    # 写入新配置
-    echo -e "${GREEN}写入新配置到: $CONFIG_PATH${NC}"
-    echo "$new_config" | jq . | tee "$CONFIG_PATH" > /dev/null
-    chmod 644 "$CONFIG_PATH"
-
-    # 重启 Xray 服务
-    if systemctl is-active xray > /dev/null; then
-        echo -e "${CYAN}重启 Xray 服务...${NC}"
-        show_progress 2 "重启 Xray 服务" "systemctl restart xray"
-        if [[ $? -ne 0 ]]; then
-            echo -e "${RED}警告：Xray 服务重启失败，查看日志...${NC}"
-            journalctl -u xray -n 50 --no-pager
-        fi
-    fi
+    backup_and_save_config "$new_config"
+    restart_xray_if_active
 
     echo -e "${GREEN}已设置日志级别为：$log_desc${NC}"
 }
 
 # 设置出口优先级
 set_priority() {
+    local priority_choice priority priority_desc
     echo -e "${CYAN}请选择出口优先级：${NC}"
     echo -e "${WHITE}1.${NC} IPv6 优先"
     echo -e "${WHITE}2.${NC} IPv4 优先"
@@ -696,42 +709,26 @@ set_priority() {
             ;;
     esac
 
-    # 备份现有配置
-    if [ -f "$CONFIG_PATH" ]; then
-        timestamp=$(date +%Y%m%d%H%M%S)
-        backup_file="${BACKUP_DIR}config_${timestamp}.json"
-        echo -e "${GREEN}已备份现有配置到: $backup_file${NC}"
-        cp "$CONFIG_PATH" "$backup_file"
-    fi
-
     # 更新 outbound 配置
-    existing_config=$(parse_existing_config)
-    existing_inbounds=$(echo "$existing_config" | jq '.inbounds // []')
-    existing_outbounds=$(echo "$existing_config" | jq '.outbounds // []')
+    local existing_config=$(parse_existing_config)
+    local existing_inbounds=$(echo "$existing_config" | jq '.inbounds // []')
+    local existing_outbounds=$(echo "$existing_config" | jq '.outbounds // []')
+    local new_outbounds new_config
+
     if [ "$(echo "$existing_outbounds" | jq 'length')" -eq 0 ]; then
         new_outbounds="[{\"protocol\": \"freedom\", \"settings\": {\"domainStrategy\": \"$priority\"}}]"
     else
         new_outbounds=$(echo "$existing_outbounds" | jq ".[0].settings.domainStrategy = \"$priority\"")
     fi
 
-    # 写入新配置
     new_config=$(echo "$existing_config" | jq --argjson inbounds "$existing_inbounds" --argjson outbounds "$new_outbounds" '.inbounds = $inbounds | .outbounds = $outbounds')
-    echo -e "${GREEN}写入新配置到: $CONFIG_PATH${NC}"
-    echo "$new_config" | jq . | tee "$CONFIG_PATH" > /dev/null
-    chmod 644 "$CONFIG_PATH"
+
+    backup_and_save_config "$new_config"
 
     # 保存优先级描述
     echo "$priority_desc" > "$PRIORITY_FILE"
 
-    # 重启 Xray 服务
-    if systemctl is-active xray > /dev/null; then
-        echo -e "${CYAN}重启 Xray 服务...${NC}"
-        show_progress 2 "重启 Xray 服务" "systemctl restart xray"
-        if [[ $? -ne 0 ]]; then
-            echo -e "${RED}警告：Xray 服务重启失败，查看日志...${NC}"
-            journalctl -u xray -n 50 --no-pager
-        fi
-    fi
+    restart_xray_if_active
 
     echo -e "${GREEN}已设置出口优先级为：$priority_desc${NC}"
 }
@@ -751,6 +748,12 @@ view_logs() {
 
 # 管理 Dokodemo-door 配置
 manage_dokodemo() {
+    local dokodemo_choice existing_config existing_ports local_port remote_host remote_port remark
+    local existing_dokodemo dokodemo_count index dokodemo_inbound new_inbounds existing_outbounds
+    local priority default_outbounds new_config dokodemo_configs manage_index manage_tag
+    local current_port current_remote_host current_remote_port current_remark current_index
+    local manage_action new_port new_remote_host new_remote_port new_remark
+
     # 在操作 Dokodemo-door 前确保 Xray 已安装
     install_xray
 
@@ -811,23 +814,8 @@ manage_dokodemo() {
                 fi
 
                 # 备份并写入配置
-                if [ -f "$CONFIG_PATH" ]; then
-                    timestamp=$(date +%Y%m%d%H%M%S)
-                    backup_file="${BACKUP_DIR}config_${timestamp}.json"
-                    echo -e "${GREEN}已备份现有配置到: $backup_file${NC}"
-                    cp "$CONFIG_PATH" "$backup_file"
-                fi
-                echo -e "${GREEN}写入新配置到: $CONFIG_PATH${NC}"
-                echo "$new_config" | jq . | tee "$CONFIG_PATH" > /dev/null
-                chmod 644 "$CONFIG_PATH"
-
-                # 重启 Xray 服务
-                echo -e "${CYAN}重启 Xray 服务...${NC}"
-                show_progress 2 "重启 Xray 服务" "systemctl restart xray"
-                if [[ $? -ne 0 ]]; then
-                    echo -e "${RED}警告：Xray 服务重启失败，查看日志...${NC}"
-                    journalctl -u xray -n 50 --no-pager
-                fi
+                backup_and_save_config "$new_config"
+                restart_xray_if_active
 
                 echo -e "${GREEN}已添加 Dokodemo-door 配置：端口 $local_port -> $remote_host:$remote_port，备注：$remark${NC}"
                 ;;
@@ -879,23 +867,8 @@ manage_dokodemo() {
                         new_config=$(echo "$existing_config" | jq --argjson inbounds "$new_inbounds" --argjson outbounds "$existing_outbounds" '.inbounds = $inbounds | .outbounds = $outbounds')
 
                         # 备份并写入配置
-                        if [ -f "$CONFIG_PATH" ]; then
-                            timestamp=$(date +%Y%m%d%H%M%S)
-                            backup_file="${BACKUP_DIR}config_${timestamp}.json"
-                            echo -e "${GREEN}已备份现有配置到: $backup_file${NC}"
-                            cp "$CONFIG_PATH" "$backup_file"
-                        fi
-                        echo -e "${GREEN}写入新配置到: $CONFIG_PATH${NC}"
-                        echo "$new_config" | jq . | tee "$CONFIG_PATH" > /dev/null
-                        chmod 644 "$CONFIG_PATH"
-
-                        # 重启 Xray 服务
-                        echo -e "${CYAN}重启 Xray 服务...${NC}"
-                        show_progress 2 "重启 Xray 服务" "systemctl restart xray"
-                        if [[ $? -ne 0 ]]; then
-                            echo -e "${RED}警告：Xray 服务重启失败，查看日志...${NC}"
-                            journalctl -u xray -n 50 --no-pager
-                        fi
+                        backup_and_save_config "$new_config"
+                        restart_xray_if_active
 
                         echo -e "${GREEN}已删除 Dokodemo-door 配置：$manage_tag${NC}"
                         ;;
@@ -930,23 +903,8 @@ manage_dokodemo() {
                         new_config=$(echo "$existing_config" | jq --argjson inbounds "$new_inbounds" --argjson outbounds "$existing_outbounds" '.inbounds = $inbounds | .outbounds = $outbounds')
 
                         # 备份并写入配置
-                        if [ -f "$CONFIG_PATH" ]; then
-                            timestamp=$(date +%Y%m%d%H%M%S)
-                            backup_file="${BACKUP_DIR}config_${timestamp}.json"
-                            echo -e "${GREEN}已备份现有配置到: $backup_file${NC}"
-                            cp "$CONFIG_PATH" "$backup_file"
-                        fi
-                        echo -e "${GREEN}写入新配置到: $CONFIG_PATH${NC}"
-                        echo "$new_config" | jq . | tee "$CONFIG_PATH" > /dev/null
-                        chmod 644 "$CONFIG_PATH"
-
-                        # 重启 Xray 服务
-                        echo -e "${CYAN}重启 Xray 服务...${NC}"
-                        show_progress 2 "重启 Xray 服务" "systemctl restart xray"
-                        if [[ $? -ne 0 ]]; then
-                            echo -e "${RED}警告：Xray 服务重启失败，查看日志...${NC}"
-                            journalctl -u xray -n 50 --no-pager
-                        fi
+                        backup_and_save_config "$new_config"
+                        restart_xray_if_active
 
                         echo -e "${GREEN}已修改 Dokodemo-door 配置：端口 $new_port -> $new_remote_host:$new_remote_port，备注：$new_remark${NC}"
                         ;;
@@ -1105,12 +1063,13 @@ show_menu() {
 }
 
 # --- 主逻辑 ---
-check_root
-ensure_jq_installed
-ensure_uuidgen_installed
-cleanup_old_backups
+main() {
+    check_root
+    ensure_jq_installed
+    ensure_uuidgen_installed
+    cleanup_old_backups
 
-while true; do
+    while true; do
     show_menu
     read -p "请输入选项 (0-${MENU_MAX}): " choice
     
@@ -1390,23 +1349,8 @@ while true; do
     # 根据 skip_update 和 config_changed 决定是否执行备份、写入和重启
     if [ "$skip_update" = false ] && [ "$config_changed" = true ]; then
         # 备份并写入新配置
-        if [ -f "$CONFIG_PATH" ]; then
-            timestamp=$(date +%Y%m%d%H%M%S)
-            backup_file="${BACKUP_DIR}config_${timestamp}.json"
-            echo -e "${GREEN}已备份现有配置到: $backup_file${NC}"
-            cp "$CONFIG_PATH" "$backup_file"
-        fi
-        echo -e "${GREEN}写入新配置到: $CONFIG_PATH${NC}"
-        echo "$new_config" | jq . | tee "$CONFIG_PATH" > /dev/null
-        chmod 644 "$CONFIG_PATH"
-
-        # 重启 Xray 服务
-        echo -e "${CYAN}重启 Xray 服务...${NC}"
-        show_progress 2 "重启 Xray 服务" "systemctl restart xray"
-        if [[ $? -ne 0 ]]; then
-            echo -e "${RED}警告：Xray 服务重启失败，查看日志...${NC}"
-            journalctl -u xray -n 50 --no-pager
-        fi
+        backup_and_save_config "$new_config"
+        restart_xray_if_active
 
         # 删除对应的输出文件
         if $remove_vmess; then
@@ -1498,7 +1442,8 @@ EOF
             shadowsocks_output+="ss://${ss_base64}#${ps_ipv4}\n"
         fi
         if [[ $ipv6_address =~ ^[0-9a-f:]+$ ]]; then
-            ss_base_str="chacha20-ietf-poly1305:${random_password}@[${ipv6_address}]:${shadowsocks_port}"            ss_base64=$(echo -n "$ss_base_str" | base64 | tr -d '\n')
+            ss_base_str="chacha20-ietf-poly1305:${random_password}@[${ipv6_address}]:${shadowsocks_port}"
+            ss_base64=$(echo -n "$ss_base_str" | base64 | tr -d '\n')
             shadowsocks_output+="ss://${ss_base64}#${ps_ipv6}\n"
         fi
         echo -e "\n${CYAN}=== Shadowsocks 连接信息 ===${NC}"
@@ -1528,3 +1473,6 @@ EOF
 
     read -p "按任意键继续..."
 done
+}
+
+main "$@"
