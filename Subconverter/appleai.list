@@ -1,0 +1,19 @@
+# === Apple Intelligence & Private Cloud Compute 中继 ===
+DOMAIN-SUFFIX,apple-relay.apple.com
+DOMAIN-SUFFIX,apple-relay.cloudflare.com
+DOMAIN-SUFFIX,apple-relay.fastly-edge.com
+DOMAIN-SUFFIX,apple-relay.mask.apple-dns.net
+DOMAIN-SUFFIX,cp4.cloudflare.com
+
+# === Siri 核心接口与定位校验（抓包中走直连的漏网之鱼）===
+DOMAIN-SUFFIX,guzzoni.apple.com
+DOMAIN-SUFFIX,smoot.apple.com
+DOMAIN-SUFFIX,api-siri-prod.apple.com
+DOMAIN-SUFFIX,siri.apple.com
+DOMAIN,gspe1-ssl.ls.apple.com
+
+# === ChatGPT 扩展后端接口（必须与上面走同一个美国节点）===
+DOMAIN-SUFFIX,openai.com
+DOMAIN-SUFFIX,chatgpt.com
+DOMAIN-SUFFIX,oaistatic.com
+DOMAIN-SUFFIX,oaiusercontent.com
