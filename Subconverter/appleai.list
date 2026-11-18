@@ -11,6 +11,7 @@ DOMAIN-SUFFIX,smoot.apple.com
 DOMAIN-SUFFIX,api-siri-prod.apple.com
 DOMAIN-SUFFIX,siri.apple.com
 DOMAIN,gspe1-ssl.ls.apple.com
+DOMAIN-SUFFIX,gateway.icloud.com
 
 # === ChatGPT 扩展后端接口（必须与上面走同一个美国节点）===
 DOMAIN-SUFFIX,openai.com
